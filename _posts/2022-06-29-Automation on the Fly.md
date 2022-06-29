@@ -440,10 +440,11 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
    or 
    even better you can run `.\packer-build.bat` to run both the packer builds at the same time.(On windows ofc, for Linux you can use `nohup <cmd> &`)
    which contains:
-	```batch
-	start cmd /K "cd Packer\server-2019 && packer build server-2019.json"
-	start cmd /K "cd Packer\win10 && packer build win10.json"
-	```
+```batch
+start cmd /K "cd Packer\server-2019 && packer build server-2019.json"
+start cmd /K "cd Packer\win10 && packer build win10.json"
+```
+
 ## # Under the hood (Build)
 #### # Building Server-2019 and Windows-10 with Packer
 1. Retrieves ISO and tries to fetch it from the given location

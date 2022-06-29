@@ -3,7 +3,7 @@ title: "Automation on the Fly"
 date: 2022-06-30 00:00:00 +0530
 categories: [HackTheBox, Linux Machines]
 tags: [linux, wordpress, ctf, john, passwd, lxd, hackthebox]
-image: assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg
+image: /assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg
 ---
 
 - [x] update link to tldr in geeky stuff
@@ -31,7 +31,7 @@ For Windows 10:
 - Firewall should be disabled
 
 I gave a lot of time to this Task, for which I'm not sure on how should I feel like.. But.. 
-The pic above shows me running packer builds🤣 on my flight to Mumbai, which gave me the Title for the blog **"Automation on the Fly"**.
+The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog **"Automation on the Fly"** :D.
 # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
 Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 

@@ -32,7 +32,7 @@ I gave a lot of time to this task, for which I'm not sure on how should I feel l
 
 But, Here's me running packer builds on my flight to Mumbai, which gave me the Title for the blog **"Automation on the Fly"**.
 ![auror-task1-1.jpeg1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg1)
-# # Mindmap
+# Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
 
 Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 
@@ -44,14 +44,14 @@ Snapshots break for AD because of "Time".
 - Domain Members (includes computers) have a maximum password age of 30 days. If reverted, password in AD and the computer may not match
 - In AD, authentication works using Kerberos and Kerberos authentication uses time stamps as part of its protocol. Out of sync timestamps can result in missing tickets and even no authentication at all.
  
-## # How to automate?
+## How to automate?
 Question arises on how we can automate the whole process of VM installation from ISO files and configure those VMs according to our need.
 
 There are a lot of alternatives and I've documented the automation using **Packer** and **Vagrant** with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.
 
 - [Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
 - [Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
-## # What you'll need?
+## What you'll need?
 - [Packer](https://www.packer.io/downloads)  or `choco install packer -y` using [Chocolatey](https://adamrushuk.github.io/cheatsheets/chocolatey/)
 - [Vagrant](https://www.vagrantup.com/downloads)
 - [ISO file for Windows Server 2019](https://software-static.download.prss.microsoft.com/pr/download/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso) 
@@ -60,7 +60,7 @@ There are a lot of alternatives and I've documented the automation using **Packe
 
 > Note: You can even download the latest Windows Server 2019 and Windows 10 image from [here](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2019) and [here](https://www.microsoft.com/en-us/evalcenter/download-windows-10-enterprise) but remember to modify `iso_url` and `iso_checksum` variable in json files for Packer accordingly.
 
-## # Packer
+## Packer
 Packer needs a JSON file or HCL file as a template to configure the build here I've the files named `server-2019.json` and `win10.json` for both the machines.
 
 This is the hierarchy for all the packer files needed for server-2019 and is similar for Windows 10 machine:
@@ -79,7 +79,7 @@ server-2019/
 
 I've used JSON template files which contains all the necessary configuration like Type of installation(ISO here), Disk size, No. of CPUs, Memory size, OS type, ISO url/path, communicator type for vagrant(WinRM here) with it's credentials, files which need to be mounted for use and finally the post processors(vagrant) for it's output.
 
-### # External scripts in packer
+### External scripts in packer
 As you can see there are 3 common external scripts I have used with packer in [my git repo](https://github.com/0xCaretaker/Auror-Project), namely `fixnetwork.ps1`, `winrmConfig.bat` and `sysprep.bat`.
 
 - `winrmConfig.bat`
@@ -100,7 +100,7 @@ As you can see there are 3 common external scripts I have used with packer in [m
 References: [SysPrep using unattend](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep--generalize--a-windows-installation?view=windows-11#generalize-using-unattend), [SysPrep Command line options](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep-command-line-options?view=windows-11)
 
 There are two more scripts: `cleanup.ps1` and `setup.ps1` used with Windows 10 machine to fiddle with thing like: Windows Updates, Temporary files, password expiration for administrator, Disabling sleep, hibernation and configuring Powershell prompt to show time. 
-## # Vagrant
+## Vagrant
 Vagrant uses `Vagrantfile` containing the configuration to make the environment for the virtual machine.
 Here's the hierarchy of the vagrant files needed for building the whole lab from the output of Packer which is `server-2019.box` and `win10.box`.
 ```bash
@@ -132,19 +132,19 @@ For PC01:
 - `add-localadmin.ps1` - Sets `Adam` as local administrator for PC01, Runs windows update and disables windows defender automatic submissions 
 
 These are all the scripts needed.
-# # What a waste of time...
+# What a waste of time...
 Since, I'd no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant.
 You don't necessarily have to read this and can go to [TL;DR Build the lab?](https://0xcaretaker.github.io/Automation on the Fly - The Auror Project)
 First, Packer will be used to build the base VM from the ISOs.
 
-## # Explaining Packer files
+## Explaining Packer files
 I discussed about the template JSON file, but what about others?
 - `server-2019-vagrantfile.template` is used in the `post_processors` section as this template file will be needed to output the build in `.box` format for Vagrant.
 - `autounattend.xml` is the core answer file for automating the whole windows installation process
 - `unattend.xml` is another answer file which is used to modify windows settings after the first user is created and assigned a default language(We'll need that with SysPrep)
 - Scripts folder contains various scripts already discussed
 
-### # What is autounattend.xml?
+### What is autounattend.xml?
 The most important file for Packer is `autounattend.xml`, it acts as an answer file to Windows Setup installation since all the UI pages needs to be automated. Unattended installation settings can be applied in one or more configuration passes. 
 
 But **What are Windows setup configuration passes?**
@@ -157,7 +157,7 @@ The following diagram shows the relationship between the configuration passes re
 Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as `auditSystem` and `auditUser`, run only if you boot the computer to audit mode. 
 Most Windows Setup `unattend` settings can be added to either the `specialize` or the `oobeSystem` configuration pass. The other configuration passes can also be useful in certain situations.
 
-#### # windowsPE Configuration pass
+#### windowsPE Configuration pass
 The windowsPE configuration pass is used to configure settings specific to Windows Preinstallation Environment (Windows PE) in addition to settings that apply to installation.
 This configuration pass runs when booting the Windows Setup media.
 
@@ -165,7 +165,7 @@ For more info: [Microsoft-WindowsPE](https://docs.microsoft.com/en-us/windows-ha
 
 As already stated, windowsPE configures settings related to the installation environment and then the setup as well. So, it usually has 2 components `Microsoft-Windows-International-Core-WinPE` and `Microsoft-Windows-Setup`.  
 
-##### # Component `Microsoft-Windows-International-Core-WinPE`
+##### Component `Microsoft-Windows-International-Core-WinPE`
 It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.
 
 So, The first screen, which is the language selection screen is now automated.  
@@ -185,7 +185,7 @@ The code snippet looks something like this:
         </component>
 ```
 
-##### # Component `Microsoft-Windows-Setup`
+##### Component `Microsoft-Windows-Setup`
 This component contains settings that enable you to select the Windows image that you install, configure the disk that you install Windows to, and configure the Windows PE operating system.
 
 1. Imageinstall
@@ -259,7 +259,7 @@ This configuration creates 2 partitions:
 ```
 ![auror-task1-6.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png1)
 
-#### # offlineServicing Configuration pass
+#### offlineServicing Configuration pass
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
 
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).
@@ -275,7 +275,7 @@ The Microsoft-Windows-LUA-Settings component includes settings related to the Wi
 EnableLUA specifies whether the windows User Account Controls (UAC) should notify the user when programs try to make changes to the computer.
 
 We set that to false, so that UAC prompts aren't popped up.
-#### # specialize Configuration pass
+#### specialize Configuration pass
 During the `specialize` configuration pass of Windows Setup, computer-specific information for the image is applied. 
 
 For example you can:
@@ -317,7 +317,7 @@ For example you can:
         </component>
     </settings>
 ```
-#### # oobSystem Configuration pass
+#### oobSystem Configuration pass
 The `oobeSystem` configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.
 
 Like this built-in administrator account can be automated by `oobsystem` as:
@@ -391,7 +391,7 @@ OOBE specifies the behavior of some of the Windows Out of Box Experience (OOBE) 
 
 
 
-## # Click, Click .. Windows ADK
+## Click, Click .. Windows ADK
 So, I spent so long in understanding what all the components and functions do, that I accidently stumbled onto Windows ADK and felt like a complete loser.
 
 Now, talking about how you don't have to write answer xml files yourselves, rather generate it using Windows Assessment and Deployment Kit(ADK).

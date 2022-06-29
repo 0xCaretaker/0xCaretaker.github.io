@@ -23,7 +23,7 @@ For Windows 10:
 I gave a lot of time to this task, for which I'm not sure on how should I feel like.. 
 
 But, Here's me running packer builds on my flight to Mumbai, which gave me the Title for the blog **"Automation on the Fly"**.
-![auror-task1-1.jpeg](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg)
+![auror-task1-1.jpeg](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-111.jpeg)
 # # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
 

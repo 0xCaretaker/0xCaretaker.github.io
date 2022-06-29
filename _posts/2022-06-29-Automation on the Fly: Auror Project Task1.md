@@ -394,9 +394,11 @@ Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-star
 2. Mount the ISO -> copy all the files to a directory, select image
 ![auror-task1-9.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png)
 ![auror-task1-10.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png)
+
 3. Select the OS image name/type
 
 ![auror-task1-11.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png)
+
 4. Create a catalog file
 
 ![auror-task1-12.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png)

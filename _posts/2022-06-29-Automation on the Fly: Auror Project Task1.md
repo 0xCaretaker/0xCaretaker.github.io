@@ -391,14 +391,15 @@ Now, talking about how you don't have to write answer xml files yourselves, rath
 Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install) and.. 
 1. Click on File -> Create answer file -> Click yes, to open Windows image
 ![auror-task1-8.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-8.png)
-2. Mount the ISO -> copy all the files to a directory, select install.wim
+2. Mount the ISO -> copy all the files to a directory, select image
 ![auror-task1-9.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png)
 ![auror-task1-10.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png)
-4. Select the OS image name/type
+3. Select the OS image name/type
 ![auror-task1-11.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png)
-5. Create a catalog file
+4. Create a catalog file
 ![auror-task1-12.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png)
 ![auror-task1-13.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-13.png)
+
 > Note: If you don't see the above message and it's spitting out errors. 
 > 1. Try installing a different version of ADK. (Windows 10, version 1809 worked for me)
 > 2. Even after that if you're getting errors like: `This application requires version 6.3.9600.16384 of the Windows ADK. Install this version to correct the problem`. Try copying that `install.wim` file to another location.

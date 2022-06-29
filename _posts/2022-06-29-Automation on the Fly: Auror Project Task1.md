@@ -408,7 +408,7 @@ Now, let's suppose, I want to add some configuration related to Internet Explore
 ![auror-task1-14.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-14.png)
 
 Each component has a lot of properties which you can configure, like IE has:
-![auror-task1-15.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.png)
+![auror-task1-15.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-15.png)
 I've made some changes so that:
 - Popups are blocked
 - DevTools is disabled

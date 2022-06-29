@@ -48,8 +48,8 @@ Question arises on how we can automate the whole process of VM installation from
 
 There are a lot of alternatives and I've documented the automation using **Packer** and **Vagrant** with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.
 
-- [Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
-- [Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
+[Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
+[Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
 
 ## What you'll need?
 - [Packer](https://www.packer.io/downloads) or `choco install packer -y` using [Chocolatey](https://adamrushuk.github.io/cheatsheets/chocolatey/)

@@ -82,15 +82,15 @@ I've used JSON template files which contains all the necessary configuration lik
 ### External scripts in packer
 As you can see there are 3 common external scripts I have used with packer in [my git repo](https://github.com/0xCaretaker/Auror-Project), namely `fixnetwork.ps1`, `winrmConfig.bat` and `sysprep.bat`.
 
-- `winrmConfig.bat`
+- winrmConfig.bat
   Communicators are used by Packer to upload files, execute scripts, etc. with the machine being created. `winrmConfig.bat` is a pre-run script that configures and enables WinRM on the guest machine. 
   All the configuration and code for the script has been given in Packer docs:[www.packer.io/docs/communicators/winrm](https://www.packer.io/docs/communicators/winrm)
 
-- `fixnetwork.ps1`
+- fixnetwork.ps1
   If you try to run the above `winrmConfig.bat` in windows10, it'll not work because on a Server OS, like Windows Server 2019, the firewall rule for Public networks allows on remote connections from other devices on the same network. On a client OS, like Windows 10, you will receive an error stating that you are a public network.
   Here's an article which goes in detail for WinRM configuration and how networks should be managed: [adamtheautomator.com/enable-psremoting](https://adamtheautomator.com/enable-psremoting/)
 
-- `sysprep.bat`
+- sysprep.bat
   Before you can deploy a Windows image to new PCs, you have to first generalize the image. Generalizing the image removes computer-specific information such as installed drivers and the computer security identifier (SID). 
   The `sysprep /generalize` command removes unique information from your Windows installation so that you can safely reuse that image on a different computer. The next time that you boot the Windows image, the specialize configuration pass runs.
   I've used `unattend.xml` answer file with sysprep to generalize my image. 

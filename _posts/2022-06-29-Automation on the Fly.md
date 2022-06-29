@@ -32,25 +32,20 @@ I gave a lot of time to this Task, for which I'm not sure on how should I feel l
 The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog **"Automation on the Fly"** :D.
 # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
-
 Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 
-
 Sudarshan spoke about Clicks vs Time and How this automation needs to minimize clicks to bare minimum.
 
 While snapshots and VM exports may seem like an easy way out for standalone machines, things get complicated in an Active Directory environment. 
-
 Snapshots break for AD because of "Time". 
 - Domain Members (includes computers) have a maximum password age of 30 days. If reverted, password in AD and the computer may not match
 - In AD, authentication works using Kerberos and Kerberos authentication uses time stamps as part of its protocol. Out of sync timestamps can result in missing tickets and even no authentication at all.
  
 ## How to automate?
 Question arises on how we can automate the whole process of VM installation from ISO files and configure those VMs according to our need.
-
 There are a lot of alternatives and I've documented the automation using **Packer** and **Vagrant** with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.
 
 [Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
 [Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
-
 ## What you'll need?
 - [Packer](https://www.packer.io/downloads) or `choco install packer -y` using [Chocolatey](https://adamrushuk.github.io/cheatsheets/chocolatey/)
 - [Vagrant](https://www.vagrantup.com/downloads)

@@ -28,23 +28,29 @@ For Windows 10:
 - Firewall should be disabled
 
 I gave a lot of time to this Task, for which I'm not sure on how should I feel like.. But.. 
+
 The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog **"Automation on the Fly"** :D.
 # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
+
 Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 
+
 Sudarshan spoke about Clicks vs Time and How this automation needs to minimize clicks to bare minimum.
 
 While snapshots and VM exports may seem like an easy way out for standalone machines, things get complicated in an Active Directory environment. 
+
 Snapshots break for AD because of "Time". 
 - Domain Members (includes computers) have a maximum password age of 30 days. If reverted, password in AD and the computer may not match
 - In AD, authentication works using Kerberos and Kerberos authentication uses time stamps as part of its protocol. Out of sync timestamps can result in missing tickets and even no authentication at all.
  
 ## How to automate?
 Question arises on how we can automate the whole process of VM installation from ISO files and configure those VMs according to our need.
+
 There are a lot of alternatives and I've documented the automation using **Packer** and **Vagrant** with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.
 
-[Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
-[Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
+- [Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
+- [Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
+
 ## What you'll need?
 - [Packer](https://www.packer.io/downloads) or `choco install packer -y` using [Chocolatey](https://adamrushuk.github.io/cheatsheets/chocolatey/)
 - [Vagrant](https://www.vagrantup.com/downloads)
@@ -72,18 +78,19 @@ server-2019/
 ```
 
 I've used JSON template files which contains all the necessary configuration like Type of installation(ISO here), Disk size, No. of CPUs, Memory size, OS type, ISO url/path, communicator type for vagrant(WinRM here) with it's credentials, files which need to be mounted for use and finally the post processors(vagrant) for it's output.
+
 ### External scripts in packer
 As you can see there are 3 common external scripts I have used with packer in [my git repo](https://github.com/0xCaretaker/Auror-Project), namely `fixnetwork.ps1`, `winrmConfig.bat` and `sysprep.bat`.
 
-- winrmConfig.bat
+- `winrmConfig.bat`
   Communicators are used by Packer to upload files, execute scripts, etc. with the machine being created. `winrmConfig.bat` is a pre-run script that configures and enables WinRM on the guest machine. 
   All the configuration and code for the script has been given in Packer docs:[www.packer.io/docs/communicators/winrm](https://www.packer.io/docs/communicators/winrm)
 
-- fixnetwork.ps1
+- `fixnetwork.ps1`
   If you try to run the above `winrmConfig.bat` in windows10, it'll not work because on a Server OS, like Windows Server 2019, the firewall rule for Public networks allows on remote connections from other devices on the same network. On a client OS, like Windows 10, you will receive an error stating that you are a public network.
   Here's an article which goes in detail for WinRM configuration and how networks should be managed: [adamtheautomator.com/enable-psremoting](https://adamtheautomator.com/enable-psremoting/)
 
-- sysprep.bat
+- `sysprep.bat`
   Before you can deploy a Windows image to new PCs, you have to first generalize the image. Generalizing the image removes computer-specific information such as installed drivers and the computer security identifier (SID). 
   The `sysprep /generalize` command removes unique information from your Windows installation so that you can safely reuse that image on a different computer. The next time that you boot the Windows image, the specialize configuration pass runs.
   I've used `unattend.xml` answer file with sysprep to generalize my image. 

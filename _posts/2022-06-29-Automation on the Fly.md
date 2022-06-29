@@ -24,7 +24,7 @@ I gave a lot of time to this task, for which I'm not sure on how should I feel l
 
 But, Here's me running packer builds on my flight to Mumbai, which gave me the Title for the blog **"Automation on the Fly"**.
 ![[WhatsApp Image 2022-06-29 at 5.29.54 PM.jpeg]]
-# `Mindmap`
+# # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
 
 Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 
@@ -36,15 +36,14 @@ Snapshots break for AD because of "Time".
 - Domain Members (includes computers) have a maximum password age of 30 days. If reverted, password in AD and the computer may not match
 - In AD, authentication works using Kerberos and Kerberos authentication uses time stamps as part of its protocol. Out of sync timestamps can result in missing tickets and even no authentication at all.
  
-## How to automate?
+## # How to automate?
 Question arises on how we can automate the whole process of VM installation from ISO files and configure those VMs according to our need.
 
 There are a lot of alternatives and I've documented the automation using **Packer** and **Vagrant** with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.
 
-[Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
-
-[Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
-## What you'll need?
+- [Packer](https://www.packer.io/intro) is the first step which will create a base VM from the ISO.
+- [Vagrant](https://www.vagrantup.com/intro) will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.
+## # What you'll need?
 - [Packer](https://www.packer.io/downloads)  or `choco install packer -y` using [Chocolatey](https://adamrushuk.github.io/cheatsheets/chocolatey/)
 - [Vagrant](https://www.vagrantup.com/downloads)
 - [ISO file for Windows Server 2019](https://software-static.download.prss.microsoft.com/pr/download/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso) 
@@ -53,7 +52,7 @@ There are a lot of alternatives and I've documented the automation using **Packe
 
 > Note: You can even download the latest Windows Server 2019 and Windows 10 image from [here](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2019) and [here](https://www.microsoft.com/en-us/evalcenter/download-windows-10-enterprise) but remember to modify `iso_url` and `iso_checksum` variable in json files for Packer accordingly.
 
-## Packer
+## # Packer
 Packer needs a JSON file or HCL file as a template to configure the build here I've the files named `server-2019.json` and `win10.json` for both the machines.
 
 This is the hierarchy for all the packer files needed for server-2019 and is similar for Windows 10 machine:
@@ -72,18 +71,18 @@ server-2019/
 
 I've used JSON template files which contains all the necessary configuration like Type of installation(ISO here), Disk size, No. of CPUs, Memory size, OS type, ISO url/path, communicator type for vagrant(WinRM here) with it's credentials, files which need to be mounted for use and finally the post processors(vagrant) for it's output.
 
-### External scripts in packer
+### # External scripts in packer
 As you can see there are 3 common external scripts I have used with packer in [my git repo](https://github.com/0xCaretaker/Auror-Project), namely `fixnetwork.ps1`, `winrmConfig.bat` and `sysprep.bat`.
 
-- winrmConfig.bat
+- `winrmConfig.bat`
   Communicators are used by Packer to upload files, execute scripts, etc. with the machine being created. `winrmConfig.bat` is a pre-run script that configures and enables WinRM on the guest machine. 
   All the configuration and code for the script has been given in Packer docs:[www.packer.io/docs/communicators/winrm](https://www.packer.io/docs/communicators/winrm)
 
-- fixnetwork.ps1
+- `fixnetwork.ps1`
   If you try to run the above `winrmConfig.bat` in windows10, it'll not work because on a Server OS, like Windows Server 2019, the firewall rule for Public networks allows on remote connections from other devices on the same network. On a client OS, like Windows 10, you will receive an error stating that you are a public network.
   Here's an article which goes in detail for WinRM configuration and how networks should be managed: [adamtheautomator.com/enable-psremoting](https://adamtheautomator.com/enable-psremoting/)
 
-- sysprep.bat
+- `sysprep.bat`
   Before you can deploy a Windows image to new PCs, you have to first generalize the image. Generalizing the image removes computer-specific information such as installed drivers and the computer security identifier (SID). 
   The `sysprep /generalize` command removes unique information from your Windows installation so that you can safely reuse that image on a different computer. The next time that you boot the Windows image, the specialize configuration pass runs.
   I've used `unattend.xml` answer file with sysprep to generalize my image. 
@@ -93,7 +92,7 @@ As you can see there are 3 common external scripts I have used with packer in [m
 References: [SysPrep using unattend](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep--generalize--a-windows-installation?view=windows-11#generalize-using-unattend), [SysPrep Command line options](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep-command-line-options?view=windows-11)
 
 There are two more scripts: `cleanup.ps1` and `setup.ps1` used with Windows 10 machine to fiddle with thing like: Windows Updates, Temporary files, password expiration for administrator, Disabling sleep, hibernation and configuring Powershell prompt to show time. 
-## Vagrant
+## # Vagrant
 Vagrant uses `Vagrantfile` containing the configuration to make the environment for the virtual machine.
 Here's the hierarchy of the vagrant files needed for building the whole lab from the output of Packer which is `server-2019.box` and `win10.box`.
 ```bash
@@ -125,12 +124,12 @@ For PC01:
 - `add-localadmin.ps1` - Sets `Adam` as local administrator for PC01, Runs windows update and disables windows defender automatic submissions 
 
 These are all the scripts needed.
-# What a waste of time...
+# # What a waste of time...
 Since, I'd no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant.
 You don't necessarily have to read this and can go to [TL;DR Build the lab?](https://0xcaretaker.github.io/Automation on the Fly - The Auror Project)
 First, Packer will be used to build the base VM from the ISOs.
 
-## Explaining Packer files
+## # Explaining Packer files
 I discussed about the template JSON file, but what about others?
 - `server-2019-vagrantfile.template` is used in the `post_processors` section as this template file will be needed to output the build in `.box` format for Vagrant.
 - `autounattend.xml` is the core answer file for automating the whole windows installation process

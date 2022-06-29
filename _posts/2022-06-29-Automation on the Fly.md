@@ -6,9 +6,6 @@ tags: [linux, wordpress, ctf, john, passwd, lxd, hackthebox]
 image: /assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg
 ---
 
-- [x] update link to tldr in geeky stuff
-- turn headless and gui true for github
-
 Recently, I stumbled on an initiative called "The Auror Project" by [Sudarshan Pisupati](https://www.linkedin.com/in/sudarshan-pisupati-607b0ab/) which was starting a course called "[3 Machine Labs](https://www.linkedin.com/feed/update/urn:li:activity:6919205808157155328/)". 
 "3 Machine Labs" is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions. 
 
@@ -145,7 +142,7 @@ But **What are Windows setup configuration passes?**
 Source: [Windows-Setup-Configuration-Passes](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-setup-configuration-passes?view=windows-11)
 
 The following diagram shows the relationship between the configuration passes relative to the different deployment tools.
-![[Pasted image 20220526143314.png]]
+![Pasted image 20220526143314.png](auror-task1-2.png)
 
 Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as `auditSystem` and `auditUser`, run only if you boot the computer to audit mode. 
 Most Windows Setup `unattend` settings can be added to either the `specialize` or the `oobeSystem` configuration pass. The other configuration passes can also be useful in certain situations.
@@ -162,7 +159,7 @@ As already stated, windowsPE configures settings related to the installation env
 It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.
 
 So, The first screen, which is the language selection screen is now automated.  
-![[Pasted image 20220524165329.png]]
+![Pasted image 20220524165329.png](auror-task1-3.png)
 
 The code snippet looks something like this:
 ```xml
@@ -198,10 +195,10 @@ This component contains settings that enable you to select the Windows image tha
                 </OSImage>
             </ImageInstall>
 ```
-![[Pasted image 20220524165828.png]]
+![Pasted image 20220524165828.png](auror-task1-4.png)
 
 2. Now we're greeted with EULA agreement message:
-![[Pasted image 20220524165919.png]]
+![Pasted image 20220524165919.png](auror-task1-5.png)
 and that is handled by:
 ```xml
             <UserData>
@@ -250,7 +247,7 @@ This configuration creates 2 partitions:
                 </Disk>
             </DiskConfiguration>
 ```
-![[Pasted image 20220524170143.png]]
+![Pasted image 20220524170143.png](auror-task1-6.png)
 #### offlineServicing Configuration pass
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).
@@ -310,7 +307,7 @@ For example you can:
 The `oobeSystem` configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.
 
 Like this built-in administrator account can be automated by `oobsystem` as:
-![[Pasted image 20220524173008.png]]
+![Pasted image 20220524173008.png](auror-task1-7.png)
 ```xml
             <UserAccounts>
                 <AdministratorPassword>
@@ -378,25 +375,25 @@ Now, talking about how you don't have to write answer xml files yourselves, rath
 
 Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install) and.. 
 1. Click on File -> Create answer file -> Click yes, to open Windows image
-![[Pasted image 20220526151518.png]] 
+![Pasted image 20220526151518.png](auror-task1-8.png) 
 2. Mount the ISO -> copy all the files to a directory, select install.wim
-![[Pasted image 20220526151709.png]]
-![[Pasted image 20220526151745.png]]
+![Pasted image 20220526151709.png](auror-task1-9.png)
+![Pasted image 20220526151745.png](auror-task1-10.png)
 4. Select the OS image name/type
-![[Pasted image 20220526151855.png]]
+![Pasted image 20220526151855.png](auror-task1-11.png)
 5. Create a catalog file
-![[Pasted image 20220526152211.png]]
-![[Pasted image 20220526161438.png]]
+![Pasted image 20220526152211.png](auror-task1-12.png)
+![Pasted image 20220526161438.png](auror-task1-13.png)
 > Note: If you don't see the above message and it's spitting out errors. 
 > 1. Try installing a different version of ADK. (Windows 10, version 1809 worked for me)
 > 2. Even after that if you're getting errors like: `This application requires version 6.3.9600.16384 of the Windows ADK. Install this version to correct the problem`. Try copying that `install.wim` file to another location.
 
 
 Now, let's suppose, I want to add some configuration related to Internet Explorer. I can just Right-Click and add to specific pass.
-![[Pasted image 20220526163637.png]]
+![Pasted image 20220526163637.png](auror-task1-14.png)
 
 Each component has a lot of properties which you can configure, like IE has:
-![[Pasted image 20220526164430.png]]
+![Pasted image 20220526164430.png](auror-task1-15.png)
 I've made some changes so that:
 - Popups are blocked
 - DevTools is disabled
@@ -421,9 +418,9 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
    
    Output:
    Build will take sometime and should look like this:
-   ![[Pasted image 20220625172205.png]]
+   ![Pasted image 20220625172205.png](auror-task1-16.png)
    My build finished in ~20 mins.
-   ![[Pasted image 20220625200602.png]]
+   ![Pasted image 20220625200602.png](auror-task1-17.png)
 3. Now, We've to configure the built base images with vagrant to build our environment.
    ```batch
    cd Vagrant && vagrant up

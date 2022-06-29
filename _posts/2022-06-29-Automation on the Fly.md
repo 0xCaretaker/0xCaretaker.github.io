@@ -444,21 +444,6 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
 	start cmd /K "cd Packer\server-2019 && packer build server-2019.json"
 	start cmd /K "cd Packer\win10 && packer build win10.json"
 	```
-   
-   Output:
-   Build will take sometime and should look like this:
-![auror-task1-16.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png1)
-   My build finished in ~20 mins.
-
-![auror-task1-17.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png1)
-3. Now, We've to configure the built base images with vagrant to build our environment.
-   ```batch
-   cd Vagrant && vagrant up
-   ```
-My Vagrant took 38 minutes to set up the environment. Taking it as ~40 mins.
-
-There it is.. Complete lab from scratch in your fingertips within 60 mins. 
-
 ## # Under the hood (Build)
 #### # Building Server-2019 and Windows-10 with Packer
 1. Retrieves ISO and tries to fetch it from the given location

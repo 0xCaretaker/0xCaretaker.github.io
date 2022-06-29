@@ -447,9 +447,10 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
    
    Output:
    Build will take sometime and should look like this:
-   ![auror-task1-16.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png1)
+![auror-task1-16.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png1)
    My build finished in ~20 mins.
-   ![auror-task1-17.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png1)
+
+![auror-task1-17.png1](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png1)
 3. Now, We've to configure the built base images with vagrant to build our environment.
    ```batch
    cd Vagrant && vagrant up

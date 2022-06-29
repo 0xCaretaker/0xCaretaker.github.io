@@ -470,5 +470,5 @@ Every step is the same as server-2019 except here we also provided provisioners 
 5. Mounts the current directory to run provisioners which are `set-timezone.ps1`, then `install-active-directory.ps1`(which installs ADDS, then performs DCPromo) and `add-adam.ps1` for DC01
 
 Same steps for PC01, except the provisioner scripts here are different. 
-`install-chrome.ps1` installs Google chrome, then `join-domain.ps1` joins PC01 to `auror.local` domain and `add-localadmin.ps1` makes Adam a localadmin for PC01.
+`install-chrome.ps1` installs Google chrome, then `join-domain.ps1` joins PC01 to `auror.local` domain and `add-localadmin.ps1` makes Adam a localadmin for PC01. 
 

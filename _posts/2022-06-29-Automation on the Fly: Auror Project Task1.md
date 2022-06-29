@@ -395,8 +395,10 @@ Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-star
 ![auror-task1-9.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png)
 ![auror-task1-10.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png)
 3. Select the OS image name/type
+
 ![auror-task1-11.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png)
 4. Create a catalog file
+
 ![auror-task1-12.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png)
 ![auror-task1-13.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-13.png)
 
@@ -406,6 +408,7 @@ Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-star
 
 
 Now, let's suppose, I want to add some configuration related to Internet Explorer. I can just Right-Click and add to specific pass.
+
 ![auror-task1-14.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-14.png)
 
 Each component has a lot of properties which you can configure, like IE has:

@@ -1,3 +1,11 @@
+---
+title: "Apocalyst"
+date: 2021-07-23 17:10:00 +0530
+categories: [HackTheBox, Linux Machines]
+tags: [linux, wordpress, ctf, john, passwd, lxd, hackthebox]
+image: /assets/img/Posts/Apocalyst/Apocalyst.png
+---
+
 Recently, I stumbled on an initiative called "The Auror Project" by [Sudarshan Pisupati](https://www.linkedin.com/in/sudarshan-pisupati-607b0ab/) which was starting a course called "[3 Machine Labs](https://www.linkedin.com/feed/update/urn:li:activity:6919205808157155328/)". 
 "3 Machine Labs" is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions. 
 

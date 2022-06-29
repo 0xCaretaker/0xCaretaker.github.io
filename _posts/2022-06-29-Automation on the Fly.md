@@ -124,6 +124,7 @@ For PC01:
 - `join-domain.ps1` - Performs Domain Join process using `Add-Computer`, by first setting the DNS as DC01
 - `add-localadmin.ps1` - Sets `Adam` as local administrator for PC01, Runs windows update and disables windows defender automatic submissions 
 
+These are all the scripts needed.
 # What a waste of time...
 Since, I'd no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant.
 You don't necessarily have to read this and can go to [TL;DR Build the lab?](https://0xcaretaker.github.io/Automation on the Fly - The Auror Project)
@@ -250,9 +251,12 @@ This configuration creates 2 partitions:
             </DiskConfiguration>
 ```
 ![[Pasted image 20220524170143.png]]
+
 #### offlineServicing Configuration pass
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
+
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).
+
 ```xml
     <settings pass="offlineServicing">
         <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -260,6 +264,7 @@ The Microsoft-Windows-LUA-Settings component includes settings related to the Wi
         </component>
     </settings>
 ```
+
 EnableLUA specifies whether the windows User Account Controls (UAC) should notify the user when programs try to make changes to the computer.
 
 We set that to false, so that UAC prompts aren't popped up.

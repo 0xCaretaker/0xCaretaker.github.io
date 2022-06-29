@@ -136,7 +136,7 @@ I discussed about the template JSON file, but what about others?
 - `unattend.xml` is another answer file which is used to modify windows settings after the first user is created and assigned a default language(We'll need that with SysPrep)
 - Scripts folder contains various scripts already discussed
 
-### What is autounattend.xml?
+### # What is autounattend.xml?
 The most important file for Packer is `autounattend.xml`, it acts as an answer file to Windows Setup installation since all the UI pages needs to be automated. Unattended installation settings can be applied in one or more configuration passes. 
 
 But **What are Windows setup configuration passes?**
@@ -149,7 +149,7 @@ The following diagram shows the relationship between the configuration passes re
 Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as `auditSystem` and `auditUser`, run only if you boot the computer to audit mode. 
 Most Windows Setup `unattend` settings can be added to either the `specialize` or the `oobeSystem` configuration pass. The other configuration passes can also be useful in certain situations.
 
-#### windowsPE Configuration pass
+#### # windowsPE Configuration pass
 The windowsPE configuration pass is used to configure settings specific to Windows Preinstallation Environment (Windows PE) in addition to settings that apply to installation.
 This configuration pass runs when booting the Windows Setup media.
 
@@ -157,7 +157,7 @@ For more info: [Microsoft-WindowsPE](https://docs.microsoft.com/en-us/windows-ha
 
 As already stated, windowsPE configures settings related to the installation environment and then the setup as well. So, it usually has 2 components `Microsoft-Windows-International-Core-WinPE` and `Microsoft-Windows-Setup`.  
 
-##### Component `Microsoft-Windows-International-Core-WinPE`
+##### # Component `Microsoft-Windows-International-Core-WinPE`
 It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.
 
 So, The first screen, which is the language selection screen is now automated.  
@@ -177,7 +177,7 @@ The code snippet looks something like this:
         </component>
 ```
 
-##### Component `Microsoft-Windows-Setup`
+##### # Component `Microsoft-Windows-Setup`
 This component contains settings that enable you to select the Windows image that you install, configure the disk that you install Windows to, and configure the Windows PE operating system.
 
 1. Imageinstall
@@ -251,7 +251,7 @@ This configuration creates 2 partitions:
 ```
 ![[Pasted image 20220524170143.png]]
 
-#### offlineServicing Configuration pass
+#### # offlineServicing Configuration pass
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
 
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).
@@ -267,7 +267,7 @@ The Microsoft-Windows-LUA-Settings component includes settings related to the Wi
 EnableLUA specifies whether the windows User Account Controls (UAC) should notify the user when programs try to make changes to the computer.
 
 We set that to false, so that UAC prompts aren't popped up.
-#### specialize Configuration pass
+#### # specialize Configuration pass
 During the `specialize` configuration pass of Windows Setup, computer-specific information for the image is applied. 
 
 For example you can:
@@ -309,7 +309,7 @@ For example you can:
         </component>
     </settings>
 ```
-#### oobSystem Configuration pass
+#### # oobSystem Configuration pass
 The `oobeSystem` configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.
 
 Like this built-in administrator account can be automated by `oobsystem` as:
@@ -383,7 +383,7 @@ OOBE specifies the behavior of some of the Windows Out of Box Experience (OOBE) 
 
 
 
-## Click, Click .. Windows ADK
+## # Click, Click .. Windows ADK
 So, I spent so long in understanding what all the components and functions do, that I accidently stumbled onto Windows ADK and felt like a complete loser.
 
 Now, talking about how you don't have to write answer xml files yourselves, rather generate it using Windows Assessment and Deployment Kit(ADK).
@@ -419,7 +419,7 @@ I've made some changes so that:
 Do all you want and then export the answer file as `autounattend.xml` ;)
 
 
-# TL;DR Build the lab?
+# # TL;DR Build the lab?
 I've given the installation steps in my [git repo](https://github.com/0xCaretaker/Auror-Project), I'll show what really happens when you run those commands. 
 
 1. Download the ISO files in the main(Auror-Project) directory
@@ -445,8 +445,8 @@ My Vagrant took 38 minutes to set up the environment. Taking it as ~40 mins.
 
 There it is.. Complete lab from scratch in your fingertips within 60 mins. 
 
-## Under the hood (Build)
-##### Building Server-2019 and Windows-10 with Packer
+## # Under the hood (Build)
+#### # Building Server-2019 and Windows-10 with Packer
 1. Retrieves ISO and tries to fetch it from the given location
 2. Creates a floppy disk, copies all the floppy files
 3. Creates a VM with the given size
@@ -462,7 +462,7 @@ There it is.. Complete lab from scratch in your fingertips within 60 mins.
 
 Every step is the same as server-2019 except here we also provided provisioners which are `setup.ps1` and `cleanup.ps1`, they run after builders and before SysPrep happens.(So, At Step 9 provisioners run now)
 
-##### Setting up the environment using Vagrant
+#### # Setting up the environment using Vagrant
 1. Brings up dc01 and pc01 VMs and prepares the base image for the clone by importing .box files
 2. Clones VM, sets up name, network configuration and forwards required ports for communication like RDP, WinRM and SSH
 3. Boots VM and waits to connect to a communicator

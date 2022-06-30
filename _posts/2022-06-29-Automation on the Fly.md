@@ -371,22 +371,22 @@ Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-star
 ![Pasted image 20220526151518.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-8.png) 
 2. Mount the ISO -> copy all the files to a directory, select install.wim
 ![Pasted image 20220526151709.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png)
-![Pasted image 20220526151745.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png)
+![[Pasted image 20220526151745.png]]
 4. Select the OS image name/type
-![Pasted image 20220526151855.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png)
+![[Pasted image 20220526151855.png]]
 5. Create a catalog file
-![Pasted image 20220526152211.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png)
-![Pasted image 20220526161438.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-13.png)
+![[Pasted image 20220526152211.png]]
+![[Pasted image 20220526161438.png]]
 > Note: If you don't see the above message and it's spitting out errors. 
 > 1. Try installing a different version of ADK. (Windows 10, version 1809 worked for me)
 > 2. Even after that if you're getting errors like: `This application requires version 6.3.9600.16384 of the Windows ADK. Install this version to correct the problem`. Try copying that `install.wim` file to another location.
 
 
 Now, let's suppose, I want to add some configuration related to Internet Explorer. I can just Right-Click and add to specific pass.
-![Pasted image 20220526163637.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-14.png)
+![[Pasted image 20220526163637.png]]
 
 Each component has a lot of properties which you can configure, like IE has:
-![Pasted image 20220526164430.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-15.png)
+![[Pasted image 20220526164430.png]]
 I've made some changes so that:
 - Popups are blocked
 - DevTools is disabled
@@ -412,9 +412,9 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
    
    Output:
    Build will take sometime and should look like this:
-   ![Pasted image 20220625172205.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png)
+   ![[Pasted image 20220625172205.png]]
    My build finished in ~20 mins.
-   ![Pasted image 20220625200602.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png)
+   ![[Pasted image 20220625200602.png]]
 3. Now, We've to configure the built base images with vagrant to build our environment.
    ```batch
    cd Vagrant && vagrant up

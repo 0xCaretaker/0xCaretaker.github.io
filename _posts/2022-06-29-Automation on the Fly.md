@@ -135,7 +135,7 @@ But **What are Windows setup configuration passes?**
 Source: [Windows-Setup-Configuration-Passes](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-setup-configuration-passes?view=windows-11)
 
 The following diagram shows the relationship between the configuration passes relative to the different deployment tools.
-![[Pasted image 20220526143314.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg)
+![Pasted image 20220526143314.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-2.png)
 
 Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as `auditSystem` and `auditUser`, run only if you boot the computer to audit mode. 
 Most Windows Setup `unattend` settings can be added to either the `specialize` or the `oobeSystem` configuration pass. The other configuration passes can also be useful in certain situations.

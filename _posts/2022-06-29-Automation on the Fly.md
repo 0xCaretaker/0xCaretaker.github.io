@@ -140,7 +140,7 @@ For PC01:
 # What a waste of time...
 Since, I'd no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant.
 
-You don't necessarily have to read this and can go to [TL;DR Build the lab?](https://0xcaretaker.github.io/Automation on the Fly - The Auror Project)
+You don't necessarily have to read this and can go to [TL;DR Build the lab?](https://0xcaretaker.github.io/posts/Automation-on-the-Fly/#tldr-build-the-lab)
 
 First, Packer will be used to build the base VM from the ISOs.
 
@@ -423,10 +423,13 @@ Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-star
 
 Now, let's suppose, I want to add some configuration related to Internet Explorer. I can just Right-Click and add to specific pass.
 
+
 ![Pasted image 20220526163637.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-14.png)
+
 
 Each component has a lot of properties which you can configure, like IE has:
 ![Pasted image 20220526164430.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-15.png)
+
 I've made some changes so that:
 - Popups are blocked
 - DevTools is disabled
@@ -452,15 +455,15 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
    Output:
    Build will take sometime and should look like this:
    ![Pasted image 20220625172205.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png)
-   My build finished in ~20 mins.
+   My build finished in **~20 mins**.
    ![Pasted image 20220625200602.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png)
 3. Now, We've to configure the built base images with vagrant to build our environment.
    ```batch
    cd Vagrant && vagrant up
    ```
-My Vagrant took 38 minutes to set up the environment. Taking it as ~40 mins.
+My Vagrant took 38 minutes to set up the environment. Taking it as **~40 mins**.
 
-There it is.. Complete lab from scratch in your fingertips within 60 mins. 
+There it is.. Complete lab from scratch in your fingertips within **60 mins**. 
 
 # Under the hood (Build)
 ### Building Server-2019 with Packer
@@ -1017,3 +1020,7 @@ PSComputerName    :
 ==> pc01: Running provisioner: shell...
 ==> pc01: Waiting for machine to reboot...
 ```
+
+That's all for the first task. I'll post more from The Auror Project in the upcoming blogs.
+
+Thanks for giving a visit!

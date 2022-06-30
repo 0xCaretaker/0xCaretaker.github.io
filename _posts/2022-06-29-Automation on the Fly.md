@@ -152,7 +152,7 @@ As already stated, windowsPE configures settings related to the installation env
 It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.
 
 So, The first screen, which is the language selection screen is now automated.  
-![[Pasted image 20220524165329.png]]
+![Pasted image 20220524165329.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-3.png)
 
 The code snippet looks something like this:
 ```xml
@@ -188,10 +188,10 @@ This component contains settings that enable you to select the Windows image tha
                 </OSImage>
             </ImageInstall>
 ```
-![[Pasted image 20220524165828.png]]
+![Pasted image 20220524165828.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-4.png)
 
 2. Now we're greeted with EULA agreement message:
-![[Pasted image 20220524165919.png]]
+![Pasted image 20220524165919.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-5.png)
 and that is handled by:
 ```xml
             <UserData>

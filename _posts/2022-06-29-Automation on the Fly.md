@@ -444,7 +444,9 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
 
 1. Download the ISO files in the main(Auror-Project) directory
 2. Build ISO using packer with `packer build server-2019.json` & `packer build win10.json` 
+
    or 
+
    even better you can run `.\packer-build.bat` to run both the packer builds at the same time.(On windows ofc, for Linux you can use `nohup <cmd> &`)
    which contains:
 	```batch

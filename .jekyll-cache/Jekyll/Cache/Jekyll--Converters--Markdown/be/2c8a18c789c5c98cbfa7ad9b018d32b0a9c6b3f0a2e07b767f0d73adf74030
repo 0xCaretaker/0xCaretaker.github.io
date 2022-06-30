@@ -1,5 +1,0 @@
-I"Ä<h1 id="enumeration">Enumeration</h1>
-<h2 id="nmap">Nmap</h2>
-<p>```bash
-$ nmap -Pn -sVC -p- -oN nmap-full.txt -v â€“min-rate 1000 <code class="language-plaintext highlighter-rouge">IP</code></p>
-:ET

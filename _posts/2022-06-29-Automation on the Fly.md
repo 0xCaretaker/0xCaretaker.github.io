@@ -146,7 +146,7 @@ Source: [Windows-Setup-Configuration-Passes](https://docs.microsoft.com/en-us/wi
 
 The following diagram shows the relationship between the configuration passes relative to the different deployment tools.
 
-![/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-2.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-2.png)
+![image2](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-2.png)
 
 Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as `auditSystem` and `auditUser`, run only if you boot the computer to audit mode. 
 Most Windows Setup `unattend` settings can be added to either the `specialize` or the `oobeSystem` configuration pass. The other configuration passes can also be useful in certain situations.

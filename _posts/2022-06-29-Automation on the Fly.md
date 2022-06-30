@@ -2,7 +2,7 @@
 title: "Automation on the Fly"
 date: 2022-06-30 13:13:13 +0530
 categories: [Active Directory]
-tags: [windows-server, windows, automation, active-directory]
+tags: [active-directory, automation, windows-server, windows ]
 image: /assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg
 ---
 

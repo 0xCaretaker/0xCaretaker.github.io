@@ -152,7 +152,7 @@ As already stated, windowsPE configures settings related to the installation env
 It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.
 
 So, The first screen, which is the language selection screen is now automated.  
-![Pasted image 20220524165329.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-3.png)
+![[Pasted image 20220524165329.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-3.png)
 
 The code snippet looks something like this:
 ```xml
@@ -188,10 +188,10 @@ This component contains settings that enable you to select the Windows image tha
                 </OSImage>
             </ImageInstall>
 ```
-![Pasted image 20220524165828.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-4.png)
+![[Pasted image 20220524165828.png]]
 
 2. Now we're greeted with EULA agreement message:
-![Pasted image 20220524165919.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-5.png)
+![[Pasted image 20220524165919.png]]
 and that is handled by:
 ```xml
             <UserData>
@@ -240,7 +240,7 @@ This configuration creates 2 partitions:
                 </Disk>
             </DiskConfiguration>
 ```
-![[Pasted image 20220524170143.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png)
+![[Pasted image 20220524170143.png]]
 #### offlineServicing Configuration pass
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).

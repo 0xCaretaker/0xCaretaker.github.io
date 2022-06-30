@@ -240,7 +240,7 @@ This configuration creates 2 partitions:
                 </Disk>
             </DiskConfiguration>
 ```
-![Pasted image 20220524170143.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png)
+![[Pasted image 20220524170143.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png)
 #### offlineServicing Configuration pass
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).
@@ -300,7 +300,7 @@ For example you can:
 The `oobeSystem` configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.
 
 Like this built-in administrator account can be automated by `oobsystem` as:
-![Pasted image 20220524173008.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-7.png)
+![[Pasted image 20220524173008.png]]
 ```xml
             <UserAccounts>
                 <AdministratorPassword>
@@ -368,9 +368,9 @@ Now, talking about how you don't have to write answer xml files yourselves, rath
 
 Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install) and.. 
 1. Click on File -> Create answer file -> Click yes, to open Windows image
-![Pasted image 20220526151518.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-8.png) 
+![[Pasted image 20220526151518.png]] 
 2. Mount the ISO -> copy all the files to a directory, select install.wim
-![Pasted image 20220526151709.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png)
+![[Pasted image 20220526151709.png]]
 ![[Pasted image 20220526151745.png]]
 4. Select the OS image name/type
 ![[Pasted image 20220526151855.png]]

@@ -1,3 +1,11 @@
+---
+title: "Automation on the Fly"
+date: 2022-06-30 00:00:00 +0530
+categories: [HackTheBox, Linux Machines]
+tags: [linux, wordpress, ctf, john, passwd, lxd, hackthebox]
+image: /assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg
+---
+
 Recently, I stumbled on an initiative called "The Auror Project" by [Sudarshan Pisupati](https://www.linkedin.com/in/sudarshan-pisupati-607b0ab/) which was starting a course called "[3 Machine Labs](https://www.linkedin.com/feed/update/urn:li:activity:6919205808157155328/)". 
 "3 Machine Labs" is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions. 
 
@@ -19,9 +27,9 @@ For Windows 10:
 - User "Adam" should be configured as a local administrator
 - Firewall should be disabled
 
-I gave a lot of time to this Task, for which I'm not sure on how should I feel like.. 
-But, Here's me running packer builds on my flight to Mumbai, which gave me the Title for the blog **"Automation on the Fly"**.
-![WhatsApp Image 2022-06-29 at 5.29.54 PM.jpeg](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg)
+I gave a lot of time to this Task, for which I'm not sure on how should I feel like.. But.. 
+
+The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog **"Automation on the Fly"** :D.
 # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
 Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 
@@ -65,6 +73,7 @@ server-2019/
 ```
 
 I've used JSON template files which contains all the necessary configuration like Type of installation(ISO here), Disk size, No. of CPUs, Memory size, OS type, ISO url/path, communicator type for vagrant(WinRM here) with it's credentials, files which need to be mounted for use and finally the post processors(vagrant) for it's output.
+
 ### External scripts in packer
 As you can see there are 3 common external scripts I have used with packer in [my git repo](https://github.com/0xCaretaker/Auror-Project), namely `fixnetwork.ps1`, `winrmConfig.bat` and `sysprep.bat`.
 
@@ -396,7 +405,6 @@ I've made some changes so that:
 
 Do all you want and then export the answer file as `autounattend.xml` ;)
 
-
 # TL;DR Build the lab?
 I've given the installation steps in my [git repo](https://github.com/0xCaretaker/Auror-Project), I'll show what really happens when you run those commands. 
 
@@ -436,7 +444,8 @@ There it is.. Complete lab from scratch in your fingertips within 60 mins.
 9. After the installation completes, shutdown command is triggered, which initializes SysPrep
 10. Deletes forwarded mapping for communicators
 11. Exports VM in .ovf format and deletes VM
-12. Runs Post processor vagrant which takes the .ovf artifact and outputs a Vagrant .box using the template provided  
+12. Runs Post processor vagrant which takes the .ovf artifact and outputs a Vagrant .box using the template provided
+
 ```batch
 'Command: packer build server-2019.json'
 virtualbox-iso: output will be in this color.
@@ -522,6 +531,7 @@ Build 'virtualbox-iso' finished after 13 minutes 52 seconds.
 
 ##### Building Windows-10 with Packer
 Every step is the same as server-2019 except here we also provided provisioners which are `setup.ps1` and `cleanup.ps1`, they run after builders and before SysPrep happens.(So, At Step 9 provisioners run now)
+
 ```batch
 'Command: packer build win10.json'
 virtualbox-iso: output will be in this color.
@@ -714,6 +724,7 @@ Build 'virtualbox-iso' finished after 19 minutes 17 seconds.
 ==> Builds finished. The artifacts of successful builds are:
 --> virtualbox-iso: 'virtualbox' provider box: ../../Vagrant/win10.box
 ```
+
 ##### Setting up the environment using Vagrant
 1. Brings up dc01 and pc01 VMs and prepares the base image for the clone by importing .box files
 2. Clones VM, sets up name, network configuration and forwards required ports for communication like RDP, WinRM and SSH

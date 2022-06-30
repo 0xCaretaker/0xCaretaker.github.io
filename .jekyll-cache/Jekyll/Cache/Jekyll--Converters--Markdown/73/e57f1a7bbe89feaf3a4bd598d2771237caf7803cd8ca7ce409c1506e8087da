@@ -1,0 +1,19 @@
+I"t<h1 id="enumeration">Enumeration</h1>
+<h2 id="masscan--nmap">Masscan + Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">--rate</span><span class="o">=</span>10000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Discovered open port 1880/tcp on 10.10.10.111
+Discovered open port 9999/tcp on 10.10.10.111
+Discovered open port 139/tcp on 10.10.10.111
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:
+```bash
+$ ports=$(cat masscan.out |awk ‘{ print $4 }’ | sed ‘s/\/tcp//;s/\/udp//’ | tr ‘\n’ ‘,’ | sed ‘s/,$//’)
+$ nmap -sVC –min-rate 1000 -p $ports <code class="language-plaintext highlighter-rouge">IP</code> -oN nmap-fullscan.out</p>
+<h1 id="nmap-791-scan-initiated-thu-jul-15-185712-2021-as-nmap--svc-min-rate-1000--p-18809999139--on-nmap-fullscanout-101010111">Nmap 7.91 scan initiated Thu Jul 15 18:57:12 2021 as: nmap -sVC –min-rate 1000 -p 1880,9999,139 -oN nmap-fullscan.out 10.10.10.111</h1>
+<p>Nmap scan report for 10.10.10.111
+Host is up (0.090s latency).</p>
+:ET

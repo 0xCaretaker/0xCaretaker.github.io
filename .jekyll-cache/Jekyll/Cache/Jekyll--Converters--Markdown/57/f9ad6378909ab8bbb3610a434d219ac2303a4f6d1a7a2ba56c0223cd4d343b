@@ -1,0 +1,37 @@
+I"—<h1 id="enumeration">Enumeration</h1>
+<h2 id="nmap">Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>nmap <span class="nt">-sVC</span> <span class="nt">--min-rate</span> 1000 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-oN</span> nmap.out
+PORT   STATE SERVICE   VERSION
+22/tcp open  ssh       OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.8 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey:
+|   1024 79:b1:35:b6:d1:25:12:a3:0c:b5:2e:36:9c:33:26:28 <span class="o">(</span>DSA<span class="o">)</span>
+|   2048 16:08:68:51:d1:7b:07:5a:34:66:0d:4c:d0:25:56:f5 <span class="o">(</span>RSA<span class="o">)</span>
+|   256 e3:97:a7:92:23:72:bf:1d:09:88:85:b6:6c:17:4e:85 <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 89:85:90:98:20:bf:03:5d:35:7f:4a:a9:e1:1b:65:31 <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp open  ssl/http?
+| http-methods:
+|_  Potentially risky methods: PUT PATCH DELETE
+|_http-title: October CMS - Vanilla
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h2 id="http">HTTP</h2>
+<p>Whatweb or wapplyzer shows October CMS running:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>whatweb 10.10.10.16
+http://10.10.10.16 <span class="o">[</span>200 OK] Apache[2.4.7], Cookies[october_session], Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu Linux][Apache/2.4.7 <span class="o">(</span>Ubuntu<span class="o">)]</span>, HttpOnly[october_session], IP[10.10.10.16], Meta-Author[October CMS], PHP[5.5.9-1ubuntu4.21], Script, Title[October CMS - Vanilla], X-Powered-By[PHP/5.5.9-1ubuntu4.21]
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

@@ -1,0 +1,38 @@
+I"í<p><strong>Knife</strong> is an easy difficulty Linux machine that features an application which is running on a backdoored version of PHP: <strong>PHP/8.1.0-dev</strong>. 
+This vulnerability is leveraged to obtain the foothold on the server. 
+A <strong>sudo</strong> misconfiguration is then exploited to gain a root shell.</p>
+<h1 id="nmap">Nmap</h1>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>nmap <span class="nt">-sVC</span> <span class="nt">-v</span> <span class="nt">--min-rate</span> 1000 <span class="nt">-p-</span> <span class="nt">-oN</span> nmap-fullscan.out
+Nmap scan report <span class="k">for </span>knife.htb <span class="o">(</span>10.10.10.242<span class="o">)</span>
+Host is up <span class="o">(</span>0.083s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 65142 closed ports, 391 filtered ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.2 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey:
+|   3072 be:54:9c:a3:67:c3:15:c3:64:71:7f:6a:53:4a:4c:21 <span class="o">(</span>RSA<span class="o">)</span>
+|   256 bf:8a:3f:d4:06:e9:2e:87:4e:c9:7e:ab:22:0e:c0:ee <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 1a:de:a1:cc:37:ce:53:bb:1b:fb:2b:0b:ad:b3:f6:84 <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp open  http    Apache httpd 2.4.41 <span class="o">((</span>Ubuntu<span class="o">))</span>
+| http-methods:
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.41 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title:  Emergent Medical Idea
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

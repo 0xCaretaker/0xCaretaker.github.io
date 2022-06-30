@@ -1,0 +1,11 @@
+I"�<h1 id="masscan--nmap">Masscan + Nmap</h1>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">--rate</span><span class="o">=</span>5000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Discovered open port 80/tcp on 10.10.10.81
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:
+```bash
+$ ports=$(cat masscan.out |awk ‘{ print $4 }’ | sed ‘s/\/tcp//;s/\/udp//’ | tr ‘\n’ ‘,’ | sed ‘s/,$//’)
+$ nmap -v -sVC –min-rate 1000 -p $ports <code class="language-plaintext highlighter-rouge">IP</code> -oN nmap-fullscan.out</p>
+:ET

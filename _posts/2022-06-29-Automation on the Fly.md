@@ -18,6 +18,7 @@ Automation should:
 - Add Windows 10 machine to Windows Server domain, through a process called Domain join
 
 Some specifications for the machines were:
+
 For Windows Server (Domain controller):
 - Domain name should be "auror.local"
 - Has DNS role
@@ -31,6 +32,7 @@ For Windows 10:
 I gave a lot of time to this Task, for which I'm not sure on how should I feel like.. But.. 
 
 The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog **"Automation on the Fly"** :D
+
 # Mindmap
 This session was already a catch for me. I'm a huge fan of automation but to my surprise I'd never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
 

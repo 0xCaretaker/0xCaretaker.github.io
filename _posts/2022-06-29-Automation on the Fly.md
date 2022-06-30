@@ -124,6 +124,7 @@ For PC01:
 - `install-chrome.ps1` - Installs chrome, disables firewall and enables RDP for PC01
 - `join-domain.ps1` - Performs Domain Join process using `Add-Computer`, by first setting the DNS as DC01
 - `add-localadmin.ps1` - Sets `Adam` as local administrator for PC01, Runs windows update and disables windows defender automatic submissions 
+
 # What a waste of time...
 Since, I'd no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant.
 You don't necessarily have to read this and can go to [TL;DR Build the lab?](https://0xcaretaker.github.io/Automation on the Fly - The Auror Project)
@@ -250,9 +251,12 @@ This configuration creates 2 partitions:
             </DiskConfiguration>
 ```
 ![Pasted image 20220524170143.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png)
+
 #### offlineServicing Configuration pass
+
 `offlineServicing` configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
 The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).
+
 ```xml
     <settings pass="offlineServicing">
         <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -260,6 +264,7 @@ The Microsoft-Windows-LUA-Settings component includes settings related to the Wi
         </component>
     </settings>
 ```
+
 EnableLUA specifies whether the windows User Account Controls (UAC) should notify the user when programs try to make changes to the computer.
 
 We set that to false, so that UAC prompts aren't popped up.
@@ -305,6 +310,7 @@ For example you can:
         </component>
     </settings>
 ```
+
 #### oobSystem Configuration pass
 The `oobeSystem` configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.
 
@@ -381,11 +387,15 @@ Install [Windows ADK](https://docs.microsoft.com/en-us/windows-hardware/get-star
 2. Mount the ISO -> copy all the files to a directory, select install.wim
 ![Pasted image 20220526151709.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png)
 ![Pasted image 20220526151745.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png)
-4. Select the OS image name/type
+
+3. Select the OS image name/type
+
 ![Pasted image 20220526151855.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png)
-5. Create a catalog file
+4. Create a catalog file
+
 ![Pasted image 20220526152211.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png)
 ![Pasted image 20220526161438.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-13.png)
+
 > Note: If you don't see the above message and it's spitting out errors. 
 > 1. Try installing a different version of ADK. (Windows 10, version 1809 worked for me)
 > 2. Even after that if you're getting errors like: `This application requires version 6.3.9600.16384 of the Windows ADK. Install this version to correct the problem`. Try copying that `install.wim` file to another location.
@@ -431,8 +441,8 @@ My Vagrant took 38 minutes to set up the environment. Taking it as ~40 mins.
 
 There it is.. Complete lab from scratch in your fingertips within 60 mins. 
 
-## Under the hood (Build)
-##### Building Server-2019 with Packer
+# Under the hood (Build)
+### Building Server-2019 with Packer
 1. Retrieves ISO and tries to fetch it from the given location
 2. Creates a floppy disk, copies all the floppy files
 3. Creates a VM with the given size
@@ -529,7 +539,7 @@ Build 'virtualbox-iso' finished after 13 minutes 52 seconds.
 --> virtualbox-iso: 'virtualbox' provider box: ../../Vagrant/server-2019.box
 ```
 
-##### Building Windows-10 with Packer
+### Building Windows-10 with Packer
 Every step is the same as server-2019 except here we also provided provisioners which are `setup.ps1` and `cleanup.ps1`, they run after builders and before SysPrep happens.(So, At Step 9 provisioners run now)
 
 ```batch
@@ -725,7 +735,7 @@ Build 'virtualbox-iso' finished after 19 minutes 17 seconds.
 --> virtualbox-iso: 'virtualbox' provider box: ../../Vagrant/win10.box
 ```
 
-##### Setting up the environment using Vagrant
+### Setting up the environment using Vagrant
 1. Brings up dc01 and pc01 VMs and prepares the base image for the clone by importing .box files
 2. Clones VM, sets up name, network configuration and forwards required ports for communication like RDP, WinRM and SSH
 3. Boots VM and waits to connect to a communicator

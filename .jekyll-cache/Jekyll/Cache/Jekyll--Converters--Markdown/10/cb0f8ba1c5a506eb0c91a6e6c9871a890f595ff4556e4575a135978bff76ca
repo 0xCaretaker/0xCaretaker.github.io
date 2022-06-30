@@ -1,4 +1,69 @@
-<!DOCTYPE html><html lang="en" mode="dark" > <!-- The Head v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --><title>Automation on the Fly | TheCaretaker</title><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="Automation on the Fly" /><meta name="author" content="Deepak Dhasmana" /><meta property="og:locale" content="en_US" /><meta name="description" content="Recently, I stumbled on an initiative called “The Auror Project” by Sudarshan Pisupati which was starting a course called “3 Machine Labs”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions." /><meta property="og:description" content="Recently, I stumbled on an initiative called “The Auror Project” by Sudarshan Pisupati which was starting a course called “3 Machine Labs”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions." /><link rel="canonical" href="https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" /><meta property="og:url" content="https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" /><meta property="og:site_name" content="TheCaretaker" /><meta property="og:image" content="https://0xcaretaker.github.io/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2022-06-30T00:00:00+05:30" /><meta name="twitter:card" content="summary_large_image" /><meta property="twitter:image" content="https://0xcaretaker.github.io/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg" /><meta property="twitter:title" content="Automation on the Fly" /><meta name="twitter:site" content="@0xCaretaker" /><meta name="twitter:creator" content="@Deepak Dhasmana" /><meta name="google-site-verification" content="qxu37CH4WxgxVlq54JzTLwQ-GdVvbJNhJsDxYZsYA48" /> <script type="application/ld+json"> {"headline":"Automation on the Fly","dateModified":"2022-06-30T00:00:00+05:30","datePublished":"2022-06-30T00:00:00+05:30","author":{"@type":"Person","name":"Deepak Dhasmana"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://0xcaretaker.github.io/posts/Automation-on-the-Fly/"},"@type":"BlogPosting","image":"https://0xcaretaker.github.io/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg","description":"Recently, I stumbled on an initiative called “The Auror Project” by Sudarshan Pisupati which was starting a course called “3 Machine Labs”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions.","url":"https://0xcaretaker.github.io/posts/Automation-on-the-Fly/","@context":"https://schema.org"}</script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="google-site-verification" content="qxu37CH4WxgxVlq54JzTLwQ-GdVvbJNhJsDxYZsYA48" /><title>Automation on the Fly | TheCaretaker</title><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="Automation on the Fly" /><meta name="author" content="Deepak Dhasmana" /><meta property="og:locale" content="en_US" /><meta name="description" content="Recently, I stumbled on an initiative called “The Auror Project” by Sudarshan Pisupati which was starting a course called “3 Machine Labs”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions." /><meta property="og:description" content="Recently, I stumbled on an initiative called “The Auror Project” by Sudarshan Pisupati which was starting a course called “3 Machine Labs”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions." /><link rel="canonical" href="https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" /><meta property="og:url" content="https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" /><meta property="og:site_name" content="TheCaretaker" /><meta property="og:image" content="https://0xcaretaker.github.io/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2022-06-30T00:00:00+05:30" /><meta name="twitter:card" content="summary_large_image" /><meta property="twitter:image" content="https://0xcaretaker.github.io/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg" /><meta property="twitter:title" content="Automation on the Fly" /><meta name="twitter:site" content="@0xCaretaker" /><meta name="twitter:creator" content="@Deepak Dhasmana" /><meta name="google-site-verification" content="qxu37CH4WxgxVlq54JzTLwQ-GdVvbJNhJsDxYZsYA48" /> <script type="application/ld+json"> {"headline":"Automation on the Fly","dateModified":"2022-06-30T00:00:00+05:30","datePublished":"2022-06-30T00:00:00+05:30","author":{"@type":"Person","name":"Deepak Dhasmana"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://0xcaretaker.github.io/posts/Automation-on-the-Fly/"},"@type":"BlogPosting","image":"https://0xcaretaker.github.io/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg","description":"Recently, I stumbled on an initiative called “The Auror Project” by Sudarshan Pisupati which was starting a course called “3 Machine Labs”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions.","url":"https://0xcaretaker.github.io/posts/Automation-on-the-Fly/","@context":"https://schema.org"}</script> <!-- The Favicons for Web, Android, Microsoft, and iOS (iPhone and iPad) Apps Generated by: https://www.favicon-generator.org/ v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2019 Cotes Chung Published under the MIT license --><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"> <!-- CSS selector for site. Chirpy v2.3 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT Licensed --><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /><link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/jquery@3.4.1" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"> <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" async></script> <!-- JS selector for site. Chirpy v2.3 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT Licensed --> <script src="/assets/js/post.min.js" async></script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"> <!-- The Side Bar v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/img/sample/profile.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">TheCaretaker</a></div><div class="site-subtitle font-italic">Penetration Tester | Ethical Hacker | CTF Player</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <span><i class="fas fa-home"></i> HOME</span> </a></li><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <span><i class="fas fa-stream"></i> CATEGORIES</span> </a></li><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <span><i class="fas fa-tags"></i> TAGS</span> </a></li><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <span><i class="fas fa-archive"></i> ARCHIVES</span> </a></li><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <span><i class="fas fa-id-card"></i> ABOUT</span> </a></li></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <a href="https://github.com/0xCaretaker" target="_blank"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/0xCaretaker" target="_blank"> <i class="fab fa-twitter"></i> </a> <a href=" javascript:window.open('mailto:' + ['deepakdhasmana0007','gmail.com'].join('@'))" > <i class="fas fa-envelope"></i> </a> <a href="https://www.hackthebox.eu/profile/371479" target="_blank"> <i class="fas fa-cube"></i> </a> <a href="https://www.linkedin.com/in/deepak-dhasmana/" target="_blank"> <i class="fab fa-linkedin"></i> </a></div></div><!-- The Top Bar v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>Automation on the Fly</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"> <!-- Refactor the HTML structure. --> <!-- Suroundding the markdown table with '<div class="table-wrapper">. and '</div>' --> <!-- Fixed kramdown code highlight rendering: https://github.com/penibelst/jekyll-compress-html/issues/101 https://github.com/penibelst/jekyll-compress-html/issues/71#issuecomment-188144901 --><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Automation on the Fly</h1><div class="post-meta text-muted d-flex flex-column"><div> Posted <!-- Date format snippet v2.4.1 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT License --> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Thu, Jun 30, 2022, 12:00 AM +0530" > Jun 30 <i class="unloaded">2022-06-30T00:00:00+05:30</i> </span> by <span class="author"> Deepak Dhasmana </span></div></div><div class="post-content"> <img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-1.jpeg" class="post-preview-img"><p>Recently, I stumbled on an initiative called “The Auror Project” by <a href="https://www.linkedin.com/in/sudarshan-pisupati-607b0ab/">Sudarshan Pisupati</a> which was starting a course called “<a href="https://www.linkedin.com/feed/update/urn:li:activity:6919205808157155328/">3 Machine Labs</a>”. “3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions.</p><p>The first session came with a <a href="https://docs.google.com/document/d/1Zk_O_JpFQk5JQRGF9CAC0plml3ua3hCQ5VBDLxE2GQI/edit#heading=h.1vlpfqvcrv4">challenge</a> to automate the process of building an Active Directory Lab with some specifications.</p><p>Automation should:</p><ul><li>Setup two Virtual Machines; Windows Server &amp; Windows 10</li><li>Install Active Directory Domain Services(ADDS) on the Windows Server and promote the server to Domain controller through a process called DC Promo</li><li>Add Windows 10 machine to Windows Server domain, through a process called Domain join</li></ul><p>Some specifications for the machines were: For Windows Server (Domain controller):</p><ul><li>Domain name should be “auror.local”</li><li>Has DNS role</li><li>Contains a Domain user called “Adam” with password “Pass@123”</li></ul><p>For Windows 10:</p><ul><li>Should’ve Google Chrome installed</li><li>User “Adam” should be configured as a local administrator</li><li>Firewall should be disabled</li></ul><p>I gave a lot of time to this Task, for which I’m not sure on how should I feel like.. But..</p><p>The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog <strong>“Automation on the Fly”</strong> :D.</p><h1 id="mindmap">Mindmap</h1><p>This session was already a catch for me. I’m a huge fan of automation but to my surprise I’d never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. Sudarshan spoke about Clicks vs Time and How this automation needs to minimize clicks to bare minimum.</p><p>While snapshots and VM exports may seem like an easy way out for standalone machines, things get complicated in an Active Directory environment. Snapshots break for AD because of “Time”.</p><ul><li>Domain Members (includes computers) have a maximum password age of 30 days. If reverted, password in AD and the computer may not match</li><li>In AD, authentication works using Kerberos and Kerberos authentication uses time stamps as part of its protocol. Out of sync timestamps can result in missing tickets and even no authentication at all.</li></ul><h2 id="how-to-automate">How to automate?</h2><p>Question arises on how we can automate the whole process of VM installation from ISO files and configure those VMs according to our need. There are a lot of alternatives and I’ve documented the automation using <strong>Packer</strong> and <strong>Vagrant</strong> with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.</p><p><a href="https://www.packer.io/intro">Packer</a> is the first step which will create a base VM from the ISO. <a href="https://www.vagrantup.com/intro">Vagrant</a> will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.</p><h2 id="what-youll-need">What you’ll need?</h2><ul><li><a href="https://www.packer.io/downloads">Packer</a> or <code class="language-plaintext highlighter-rouge">choco install packer -y</code> using <a href="https://adamrushuk.github.io/cheatsheets/chocolatey/">Chocolatey</a></li><li><a href="https://www.vagrantup.com/downloads">Vagrant</a></li><li><a href="https://software-static.download.prss.microsoft.com/pr/download/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso">ISO file for Windows Server 2019</a></li><li><a href="https://software-static.download.prss.microsoft.com/sg/download/444969d5-f34g-4e03-ac9d-1f9786c69161/19044.1288.211006-0501.21h2_release_svc_refresh_CLIENTENTERPRISEEVAL_OEMRET_x64FRE_en-us.iso">ISO file for Windows 10</a></li><li><a href="https://github.com/0xCaretaker/Auror-Project">Cloned Github repo</a></li></ul><blockquote><p>Note: You can even download the latest Windows Server 2019 and Windows 10 image from <a href="https://www.microsoft.com/en-us/evalcenter/download-windows-server-2019">here</a> and <a href="https://www.microsoft.com/en-us/evalcenter/download-windows-10-enterprise">here</a> but remember to modify <code class="language-plaintext highlighter-rouge">iso_url</code> and <code class="language-plaintext highlighter-rouge">iso_checksum</code> variable in json files for Packer accordingly.</p></blockquote><h2 id="packer">Packer</h2><p>Packer needs a JSON file or HCL file as a template to configure the build here I’ve the files named <code class="language-plaintext highlighter-rouge">server-2019.json</code> and <code class="language-plaintext highlighter-rouge">win10.json</code> for both the machines.</p><p>This is the hierarchy for all the packer files needed for server-2019 and is similar for Windows 10 machine:</p><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+I"�z<p>Recently, I stumbled on an initiative called “The Auror Project” by <a href="https://www.linkedin.com/in/sudarshan-pisupati-607b0ab/">Sudarshan Pisupati</a> which was starting a course called “<a href="https://www.linkedin.com/feed/update/urn:li:activity:6919205808157155328/">3 Machine Labs</a>”. 
+“3 Machine Labs” is a challenge based learning approach to solidify fundamentals of Active Directory over a series of 9 sessions.</p>
+
+<p>The first session came with a <a href="https://docs.google.com/document/d/1Zk_O_JpFQk5JQRGF9CAC0plml3ua3hCQ5VBDLxE2GQI/edit#heading=h.1vlpfqvcrv4">challenge</a> to automate the process of building an Active Directory Lab with some specifications.</p>
+
+<p>Automation should:</p>
+<ul>
+  <li>Setup two Virtual Machines; Windows Server &amp; Windows 10</li>
+  <li>Install Active Directory Domain Services(ADDS) on the Windows Server and promote the server to Domain controller through a process called DC Promo</li>
+  <li>Add Windows 10 machine to Windows Server domain, through a process called Domain join</li>
+</ul>
+
+<p>Some specifications for the machines were:
+For Windows Server (Domain controller):</p>
+<ul>
+  <li>Domain name should be “auror.local”</li>
+  <li>Has DNS role</li>
+  <li>Contains a Domain user called “Adam” with password “Pass@123”</li>
+</ul>
+
+<p>For Windows 10:</p>
+<ul>
+  <li>Should’ve Google Chrome installed</li>
+  <li>User “Adam” should be configured as a local administrator</li>
+  <li>Firewall should be disabled</li>
+</ul>
+
+<p>I gave a lot of time to this Task, for which I’m not sure on how should I feel like.. But..</p>
+
+<p>The pic above shows me running packer builds on my flight to Mumbai xD, hence a fair title for the blog <strong>“Automation on the Fly”</strong> :D.</p>
+<h1 id="mindmap">Mindmap</h1>
+<p>This session was already a catch for me. I’m a huge fan of automation but to my surprise I’d never given a thought of automating installations of virtual machines and lab environments, even though it was tedious, specially with AD environments. 
+Rebuilding an AD Lab manually means setup VMs , DC Promo, user and computer accounts and Domain join again, that too for a clean simplistic AD. 
+Sudarshan spoke about Clicks vs Time and How this automation needs to minimize clicks to bare minimum.</p>
+
+<p>While snapshots and VM exports may seem like an easy way out for standalone machines, things get complicated in an Active Directory environment. 
+Snapshots break for AD because of “Time”.</p>
+<ul>
+  <li>Domain Members (includes computers) have a maximum password age of 30 days. If reverted, password in AD and the computer may not match</li>
+  <li>In AD, authentication works using Kerberos and Kerberos authentication uses time stamps as part of its protocol. Out of sync timestamps can result in missing tickets and even no authentication at all.</li>
+</ul>
+
+<h2 id="how-to-automate">How to automate?</h2>
+<p>Question arises on how we can automate the whole process of VM installation from ISO files and configure those VMs according to our need.
+There are a lot of alternatives and I’ve documented the automation using <strong>Packer</strong> and <strong>Vagrant</strong> with VirtualBox as my preferred choice of hypervisor, needless to say configuration files can be easily modified to any hypervisor of your choice.</p>
+
+<p><a href="https://www.packer.io/intro">Packer</a> is the first step which will create a base VM from the ISO.
+<a href="https://www.vagrantup.com/intro">Vagrant</a> will then further on build the whole virtual machine environment from the output of Packer by cloning and modifying/managing it.</p>
+<h2 id="what-youll-need">What you’ll need?</h2>
+<ul>
+  <li><a href="https://www.packer.io/downloads">Packer</a> or <code class="language-plaintext highlighter-rouge">choco install packer -y</code> using <a href="https://adamrushuk.github.io/cheatsheets/chocolatey/">Chocolatey</a></li>
+  <li><a href="https://www.vagrantup.com/downloads">Vagrant</a></li>
+  <li><a href="https://software-static.download.prss.microsoft.com/pr/download/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso">ISO file for Windows Server 2019</a></li>
+  <li><a href="https://software-static.download.prss.microsoft.com/sg/download/444969d5-f34g-4e03-ac9d-1f9786c69161/19044.1288.211006-0501.21h2_release_svc_refresh_CLIENTENTERPRISEEVAL_OEMRET_x64FRE_en-us.iso">ISO file for Windows 10</a></li>
+  <li><a href="https://github.com/0xCaretaker/Auror-Project">Cloned Github repo</a></li>
+</ul>
+
+<blockquote>
+  <p>Note: You can even download the latest Windows Server 2019 and Windows 10 image from <a href="https://www.microsoft.com/en-us/evalcenter/download-windows-server-2019">here</a> and <a href="https://www.microsoft.com/en-us/evalcenter/download-windows-10-enterprise">here</a> but remember to modify <code class="language-plaintext highlighter-rouge">iso_url</code> and <code class="language-plaintext highlighter-rouge">iso_checksum</code> variable in json files for Packer accordingly.</p>
+</blockquote>
+
+<h2 id="packer">Packer</h2>
+<p>Packer needs a JSON file or HCL file as a template to configure the build here I’ve the files named <code class="language-plaintext highlighter-rouge">server-2019.json</code> and <code class="language-plaintext highlighter-rouge">win10.json</code> for both the machines.</p>
+
+<p>This is the hierarchy for all the packer files needed for server-2019 and is similar for Windows 10 machine:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -8,7 +73,7 @@
 8
 9
 10
-</pre><td class="rouge-code"><pre>server-2019/
+</pre></td><td class="rouge-code"><pre>server-2019/
 ├── files
 │   ├── autounattend.xml
 │   ├── scripts
@@ -18,7 +83,42 @@
 │   └── unattend.xml
 ├── server-2019.json
 └── server-2019-vagrantfile.template
-</pre></table></code></div></div><p>I’ve used JSON template files which contains all the necessary configuration like Type of installation(ISO here), Disk size, No. of CPUs, Memory size, OS type, ISO url/path, communicator type for vagrant(WinRM here) with it’s credentials, files which need to be mounted for use and finally the post processors(vagrant) for it’s output.</p><h3 id="external-scripts-in-packer">External scripts in packer</h3><p>As you can see there are 3 common external scripts I have used with packer in <a href="https://github.com/0xCaretaker/Auror-Project">my git repo</a>, namely <code class="language-plaintext highlighter-rouge">fixnetwork.ps1</code>, <code class="language-plaintext highlighter-rouge">winrmConfig.bat</code> and <code class="language-plaintext highlighter-rouge">sysprep.bat</code>.</p><ul><li><p>winrmConfig.bat Communicators are used by Packer to upload files, execute scripts, etc. with the machine being created. <code class="language-plaintext highlighter-rouge">winrmConfig.bat</code> is a pre-run script that configures and enables WinRM on the guest machine. All the configuration and code for the script has been given in Packer docs:<a href="https://www.packer.io/docs/communicators/winrm">www.packer.io/docs/communicators/winrm</a></p></li><li><p>fixnetwork.ps1 If you try to run the above <code class="language-plaintext highlighter-rouge">winrmConfig.bat</code> in windows10, it’ll not work because on a Server OS, like Windows Server 2019, the firewall rule for Public networks allows on remote connections from other devices on the same network. On a client OS, like Windows 10, you will receive an error stating that you are a public network. Here’s an article which goes in detail for WinRM configuration and how networks should be managed: <a href="https://adamtheautomator.com/enable-psremoting/">adamtheautomator.com/enable-psremoting</a></p></li><li><p>sysprep.bat Before you can deploy a Windows image to new PCs, you have to first generalize the image. Generalizing the image removes computer-specific information such as installed drivers and the computer security identifier (SID). The <code class="language-plaintext highlighter-rouge">sysprep /generalize</code> command removes unique information from your Windows installation so that you can safely reuse that image on a different computer. The next time that you boot the Windows image, the specialize configuration pass runs. I’ve used <code class="language-plaintext highlighter-rouge">unattend.xml</code> answer file with sysprep to generalize my image.</p><blockquote><p>You can see the GUI execution of SysPrep <a href="https://mivilisnet.wordpress.com/2017/06/29/changing-sid-of-cloned-vms/">here</a> to get more context.</p></blockquote></li></ul><p>References: <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep--generalize--a-windows-installation?view=windows-11#generalize-using-unattend">SysPrep using unattend</a>, <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep-command-line-options?view=windows-11">SysPrep Command line options</a></p><p>There are two more scripts: <code class="language-plaintext highlighter-rouge">cleanup.ps1</code> and <code class="language-plaintext highlighter-rouge">setup.ps1</code> used with Windows 10 machine to fiddle with thing like: Windows Updates, Temporary files, password expiration for administrator, Disabling sleep, hibernation and configuring Powershell prompt to show time.</p><h2 id="vagrant">Vagrant</h2><p>Vagrant uses <code class="language-plaintext highlighter-rouge">Vagrantfile</code> containing the configuration to make the environment for the virtual machine. Here’s the hierarchy of the vagrant files needed for building the whole lab from the output of Packer which is <code class="language-plaintext highlighter-rouge">server-2019.box</code> and <code class="language-plaintext highlighter-rouge">win10.box</code>.</p><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I’ve used JSON template files which contains all the necessary configuration like Type of installation(ISO here), Disk size, No. of CPUs, Memory size, OS type, ISO url/path, communicator type for vagrant(WinRM here) with it’s credentials, files which need to be mounted for use and finally the post processors(vagrant) for it’s output.</p>
+
+<h3 id="external-scripts-in-packer">External scripts in packer</h3>
+<p>As you can see there are 3 common external scripts I have used with packer in <a href="https://github.com/0xCaretaker/Auror-Project">my git repo</a>, namely <code class="language-plaintext highlighter-rouge">fixnetwork.ps1</code>, <code class="language-plaintext highlighter-rouge">winrmConfig.bat</code> and <code class="language-plaintext highlighter-rouge">sysprep.bat</code>.</p>
+
+<ul>
+  <li>
+    <p>winrmConfig.bat
+Communicators are used by Packer to upload files, execute scripts, etc. with the machine being created. <code class="language-plaintext highlighter-rouge">winrmConfig.bat</code> is a pre-run script that configures and enables WinRM on the guest machine. 
+All the configuration and code for the script has been given in Packer docs:<a href="https://www.packer.io/docs/communicators/winrm">www.packer.io/docs/communicators/winrm</a></p>
+  </li>
+  <li>
+    <p>fixnetwork.ps1
+If you try to run the above <code class="language-plaintext highlighter-rouge">winrmConfig.bat</code> in windows10, it’ll not work because on a Server OS, like Windows Server 2019, the firewall rule for Public networks allows on remote connections from other devices on the same network. On a client OS, like Windows 10, you will receive an error stating that you are a public network.
+Here’s an article which goes in detail for WinRM configuration and how networks should be managed: <a href="https://adamtheautomator.com/enable-psremoting/">adamtheautomator.com/enable-psremoting</a></p>
+  </li>
+  <li>
+    <p>sysprep.bat
+Before you can deploy a Windows image to new PCs, you have to first generalize the image. Generalizing the image removes computer-specific information such as installed drivers and the computer security identifier (SID). 
+The <code class="language-plaintext highlighter-rouge">sysprep /generalize</code> command removes unique information from your Windows installation so that you can safely reuse that image on a different computer. The next time that you boot the Windows image, the specialize configuration pass runs.
+I’ve used <code class="language-plaintext highlighter-rouge">unattend.xml</code> answer file with sysprep to generalize my image.</p>
+    <blockquote>
+      <p>You can see the GUI execution of SysPrep <a href="https://mivilisnet.wordpress.com/2017/06/29/changing-sid-of-cloned-vms/">here</a> to get more context.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p>References: <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep--generalize--a-windows-installation?view=windows-11#generalize-using-unattend">SysPrep using unattend</a>, <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep-command-line-options?view=windows-11">SysPrep Command line options</a></p>
+
+<p>There are two more scripts: <code class="language-plaintext highlighter-rouge">cleanup.ps1</code> and <code class="language-plaintext highlighter-rouge">setup.ps1</code> used with Windows 10 machine to fiddle with thing like: Windows Updates, Temporary files, password expiration for administrator, Disabling sleep, hibernation and configuring Powershell prompt to show time.</p>
+<h2 id="vagrant">Vagrant</h2>
+<p>Vagrant uses <code class="language-plaintext highlighter-rouge">Vagrantfile</code> containing the configuration to make the environment for the virtual machine.
+Here’s the hierarchy of the vagrant files needed for building the whole lab from the output of Packer which is <code class="language-plaintext highlighter-rouge">server-2019.box</code> and <code class="language-plaintext highlighter-rouge">win10.box</code>.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -29,7 +129,7 @@
 9
 10
 11
-</pre><td class="rouge-code"><pre>Vagrant/
+</pre></td><td class="rouge-code"><pre>Vagrant/
 ├── files
 │   ├── add-adam.ps1
 │   ├── add-localadmin.ps1
@@ -40,7 +140,74 @@
 ├── server-2019.box
 ├── Vagrantfile
 └── win10.box
-</pre></table></code></div></div><ul><li><code class="language-plaintext highlighter-rouge">Vagrantfile</code> provides hostname for the machines, their network configuration and uses the WinRM credentials(configured in Packer) to communicate with the guest and run scripts. It even handles VirtualBox configuration for the name, memory(including video memory), guest additions like shared clipboard etc.<blockquote><p>Note: Be careful on the network adapter configuration, I’ve kept 10.1.1.0/24 as subnet, which shouldn’t collide with the other having 10.0.2.0/24 (I was trying to keep the original network given to us: 10.0.0.0/24, where DC01 had the IP 10.0.0.9. But, If I mention the gateway as 10.0.0.0, it would collide with the first adapter, by giving the second adapter the subnet of 10.0.0.0/8)</p></blockquote></li></ul><p>Scripts used: For DC01:</p><ul><li><code class="language-plaintext highlighter-rouge">set-timezone.ps1</code> - Sets timezone for DC01</li><li><code class="language-plaintext highlighter-rouge">install-active-directory.ps1</code> - Install ADDS and perform DCPromo, create a new forest which contains a domain named <code class="language-plaintext highlighter-rouge">auror.local</code></li><li><code class="language-plaintext highlighter-rouge">add-adam.ps1</code> - Adds a user named <code class="language-plaintext highlighter-rouge">Adam</code> For PC01:</li><li><code class="language-plaintext highlighter-rouge">install-chrome.ps1</code> - Installs chrome, disables firewall and enables RDP for PC01</li><li><code class="language-plaintext highlighter-rouge">join-domain.ps1</code> - Performs Domain Join process using <code class="language-plaintext highlighter-rouge">Add-Computer</code>, by first setting the DNS as DC01</li><li><code class="language-plaintext highlighter-rouge">add-localadmin.ps1</code> - Sets <code class="language-plaintext highlighter-rouge">Adam</code> as local administrator for PC01, Runs windows update and disables windows defender automatic submissions</li></ul><h1 id="what-a-waste-of-time">What a waste of time…</h1><p>Since, I’d no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant. You don’t necessarily have to read this and can go to <a href="https://0xcaretaker.github.io/Automation on the Fly - The Auror Project">TL;DR Build the lab?</a> First, Packer will be used to build the base VM from the ISOs.</p><h2 id="explaining-packer-files">Explaining Packer files</h2><p>I discussed about the template JSON file, but what about others?</p><ul><li><code class="language-plaintext highlighter-rouge">server-2019-vagrantfile.template</code> is used in the <code class="language-plaintext highlighter-rouge">post_processors</code> section as this template file will be needed to output the build in <code class="language-plaintext highlighter-rouge">.box</code> format for Vagrant.</li><li><code class="language-plaintext highlighter-rouge">autounattend.xml</code> is the core answer file for automating the whole windows installation process</li><li><code class="language-plaintext highlighter-rouge">unattend.xml</code> is another answer file which is used to modify windows settings after the first user is created and assigned a default language(We’ll need that with SysPrep)</li><li>Scripts folder contains various scripts already discussed</li></ul><h3 id="what-is-autounattendxml">What is autounattend.xml?</h3><p>The most important file for Packer is <code class="language-plaintext highlighter-rouge">autounattend.xml</code>, it acts as an answer file to Windows Setup installation since all the UI pages needs to be automated. Unattended installation settings can be applied in one or more configuration passes.</p><p>But <strong>What are Windows setup configuration passes?</strong></p><blockquote><p>Windows Setup Configuration Passes are used to specify different phases of Windows Setup. Source: <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-setup-configuration-passes?view=windows-11">Windows-Setup-Configuration-Passes</a></p></blockquote><p>The following diagram shows the relationship between the configuration passes relative to the different deployment tools. <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-2.png" alt="Pasted image 20220526143314.png" /></p><p>Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as <code class="language-plaintext highlighter-rouge">auditSystem</code> and <code class="language-plaintext highlighter-rouge">auditUser</code>, run only if you boot the computer to audit mode. Most Windows Setup <code class="language-plaintext highlighter-rouge">unattend</code> settings can be added to either the <code class="language-plaintext highlighter-rouge">specialize</code> or the <code class="language-plaintext highlighter-rouge">oobeSystem</code> configuration pass. The other configuration passes can also be useful in certain situations.</p><h4 id="windowspe-configuration-pass">windowsPE Configuration pass</h4><p>The windowsPE configuration pass is used to configure settings specific to Windows Preinstallation Environment (Windows PE) in addition to settings that apply to installation. This configuration pass runs when booting the Windows Setup media.</p><p>For more info: <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windowspe?view=windows-11">Microsoft-WindowsPE</a></p><p>As already stated, windowsPE configures settings related to the installation environment and then the setup as well. So, it usually has 2 components <code class="language-plaintext highlighter-rouge">Microsoft-Windows-International-Core-WinPE</code> and <code class="language-plaintext highlighter-rouge">Microsoft-Windows-Setup</code>.</p><h5 id="component-microsoft-windows-international-core-winpe">Component <code class="language-plaintext highlighter-rouge">Microsoft-Windows-International-Core-WinPE</code></h5><p>It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.</p><p>So, The first screen, which is the language selection screen is now automated.<br /> <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-3.png" alt="Pasted image 20220524165329.png" /></p><p>The code snippet looks something like this:</p><div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Vagrantfile</code> provides hostname for the machines, their network configuration and uses the WinRM credentials(configured in Packer) to communicate with the guest and run scripts. It even handles VirtualBox configuration for the name, memory(including video memory), guest additions like shared clipboard etc.
+    <blockquote>
+      <p>Note: Be careful on the network adapter configuration, I’ve kept 10.1.1.0/24 as subnet, which shouldn’t collide with the other having 10.0.2.0/24
+(I was trying to keep the original network given to us: 10.0.0.0/24, where DC01 had the IP 10.0.0.9. But, If I mention the gateway as 10.0.0.0, it would collide with the first adapter, by giving the second adapter the subnet of 10.0.0.0/8)</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p>Scripts used:
+For DC01:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">set-timezone.ps1</code> - Sets timezone for DC01</li>
+  <li><code class="language-plaintext highlighter-rouge">install-active-directory.ps1</code> - Install ADDS and perform DCPromo, create a new forest which contains a domain named <code class="language-plaintext highlighter-rouge">auror.local</code></li>
+  <li><code class="language-plaintext highlighter-rouge">add-adam.ps1</code> - Adds a user named <code class="language-plaintext highlighter-rouge">Adam</code>
+For PC01:</li>
+  <li><code class="language-plaintext highlighter-rouge">install-chrome.ps1</code> - Installs chrome, disables firewall and enables RDP for PC01</li>
+  <li><code class="language-plaintext highlighter-rouge">join-domain.ps1</code> - Performs Domain Join process using <code class="language-plaintext highlighter-rouge">Add-Computer</code>, by first setting the DNS as DC01</li>
+  <li><code class="language-plaintext highlighter-rouge">add-localadmin.ps1</code> - Sets <code class="language-plaintext highlighter-rouge">Adam</code> as local administrator for PC01, Runs windows update and disables windows defender automatic submissions
+    <h1 id="what-a-waste-of-time">What a waste of time…</h1>
+    <p>Since, I’d no clue what Packer and Vagrant is before this project, this section will go in an in-depth explanation on how everything works using Packer and Vagrant.
+You don’t necessarily have to read this and can go to <a href="https://0xcaretaker.github.io/Automation on the Fly - The Auror Project">TL;DR Build the lab?</a>
+First, Packer will be used to build the base VM from the ISOs.</p>
+  </li>
+</ul>
+
+<h2 id="explaining-packer-files">Explaining Packer files</h2>
+<p>I discussed about the template JSON file, but what about others?</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">server-2019-vagrantfile.template</code> is used in the <code class="language-plaintext highlighter-rouge">post_processors</code> section as this template file will be needed to output the build in <code class="language-plaintext highlighter-rouge">.box</code> format for Vagrant.</li>
+  <li><code class="language-plaintext highlighter-rouge">autounattend.xml</code> is the core answer file for automating the whole windows installation process</li>
+  <li><code class="language-plaintext highlighter-rouge">unattend.xml</code> is another answer file which is used to modify windows settings after the first user is created and assigned a default language(We’ll need that with SysPrep)</li>
+  <li>Scripts folder contains various scripts already discussed</li>
+</ul>
+
+<h3 id="what-is-autounattendxml">What is autounattend.xml?</h3>
+<p>The most important file for Packer is <code class="language-plaintext highlighter-rouge">autounattend.xml</code>, it acts as an answer file to Windows Setup installation since all the UI pages needs to be automated. Unattended installation settings can be applied in one or more configuration passes.</p>
+
+<p>But <strong>What are Windows setup configuration passes?</strong></p>
+<blockquote>
+  <p>Windows Setup Configuration Passes are used to specify different phases of Windows Setup. 
+Source: <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-setup-configuration-passes?view=windows-11">Windows-Setup-Configuration-Passes</a></p>
+</blockquote>
+
+<p>The following diagram shows the relationship between the configuration passes relative to the different deployment tools.
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-2.png" alt="Pasted image 20220526143314.png" /></p>
+
+<p>Not all configuration passes run in a particular installation of Windows. Some configuration passes, such as <code class="language-plaintext highlighter-rouge">auditSystem</code> and <code class="language-plaintext highlighter-rouge">auditUser</code>, run only if you boot the computer to audit mode. 
+Most Windows Setup <code class="language-plaintext highlighter-rouge">unattend</code> settings can be added to either the <code class="language-plaintext highlighter-rouge">specialize</code> or the <code class="language-plaintext highlighter-rouge">oobeSystem</code> configuration pass. The other configuration passes can also be useful in certain situations.</p>
+
+<h4 id="windowspe-configuration-pass">windowsPE Configuration pass</h4>
+<p>The windowsPE configuration pass is used to configure settings specific to Windows Preinstallation Environment (Windows PE) in addition to settings that apply to installation.
+This configuration pass runs when booting the Windows Setup media.</p>
+
+<p>For more info: <a href="https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windowspe?view=windows-11">Microsoft-WindowsPE</a></p>
+
+<p>As already stated, windowsPE configures settings related to the installation environment and then the setup as well. So, it usually has 2 components <code class="language-plaintext highlighter-rouge">Microsoft-Windows-International-Core-WinPE</code> and <code class="language-plaintext highlighter-rouge">Microsoft-Windows-Setup</code>.</p>
+
+<h5 id="component-microsoft-windows-international-core-winpe">Component <code class="language-plaintext highlighter-rouge">Microsoft-Windows-International-Core-WinPE</code></h5>
+<p>It specifies the default language, locale, and other international settings to use during Windows Setup or Windows Deployment Services installations.</p>
+
+<p>So, The first screen, which is the language selection screen is now automated.<br />
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-3.png" alt="Pasted image 20220524165329.png" /></p>
+
+<p>The code snippet looks something like this:</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -50,7 +217,7 @@
 8
 9
 10
-</pre><td class="rouge-code"><pre>        <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-International-Core-WinPE"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
+</pre></td><td class="rouge-code"><pre>        <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-International-Core-WinPE"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
             <span class="nt">&lt;SetupUILanguage&gt;</span>
                 <span class="nt">&lt;UILanguage&gt;</span>en-US<span class="nt">&lt;/UILanguage&gt;</span>
             <span class="nt">&lt;/SetupUILanguage&gt;</span>
@@ -60,7 +227,14 @@
             <span class="nt">&lt;UILanguageFallback&gt;</span>en-US<span class="nt">&lt;/UILanguageFallback&gt;</span>
             <span class="nt">&lt;UserLocale&gt;</span>en-US<span class="nt">&lt;/UserLocale&gt;</span>
         <span class="nt">&lt;/component&gt;</span>
-</pre></table></code></div></div><h5 id="component-microsoft-windows-setup">Component <code class="language-plaintext highlighter-rouge">Microsoft-Windows-Setup</code></h5><p>This component contains settings that enable you to select the Windows image that you install, configure the disk that you install Windows to, and configure the Windows PE operating system.</p><ol><li>Imageinstall<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="component-microsoft-windows-setup">Component <code class="language-plaintext highlighter-rouge">Microsoft-Windows-Setup</code></h5>
+<p>This component contains settings that enable you to select the Windows image that you install, configure the disk that you install Windows to, and configure the Windows PE operating system.</p>
+
+<ol>
+  <li>Imageinstall
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -74,7 +248,7 @@
 12
 13
 14
-</pre><td class="rouge-code"><pre>         <span class="nt">&lt;ImageInstall&gt;</span>
+</pre></td><td class="rouge-code"><pre>         <span class="nt">&lt;ImageInstall&gt;</span>
              <span class="nt">&lt;OSImage&gt;</span>
                  <span class="nt">&lt;InstallFrom&gt;</span>
                      <span class="nt">&lt;MetaData</span> <span class="na">wcm:action=</span><span class="s">"add"</span><span class="nt">&gt;</span>
@@ -88,17 +262,30 @@
                  <span class="nt">&lt;/InstallTo&gt;</span>
              <span class="nt">&lt;/OSImage&gt;</span>
          <span class="nt">&lt;/ImageInstall&gt;</span>
-</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-4.png" alt="Pasted image 20220524165828.png" /></p></li><li>Now we’re greeted with EULA agreement message: <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-5.png" alt="Pasted image 20220524165919.png" /> and that is handled by:<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p><img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-4.png" alt="Pasted image 20220524165828.png" /></p>
+  </li>
+  <li>Now we’re greeted with EULA agreement message:
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-5.png" alt="Pasted image 20220524165919.png" />
+and that is handled by:
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
-</pre><td class="rouge-code"><pre>         <span class="nt">&lt;UserData&gt;</span>
+</pre></td><td class="rouge-code"><pre>         <span class="nt">&lt;UserData&gt;</span>
              <span class="nt">&lt;AcceptEula&gt;</span>true<span class="nt">&lt;/AcceptEula&gt;</span>
              <span class="nt">&lt;FullName&gt;</span>Packer<span class="nt">&lt;/FullName&gt;</span>
              <span class="nt">&lt;Organization&gt;</span>Packer<span class="nt">&lt;/Organization&gt;</span>
          <span class="nt">&lt;/UserData&gt;</span>
-</pre></table></code></div></div></li><li>Disk configuration: This configuration creates 2 partitions:<ul><li>boot partition of 350MB in size</li><li>Rest size extended for C Drive<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Disk configuration:
+This configuration creates 2 partitions:
+    <ul>
+      <li>boot partition of 350MB in size</li>
+      <li>Rest size extended for C Drive
+        <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -132,7 +319,7 @@
 32
 33
 34
-</pre><td class="rouge-code"><pre>       <span class="nt">&lt;DiskConfiguration&gt;</span>
+</pre></td><td class="rouge-code"><pre>       <span class="nt">&lt;DiskConfiguration&gt;</span>
            <span class="nt">&lt;Disk</span> <span class="na">wcm:action=</span><span class="s">"add"</span><span class="nt">&gt;</span>
                <span class="nt">&lt;CreatePartitions&gt;</span>
                    <span class="nt">&lt;CreatePartition</span> <span class="na">wcm:action=</span><span class="s">"add"</span><span class="nt">&gt;</span>
@@ -166,17 +353,40 @@
                <span class="nt">&lt;WillWipeDisk&gt;</span>true<span class="nt">&lt;/WillWipeDisk&gt;</span>
            <span class="nt">&lt;/Disk&gt;</span>
        <span class="nt">&lt;/DiskConfiguration&gt;</span>
-</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png" alt="Pasted image 20220524170143.png" /></p></li></ul></li></ol><h4 id="offlineservicing-configuration-pass">offlineServicing Configuration pass</h4><p><code class="language-plaintext highlighter-rouge">offlineServicing</code> configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image. The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).</p><div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+        <p><img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-6.png" alt="Pasted image 20220524170143.png" /></p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="offlineservicing-configuration-pass">offlineServicing Configuration pass</h4>
+
+<p><code class="language-plaintext highlighter-rouge">offlineServicing</code> configuration pass to apply unattended Setup settings to an offline Microsoft Windows image. During this configuration pass, you can add language packs, update package, device drivers, or other packages to the offline image.
+The Microsoft-Windows-LUA-Settings component includes settings related to the Windows User Account Controls (UAC), formerly known as Limited User Account (LUA).</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
-</pre><td class="rouge-code"><pre>    <span class="nt">&lt;settings</span> <span class="na">pass=</span><span class="s">"offlineServicing"</span><span class="nt">&gt;</span>
+</pre></td><td class="rouge-code"><pre>    <span class="nt">&lt;settings</span> <span class="na">pass=</span><span class="s">"offlineServicing"</span><span class="nt">&gt;</span>
         <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-LUA-Settings"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
             <span class="nt">&lt;EnableLUA&gt;</span>false<span class="nt">&lt;/EnableLUA&gt;</span>
         <span class="nt">&lt;/component&gt;</span>
     <span class="nt">&lt;/settings&gt;</span>
-</pre></table></code></div></div><p>EnableLUA specifies whether the windows User Account Controls (UAC) should notify the user when programs try to make changes to the computer.</p><p>We set that to false, so that UAC prompts aren’t popped up.</p><h4 id="specialize-configuration-pass">specialize Configuration pass</h4><p>During the <code class="language-plaintext highlighter-rouge">specialize</code> configuration pass of Windows Setup, computer-specific information for the image is applied.</p><p>For example you can:</p><ul><li>configure network settings, timezone settings, and domain information.<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>EnableLUA specifies whether the windows User Account Controls (UAC) should notify the user when programs try to make changes to the computer.</p>
+
+<p>We set that to false, so that UAC prompts aren’t popped up.</p>
+<h4 id="specialize-configuration-pass">specialize Configuration pass</h4>
+<p>During the <code class="language-plaintext highlighter-rouge">specialize</code> configuration pass of Windows Setup, computer-specific information for the image is applied.</p>
+
+<p>For example you can:</p>
+<ul>
+  <li>configure network settings, timezone settings, and domain information.
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -185,7 +395,7 @@
 7
 8
 9
-</pre><td class="rouge-code"><pre>  <span class="nt">&lt;settings</span> <span class="na">pass=</span><span class="s">"specialize"</span><span class="nt">&gt;</span>
+</pre></td><td class="rouge-code"><pre>  <span class="nt">&lt;settings</span> <span class="na">pass=</span><span class="s">"specialize"</span><span class="nt">&gt;</span>
       <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-Shell-Setup"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
           <span class="nt">&lt;OEMInformation&gt;</span>
               <span class="nt">&lt;HelpCustomized&gt;</span>false<span class="nt">&lt;/HelpCustomized&gt;</span>
@@ -194,13 +404,19 @@
           <span class="nt">&lt;TimeZone&gt;</span>India Standard Time<span class="nt">&lt;/TimeZone&gt;</span>
           <span class="nt">&lt;RegisteredOwner/&gt;</span>
       <span class="nt">&lt;/component&gt;</span>
-</pre></table></code></div></div></li><li>Computer specific configuration like not opening Server Manager whenever a user logs on<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Computer specific configuration like not opening Server Manager whenever a user logs on
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre><td class="rouge-code"><pre>      <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-ServerManager-SvrMgrNc"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
+</pre></td><td class="rouge-code"><pre>      <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-ServerManager-SvrMgrNc"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
           <span class="nt">&lt;DoNotOpenServerManagerAtLogon&gt;</span>true<span class="nt">&lt;/DoNotOpenServerManagerAtLogon&gt;</span>
       <span class="nt">&lt;/component&gt;</span>
-</pre></table></code></div></div></li><li>and Setting Global execution policy of 64/32-Bit to be Remotely signed using <code class="language-plaintext highlighter-rouge">RunSynchronousCommand</code><div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>and Setting Global execution policy of 64/32-Bit to be Remotely signed using <code class="language-plaintext highlighter-rouge">RunSynchronousCommand</code>
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -215,7 +431,7 @@
 13
 14
 15
-</pre><td class="rouge-code"><pre>      <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-Deployment"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
+</pre></td><td class="rouge-code"><pre>      <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">"Microsoft-Windows-Deployment"</span> <span class="na">processorArchitecture=</span><span class="s">"amd64"</span> <span class="na">publicKeyToken=</span><span class="s">"31bf3856ad364e35"</span> <span class="na">language=</span><span class="s">"neutral"</span> <span class="na">versionScope=</span><span class="s">"nonSxS"</span> <span class="na">xmlns:wcm=</span><span class="s">"http://schemas.microsoft.com/WMIConfig/2002/State"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
           <span class="nt">&lt;RunSynchronous&gt;</span>
               <span class="nt">&lt;RunSynchronousCommand</span> <span class="na">wcm:action=</span><span class="s">"add"</span><span class="nt">&gt;</span>
                   <span class="nt">&lt;Order&gt;</span>1<span class="nt">&lt;/Order&gt;</span>
@@ -230,7 +446,16 @@
           <span class="nt">&lt;/RunSynchronous&gt;</span>
       <span class="nt">&lt;/component&gt;</span>
   <span class="nt">&lt;/settings&gt;</span>
-</pre></table></code></div></div></li></ul><h4 id="oobsystem-configuration-pass">oobSystem Configuration pass</h4><p>The <code class="language-plaintext highlighter-rouge">oobeSystem</code> configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.</p><p>Like this built-in administrator account can be automated by <code class="language-plaintext highlighter-rouge">oobsystem</code> as: <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-7.png" alt="Pasted image 20220524173008.png" /></p><div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="oobsystem-configuration-pass">oobSystem Configuration pass</h4>
+<p>The <code class="language-plaintext highlighter-rouge">oobeSystem</code> configuration pass, also known as Windows Welcome, can be used to preconfigure user interface pages for an end user.</p>
+
+<p>Like this built-in administrator account can be automated by <code class="language-plaintext highlighter-rouge">oobsystem</code> as:
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-7.png" alt="Pasted image 20220524173008.png" /></p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -248,7 +473,7 @@
 16
 17
 18
-</pre><td class="rouge-code"><pre>            <span class="nt">&lt;UserAccounts&gt;</span>
+</pre></td><td class="rouge-code"><pre>            <span class="nt">&lt;UserAccounts&gt;</span>
                 <span class="nt">&lt;AdministratorPassword&gt;</span>
                     <span class="nt">&lt;Value&gt;</span>vagrant<span class="nt">&lt;/Value&gt;</span>
                     <span class="nt">&lt;PlainText&gt;</span>true<span class="nt">&lt;/PlainText&gt;</span>
@@ -266,7 +491,13 @@
                     <span class="nt">&lt;/LocalAccount&gt;</span>
                 <span class="nt">&lt;/LocalAccounts&gt;</span>
             <span class="nt">&lt;/UserAccounts&gt;</span>
-</pre></table></code></div></div><p>Then using these credentials we can even configure the user-specific configurations as:</p><ul><li>Autologon Specifies credentials for an account that is used to automatically log on to the computer.<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Then using these credentials we can even configure the user-specific configurations as:</p>
+<ul>
+  <li>Autologon
+Specifies credentials for an account that is used to automatically log on to the computer.
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -274,7 +505,7 @@
 6
 7
 8
-</pre><td class="rouge-code"><pre>          <span class="nt">&lt;AutoLogon&gt;</span>
+</pre></td><td class="rouge-code"><pre>          <span class="nt">&lt;AutoLogon&gt;</span>
               <span class="nt">&lt;Password&gt;</span>
                   <span class="nt">&lt;Value&gt;</span>vagrant<span class="nt">&lt;/Value&gt;</span>
                   <span class="nt">&lt;PlainText&gt;</span>true<span class="nt">&lt;/PlainText&gt;</span>
@@ -282,21 +513,29 @@
               <span class="nt">&lt;Enabled&gt;</span>true<span class="nt">&lt;/Enabled&gt;</span>
               <span class="nt">&lt;Username&gt;</span>vagrant<span class="nt">&lt;/Username&gt;</span>
           <span class="nt">&lt;/AutoLogon&gt;</span>
-</pre></table></code></div></div></li><li>FirstLogonCommands Specifies commands to run the first time that an end user logs on to the computer.<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>FirstLogonCommands
+Specifies commands to run the first time that an end user logs on to the computer.
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
 6
 7
-</pre><td class="rouge-code"><pre>          <span class="nt">&lt;FirstLogonCommands&gt;</span>
+</pre></td><td class="rouge-code"><pre>          <span class="nt">&lt;FirstLogonCommands&gt;</span>
               <span class="nt">&lt;SynchronousCommand</span> <span class="na">wcm:action=</span><span class="s">"add"</span><span class="nt">&gt;</span>
                   <span class="nt">&lt;CommandLine&gt;</span>cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"<span class="nt">&lt;/CommandLine&gt;</span>
                   <span class="nt">&lt;Description&gt;</span>Set Execution Policy 64 Bit<span class="nt">&lt;/Description&gt;</span>
                   <span class="nt">&lt;Order&gt;</span>1<span class="nt">&lt;/Order&gt;</span>
                   <span class="nt">&lt;RequiresUserInput&gt;</span>true<span class="nt">&lt;/RequiresUserInput&gt;</span>
               <span class="nt">&lt;/SynchronousCommand&gt;</span>
-</pre></table></code></div></div></li><li>OOBE OOBE specifies the behavior of some of the Windows Out of Box Experience (OOBE) screens.<div class="language-xml highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>OOBE 
+OOBE specifies the behavior of some of the Windows Out of Box Experience (OOBE) screens.
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -305,7 +544,7 @@
 7
 8
 9
-</pre><td class="rouge-code"><pre>          <span class="nt">&lt;OOBE&gt;</span>
+</pre></td><td class="rouge-code"><pre>          <span class="nt">&lt;OOBE&gt;</span>
               <span class="nt">&lt;HideEULAPage&gt;</span>true<span class="nt">&lt;/HideEULAPage&gt;</span>
               <span class="nt">&lt;HideLocalAccountScreen&gt;</span>true<span class="nt">&lt;/HideLocalAccountScreen&gt;</span>
               <span class="nt">&lt;HideOEMRegistrationScreen&gt;</span>true<span class="nt">&lt;/HideOEMRegistrationScreen&gt;</span>
@@ -314,13 +553,107 @@
               <span class="nt">&lt;NetworkLocation&gt;</span>Home<span class="nt">&lt;/NetworkLocation&gt;</span>
               <span class="nt">&lt;ProtectYourPC&gt;</span>1<span class="nt">&lt;/ProtectYourPC&gt;</span>
           <span class="nt">&lt;/OOBE&gt;</span>
-</pre></table></code></div></div></li></ul><h2 id="click-click--windows-adk">Click, Click .. Windows ADK</h2><p>So, I spent so long in understanding what all the components and functions do, that I accidently stumbled onto Windows ADK and felt like a complete loser.</p><p>Now, talking about how you don’t have to write answer xml files yourselves, rather generate it using Windows Assessment and Deployment Kit(ADK).</p><p>Install <a href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">Windows ADK</a> and..</p><ol><li>Click on File -&gt; Create answer file -&gt; Click yes, to open Windows image <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-8.png" alt="Pasted image 20220526151518.png" /></li><li><p>Mount the ISO -&gt; copy all the files to a directory, select install.wim <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png" alt="Pasted image 20220526151709.png" /> <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png" alt="Pasted image 20220526151745.png" /></p></li><li>Select the OS image name/type</li></ol><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png" alt="Pasted image 20220526151855.png" /></p><ol><li>Create a catalog file</li></ol><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png" alt="Pasted image 20220526152211.png" /> <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-13.png" alt="Pasted image 20220526161438.png" /></p><blockquote><p>Note: If you don’t see the above message and it’s spitting out errors.</p><ol><li>Try installing a different version of ADK. (Windows 10, version 1809 worked for me)</li><li>Even after that if you’re getting errors like: <code class="language-plaintext highlighter-rouge">This application requires version 6.3.9600.16384 of the Windows ADK. Install this version to correct the problem</code>. Try copying that <code class="language-plaintext highlighter-rouge">install.wim</code> file to another location.</li></ol></blockquote><p>Now, let’s suppose, I want to add some configuration related to Internet Explorer. I can just Right-Click and add to specific pass. <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-14.png" alt="Pasted image 20220526163637.png" /></p><p>Each component has a lot of properties which you can configure, like IE has: <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-15.png" alt="Pasted image 20220526164430.png" /> I’ve made some changes so that:</p><ul><li>Popups are blocked</li><li>DevTools is disabled</li><li>No frustrating first run wizard</li><li>Homepage is Google and I’m not slammed with some MSN news</li><li>A Custom User-Agent</li></ul><p>Do all you want and then export the answer file as <code class="language-plaintext highlighter-rouge">autounattend.xml</code> ;)</p><h1 id="tldr-build-the-lab">TL;DR Build the lab?</h1><p>I’ve given the installation steps in my <a href="https://github.com/0xCaretaker/Auror-Project">git repo</a>, I’ll show what really happens when you run those commands.</p><ol><li>Download the ISO files in the main(Auror-Project) directory</li><li>Build ISO using packer with <code class="language-plaintext highlighter-rouge">packer build server-2019.json</code> &amp; <code class="language-plaintext highlighter-rouge">packer build win10.json</code> or even better you can run <code class="language-plaintext highlighter-rouge">.\packer-build.bat</code> to run both the packer builds at the same time.(On windows ofc, for Linux you can use <code class="language-plaintext highlighter-rouge">nohup &lt;cmd&gt; &amp;</code>) which contains:<div class="language-batch highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="click-click--windows-adk">Click, Click .. Windows ADK</h2>
+<p>So, I spent so long in understanding what all the components and functions do, that I accidently stumbled onto Windows ADK and felt like a complete loser.</p>
+
+<p>Now, talking about how you don’t have to write answer xml files yourselves, rather generate it using Windows Assessment and Deployment Kit(ADK).</p>
+
+<p>Install <a href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">Windows ADK</a> and..</p>
+<ol>
+  <li>Click on File -&gt; Create answer file -&gt; Click yes, to open Windows image
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-8.png" alt="Pasted image 20220526151518.png" /></li>
+  <li>
+    <p>Mount the ISO -&gt; copy all the files to a directory, select install.wim
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-9.png" alt="Pasted image 20220526151709.png" />
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-10.png" alt="Pasted image 20220526151745.png" /></p>
+  </li>
+  <li>Select the OS image name/type</li>
+</ol>
+
+<p><img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-11.png" alt="Pasted image 20220526151855.png" /></p>
+<ol>
+  <li>Create a catalog file
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-12.png" alt="Pasted image 20220526152211.png" />
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-13.png" alt="Pasted image 20220526161438.png" />
+    <blockquote>
+      <p>Note: If you don’t see the above message and it’s spitting out errors.</p>
+      <ol>
+        <li>Try installing a different version of ADK. (Windows 10, version 1809 worked for me)</li>
+        <li>Even after that if you’re getting errors like: <code class="language-plaintext highlighter-rouge">This application requires version 6.3.9600.16384 of the Windows ADK. Install this version to correct the problem</code>. Try copying that <code class="language-plaintext highlighter-rouge">install.wim</code> file to another location.</li>
+      </ol>
+    </blockquote>
+  </li>
+</ol>
+
+<p>Now, let’s suppose, I want to add some configuration related to Internet Explorer. I can just Right-Click and add to specific pass.
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-14.png" alt="Pasted image 20220526163637.png" /></p>
+
+<p>Each component has a lot of properties which you can configure, like IE has:
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-15.png" alt="Pasted image 20220526164430.png" />
+I’ve made some changes so that:</p>
+<ul>
+  <li>Popups are blocked</li>
+  <li>DevTools is disabled</li>
+  <li>No frustrating first run wizard</li>
+  <li>Homepage is Google and I’m not slammed with some MSN news</li>
+  <li>A Custom User-Agent</li>
+</ul>
+
+<p>Do all you want and then export the answer file as <code class="language-plaintext highlighter-rouge">autounattend.xml</code> ;)</p>
+
+<h1 id="tldr-build-the-lab">TL;DR Build the lab?</h1>
+<p>I’ve given the installation steps in my <a href="https://github.com/0xCaretaker/Auror-Project">git repo</a>, I’ll show what really happens when you run those commands.</p>
+
+<ol>
+  <li>Download the ISO files in the main(Auror-Project) directory</li>
+  <li>Build ISO using packer with <code class="language-plaintext highlighter-rouge">packer build server-2019.json</code> &amp; <code class="language-plaintext highlighter-rouge">packer build win10.json</code> 
+or 
+even better you can run <code class="language-plaintext highlighter-rouge">.\packer-build.bat</code> to run both the packer builds at the same time.(On windows ofc, for Linux you can use <code class="language-plaintext highlighter-rouge">nohup &lt;cmd&gt; &amp;</code>)
+which contains:
+    <div class="language-batch highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
-</pre><td class="rouge-code"><pre> <span class="nb">start</span> <span class="nb">cmd</span> <span class="na">/K </span><span class="s2">"cd Packer\server-2019 &amp;&amp; packer build server-2019.json"</span>
+</pre></td><td class="rouge-code"><pre> <span class="nb">start</span> <span class="nb">cmd</span> <span class="na">/K </span><span class="s2">"cd Packer\server-2019 &amp;&amp; packer build server-2019.json"</span>
  <span class="nb">start</span> <span class="nb">cmd</span> <span class="na">/K </span><span class="s2">"cd Packer\win10 &amp;&amp; packer build win10.json"</span>
-</pre></table></code></div></div><p>Output: Build will take sometime and should look like this: <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png" alt="Pasted image 20220625172205.png" /> My build finished in ~20 mins. <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png" alt="Pasted image 20220625200602.png" /></p></li><li>Now, We’ve to configure the built base images with vagrant to build our environment.<div class="language-batch highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre><td class="rouge-code"><pre><span class="nb">cd</span> <span class="kd">Vagrant</span> <span class="o">&amp;&amp;</span> <span class="kd">vagrant</span> <span class="kd">up</span>
-</pre></table></code></div></div><p>My Vagrant took 38 minutes to set up the environment. Taking it as ~40 mins.</p></li></ol><p>There it is.. Complete lab from scratch in your fingertips within 60 mins.</p><h1 id="under-the-hood-build">Under the hood (Build)</h1><h3 id="building-server-2019-with-packer">Building Server-2019 with Packer</h3><ol><li>Retrieves ISO and tries to fetch it from the given location</li><li>Creates a floppy disk, copies all the floppy files</li><li>Creates a VM with the given size</li><li>Mounts ISO, mounts and attaches floppy disk</li><li>Creates forwarded port mapping for communicators like SSH and WinRM with the given credentials</li><li>Executes VBoxManage commands for Memory and CPU config</li><li>Starts VM, waits for boot and tries to connect to the installation using communicator (WinRM)</li><li>Installation using the autounattend.xml carries on</li><li>After the installation completes, shutdown command is triggered, which initializes SysPrep</li><li>Deletes forwarded mapping for communicators</li><li>Exports VM in .ovf format and deletes VM</li><li>Runs Post processor vagrant which takes the .ovf artifact and outputs a Vagrant .box using the template provided</li></ol><div class="language-batch highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Output:
+Build will take sometime and should look like this:
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png" alt="Pasted image 20220625172205.png" />
+My build finished in ~20 mins.
+<img src="/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-17.png" alt="Pasted image 20220625200602.png" /></p>
+  </li>
+  <li>Now, We’ve to configure the built base images with vagrant to build our environment.
+    <div class="language-batch highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">cd</span> <span class="kd">Vagrant</span> <span class="o">&amp;&amp;</span> <span class="kd">vagrant</span> <span class="kd">up</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>My Vagrant took 38 minutes to set up the environment. Taking it as ~40 mins.</p>
+  </li>
+</ol>
+
+<p>There it is.. Complete lab from scratch in your fingertips within 60 mins.</p>
+
+<h1 id="under-the-hood-build">Under the hood (Build)</h1>
+<h3 id="building-server-2019-with-packer">Building Server-2019 with Packer</h3>
+<ol>
+  <li>Retrieves ISO and tries to fetch it from the given location</li>
+  <li>Creates a floppy disk, copies all the floppy files</li>
+  <li>Creates a VM with the given size</li>
+  <li>Mounts ISO, mounts and attaches floppy disk</li>
+  <li>Creates forwarded port mapping for communicators like SSH and WinRM with the given credentials</li>
+  <li>Executes VBoxManage commands for Memory and CPU config</li>
+  <li>Starts VM, waits for boot and tries to connect to the installation using communicator (WinRM)</li>
+  <li>Installation using the autounattend.xml carries on</li>
+  <li>After the installation completes, shutdown command is triggered, which initializes SysPrep</li>
+  <li>Deletes forwarded mapping for communicators</li>
+  <li>Exports VM in .ovf format and deletes VM</li>
+  <li>Runs Post processor vagrant which takes the .ovf artifact and outputs a Vagrant .box using the template provided</li>
+</ol>
+
+<div class="language-batch highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -400,7 +733,7 @@
 78
 79
 80
-</pre><td class="rouge-code"><pre><span class="s1">'Command: packer build server-2019.json'</span>
+</pre></td><td class="rouge-code"><pre><span class="s1">'Command: packer build server-2019.json'</span>
 <span class="kd">virtualbox</span><span class="na">-iso</span>: <span class="kd">output</span> <span class="kd">will</span> <span class="kd">be</span> <span class="k">in</span> <span class="kd">this</span> <span class="nb">color</span>.
 
 <span class="o">==&gt;</span> <span class="kd">virtualbox</span><span class="na">-iso</span>: <span class="kd">Retrieving</span> <span class="kd">ISO</span>
@@ -480,7 +813,12 @@
 
 <span class="o">==&gt;</span> <span class="kd">Builds</span> <span class="kd">finished</span>. <span class="kd">The</span> <span class="kd">artifacts</span> <span class="kd">of</span> <span class="kd">successful</span> <span class="kd">builds</span> <span class="kd">are</span>:
 <span class="o">--&gt;</span> <span class="kd">virtualbox</span><span class="na">-iso</span>: <span class="s1">'virtualbox'</span> <span class="kd">provider</span> <span class="kd">box</span>: ../../Vagrant/server<span class="o">-</span><span class="m">2019</span>.box
-</pre></table></code></div></div><h3 id="building-windows-10-with-packer">Building Windows-10 with Packer</h3><p>Every step is the same as server-2019 except here we also provided provisioners which are <code class="language-plaintext highlighter-rouge">setup.ps1</code> and <code class="language-plaintext highlighter-rouge">cleanup.ps1</code>, they run after builders and before SysPrep happens.(So, At Step 9 provisioners run now)</p><div class="language-batch highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="building-windows-10-with-packer">Building Windows-10 with Packer</h3>
+<p>Every step is the same as server-2019 except here we also provided provisioners which are <code class="language-plaintext highlighter-rouge">setup.ps1</code> and <code class="language-plaintext highlighter-rouge">cleanup.ps1</code>, they run after builders and before SysPrep happens.(So, At Step 9 provisioners run now)</p>
+
+<div class="language-batch highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -670,7 +1008,7 @@
 188
 189
 190
-</pre><td class="rouge-code"><pre><span class="s1">'Command: packer build win10.json'</span>
+</pre></td><td class="rouge-code"><pre><span class="s1">'Command: packer build win10.json'</span>
 <span class="kd">virtualbox</span><span class="na">-iso</span>: <span class="kd">output</span> <span class="kd">will</span> <span class="kd">be</span> <span class="k">in</span> <span class="kd">this</span> <span class="nb">color</span>.
 
 <span class="o">==&gt;</span> <span class="kd">virtualbox</span><span class="na">-iso</span>: <span class="kd">Retrieving</span> <span class="kd">ISO</span>
@@ -860,7 +1198,21 @@ Build '</span><span class="kd">virtualbox</span><span class="na">-iso</span><spa
 
 ==&gt; Builds finished. The artifacts of successful builds are:
 --&gt; virtualbox-iso: '</span><span class="kd">virtualbox</span><span class="s1">' provider box: ../../Vagrant/win10.box
-</span></pre></table></code></div></div><h3 id="setting-up-the-environment-using-vagrant">Setting up the environment using Vagrant</h3><ol><li>Brings up dc01 and pc01 VMs and prepares the base image for the clone by importing .box files</li><li>Clones VM, sets up name, network configuration and forwards required ports for communication like RDP, WinRM and SSH</li><li>Boots VM and waits to connect to a communicator</li><li>Tries to find Guest additions (because I’ve shared clipboard and VRAM set in vagrantfile) and if not, installs guest additions and Set the required VM configuration</li><li>Mounts the current directory to run provisioners which are <code class="language-plaintext highlighter-rouge">set-timezone.ps1</code>, then <code class="language-plaintext highlighter-rouge">install-active-directory.ps1</code>(which installs ADDS, then performs DCPromo) and <code class="language-plaintext highlighter-rouge">add-adam.ps1</code> for DC01</li></ol><p>Same steps for PC01, except the provisioner scripts here are different. <code class="language-plaintext highlighter-rouge">install-chrome.ps1</code> installs Google chrome, then <code class="language-plaintext highlighter-rouge">join-domain.ps1</code> joins PC01 to <code class="language-plaintext highlighter-rouge">auror.local</code> domain and <code class="language-plaintext highlighter-rouge">add-localadmin.ps1</code> makes Adam a localadmin for PC01.</p><div class="language-batch highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="setting-up-the-environment-using-vagrant">Setting up the environment using Vagrant</h3>
+<ol>
+  <li>Brings up dc01 and pc01 VMs and prepares the base image for the clone by importing .box files</li>
+  <li>Clones VM, sets up name, network configuration and forwards required ports for communication like RDP, WinRM and SSH</li>
+  <li>Boots VM and waits to connect to a communicator</li>
+  <li>Tries to find Guest additions (because I’ve shared clipboard and VRAM set in vagrantfile) and if not, installs guest additions and Set the required VM configuration</li>
+  <li>Mounts the current directory to run provisioners which are <code class="language-plaintext highlighter-rouge">set-timezone.ps1</code>, then <code class="language-plaintext highlighter-rouge">install-active-directory.ps1</code>(which installs ADDS, then performs DCPromo) and <code class="language-plaintext highlighter-rouge">add-adam.ps1</code> for DC01</li>
+</ol>
+
+<p>Same steps for PC01, except the provisioner scripts here are different. 
+<code class="language-plaintext highlighter-rouge">install-chrome.ps1</code> installs Google chrome, then <code class="language-plaintext highlighter-rouge">join-domain.ps1</code> joins PC01 to <code class="language-plaintext highlighter-rouge">auror.local</code> domain and <code class="language-plaintext highlighter-rouge">add-localadmin.ps1</code> makes Adam a localadmin for PC01.</p>
+
+<div class="language-batch highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -1108,7 +1460,7 @@ Build '</span><span class="kd">virtualbox</span><span class="na">-iso</span><spa
 246
 247
 248
-</pre><td class="rouge-code"><pre><span class="kd">D</span>:\Shared\Auror<span class="na">-Project</span><span class="o">&gt;</span><span class="nb">cd</span> <span class="kd">vagrant</span> <span class="o">&amp;&amp;</span> <span class="kd">vagrant</span> <span class="kd">up</span>
+</pre></td><td class="rouge-code"><pre><span class="kd">D</span>:\Shared\Auror<span class="na">-Project</span><span class="o">&gt;</span><span class="nb">cd</span> <span class="kd">vagrant</span> <span class="o">&amp;&amp;</span> <span class="kd">vagrant</span> <span class="kd">up</span>
 <span class="kd">Bringing</span> <span class="kd">machine</span> <span class="s1">'dc01'</span> <span class="kd">up</span> <span class="kd">with</span> <span class="s1">'virtualbox'</span> <span class="kd">provider</span>...
 <span class="kd">Bringing</span> <span class="kd">machine</span> <span class="s1">'pc01'</span> <span class="kd">up</span> <span class="kd">with</span> <span class="s1">'virtualbox'</span> <span class="kd">provider</span>...
 <span class="o">==&gt;</span> <span class="kd">dc01</span>: <span class="kd">Preparing</span> <span class="kd">master</span> <span class="kd">VM</span> <span class="k">for</span> <span class="kd">linked</span> <span class="kd">clones</span>...
@@ -1356,4 +1708,5 @@ Build '</span><span class="kd">virtualbox</span><span class="na">-iso</span><spa
     <span class="kd">pc01</span>: <span class="kd">Running</span>: ./files/add<span class="na">-localadmin</span>.ps1 <span class="kd">as</span> <span class="kd">C</span>:\tmp\vagrant<span class="na">-shell</span>.ps1
 <span class="o">==&gt;</span> <span class="kd">pc01</span>: <span class="kd">Running</span> <span class="kd">provisioner</span>: <span class="kd">shell</span>...
 <span class="o">==&gt;</span> <span class="kd">pc01</span>: <span class="kd">Waiting</span> <span class="k">for</span> <span class="kd">machine</span> <span class="kd">to</span> <span class="kd">reboot</span>...
-</pre></table></code></div></div></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/hackthebox/'>HackTheBox</a>, <a href='/categories/linux-machines/'>Linux Machines</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/linux/" class="post-tag no-text-decoration" >linux</a> <a href="/tags/wordpress/" class="post-tag no-text-decoration" >wordpress</a> <a href="/tags/ctf/" class="post-tag no-text-decoration" >ctf</a> <a href="/tags/john/" class="post-tag no-text-decoration" >john</a> <a href="/tags/passwd/" class="post-tag no-text-decoration" >passwd</a> <a href="/tags/lxd/" class="post-tag no-text-decoration" >lxd</a> <a href="/tags/hackthebox/" class="post-tag no-text-decoration" >hackthebox</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><!-- Post sharing snippet v2.1 https://github.com/cotes2020/jekyll-theme-chirpy © 2019 Cotes Chung Published under the MIT License --><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Automation on the Fly - TheCaretaker&url=https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Automation on the Fly - TheCaretaker&u=https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Automation on the Fly - TheCaretaker&url=https://0xcaretaker.github.io/posts/Automation-on-the-Fly/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><!-- The Pannel on right side (Desktop views) v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"><h3 data-toc-skip>Recent Update</h3><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/Vault/">Vault</a></li><li><a href="/posts/Knife/">Knife</a></li><li><a href="/posts/Ypuffy/">Ypuffy</a></li><li><a href="/posts/Giddy/">Giddy</a></li><li><a href="/posts/Love/">Love</a></li></ul></div><div id="access-tags"><h3 data-toc-skip>Trending Tags</h3><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/windows/">windows</a> <a class="post-tag" href="/tags/buffer-overflow/">buffer overflow</a> <a class="post-tag" href="/tags/john/">john</a> <a class="post-tag" href="/tags/ctf/">ctf</a> <a class="post-tag" href="/tags/wordpress/">wordpress</a> <a class="post-tag" href="/tags/sql-injection/">sql injection</a> <a class="post-tag" href="/tags/return-to-libc/">return to libc</a> <a class="post-tag" href="/tags/powershell/">powershell</a> <a class="post-tag" href="/tags/mysql/">mysql</a> <a class="post-tag" href="/tags/pivoting/">pivoting</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"><h3 data-toc-skip class="pl-3 pt-2 mb-2">Contents</h3><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"> <!-- Recommend the other 3 posts according to the tags and categories of the current post, if the number is not enough, use the other latest posts to supplement. v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2019 Cotes Chung Published under the MIT License --><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/Apocalyst/"><div class="card-body"> <!-- Date format snippet v2.4.1 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT License --> <span class="timeago small" > Jul 23, 2021 <i class="unloaded">2021-07-23T17:10:00+05:30</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Apocalyst</h3><div class="text-muted small"><p> Enumeration Masscan + Nmap 1 2 3 $ masscan -p1-65535,U:1-65535 `IP` --rate=10000 -e tun0 | tee masscan.out Discovered open port 80/tcp on 10.10.10.46 Discovered...</p></div></div></a></div><div class="card"> <a href="/posts/Olympus/"><div class="card-body"> <!-- Date format snippet v2.4.1 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT License --> <span class="timeago small" > Aug 6, 2021 <i class="unloaded">2021-08-06T13:30:00+05:30</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Olympus</h3><div class="text-muted small"><p> Olympus is CTF-like box. Starting with exploting X-Debug plugin in Apache with just HTTP Headers which gives you a container shell. You pivot to other containers while exploring techniques like 802...</p></div></div></a></div><div class="card"> <a href="/posts/Node/"><div class="card-body"> <!-- Date format snippet v2.4.1 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT License --> <span class="timeago small" > Jul 24, 2021 <i class="unloaded">2021-07-24T21:19:00+05:30</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Node</h3><div class="text-muted small"><p> Masscan + Nmap 1 2 3 $ masscan -p1-65535,U:1-65535 `IP` --rate=10000 -e tun0 | tee masscan.out Discovered open port 22/tcp on 10.10.10.58 Discovered open port 3...</p></div></div></a></div></div></div><!-- Navigation buttons at the bottom of the post. v2.1 https://github.com/cotes2020/jekyll-theme-chirpy © 2020 Cotes Chung MIT License --><div class="post-navigation d-flex justify-content-between"> <a href="/posts/Vault/" class="btn btn-outline-primary"><p>Vault</p></a> <span class="btn btn-outline-primary disabled"><p>-</p></span></div></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script> <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="thecaretaker" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script> <!-- The Footer v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> <br> <br> © 2022 <a href="https://twitter.com/0xCaretaker">Deepak Dhasmana</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span> <br> <script src="https://www.hackthebox.eu/badge/371479"></script></p></div><div class="footer-right"><p class="mb-0"><h4>:(){ :|: &amp; }; :</h4></p></div></div></footer></div><!-- The Search results v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/tags/windows/">windows</a> <a class="post-tag" href="/tags/buffer-overflow/">buffer overflow</a> <a class="post-tag" href="/tags/john/">john</a> <a class="post-tag" href="/tags/ctf/">ctf</a> <a class="post-tag" href="/tags/wordpress/">wordpress</a> <a class="post-tag" href="/tags/sql-injection/">sql injection</a> <a class="post-tag" href="/tags/return-to-libc/">return to libc</a> <a class="post-tag" href="/tags/powershell/">powershell</a> <a class="post-tag" href="/tags/mysql/">mysql</a> <a class="post-tag" href="/tags/pivoting/">pivoting</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <!-- Jekyll Simple Search loader v2.0 https://github.com/cotes2020/jekyll-theme-chirpy © 2017-2019 Cotes Chung MIT License --> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://0xcaretaker.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

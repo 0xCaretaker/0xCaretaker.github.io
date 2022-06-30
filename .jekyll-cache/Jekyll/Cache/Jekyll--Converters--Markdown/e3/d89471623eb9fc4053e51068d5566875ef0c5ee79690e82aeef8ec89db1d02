@@ -1,0 +1,34 @@
+I"…<h1 id="enumeration">Enumeration</h1>
+<h2 id="masscan--nmap">Masscan + Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">--rate</span><span class="o">=</span>10000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Discovered open port 3128/tcp on 10.10.10.67
+Discovered open port 80/tcp on 10.10.10.67
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="nv">ports</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>masscan.out |awk <span class="s1">'{ print $4 }'</span> | <span class="nb">sed</span> <span class="s1">'s/\/tcp//;s/\/udp//'</span> | <span class="nb">tr</span> <span class="s1">'\n'</span> <span class="s1">','</span> | <span class="nb">sed</span> <span class="s1">'s/,$//'</span><span class="si">)</span>
+nmap <span class="nt">-v</span> <span class="nt">-sVC</span> <span class="nt">--min-rate</span> 1000 <span class="nt">-p</span> <span class="nv">$ports</span> <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-oN</span> nmap-fullscan.out
+PORT     STATE SERVICE    VERSION
+80/tcp   open  http       Apache httpd 2.4.18 <span class="o">((</span>Ubuntu<span class="o">))</span>
+| http-methods:
+|_  Supported Methods: GET HEAD POST
+|_http-server-header: Apache/2.4.18 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title: Inception
+3128/tcp open  http-proxy Squid http proxy 3.5.12
+|_http-server-header: squid/3.5.12
+|_http-title: ERROR: The requested URL could not be retrieved
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

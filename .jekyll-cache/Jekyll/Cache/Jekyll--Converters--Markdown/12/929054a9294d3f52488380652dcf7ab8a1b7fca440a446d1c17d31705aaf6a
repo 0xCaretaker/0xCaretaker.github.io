@@ -1,0 +1,2 @@
+I"Ö<p><strong>Olympus</strong> is CTF-like box. Starting with exploting <strong>X-Debug</strong> plugin in Apache with just HTTP Headers which gives you a container shell. You pivot to other containers while exploring techniques like <strong>802.11 Wi-Fi cracking</strong>, <strong>DNS Zone Transfer</strong>, <strong>Port Knocking</strong> which lands you to the actual host. Then youâ€™ve to gain root with <strong>Docker</strong> privileges being given to the user.</p>
+:ET

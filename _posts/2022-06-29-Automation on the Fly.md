@@ -87,6 +87,7 @@ As you can see there are 3 common external scripts I have used with packer in [m
 
 - winrmConfig.bat
   Communicators are used by Packer to upload files, execute scripts, etc. with the machine being created. `winrmConfig.bat` is a pre-run script that configures and enables WinRM on the guest machine. 
+  
   All the configuration and code for the script has been given in Packer docs:[www.packer.io/docs/communicators/winrm](https://www.packer.io/docs/communicators/winrm)
 
 - fixnetwork.ps1
@@ -127,6 +128,7 @@ Vagrant/
 - `Vagrantfile` provides hostname for the machines, their network configuration and uses the WinRM credentials(configured in Packer) to communicate with the guest and run scripts. It even handles VirtualBox configuration for the name, memory(including video memory), guest additions like shared clipboard etc.
 
 > Note: Be careful on the network adapter configuration, I've kept 10.1.1.0/24 as subnet, which shouldn't collide with the other having 10.0.2.0/24
+
 > (I was trying to keep the original network given to us: 10.0.0.0/24, where DC01 had the IP 10.0.0.9. But, If I mention the gateway as 10.0.0.0, it would collide with the first adapter, by giving the second adapter the subnet of 10.0.0.0/8)
 
 Scripts used:
@@ -457,6 +459,7 @@ I've given the installation steps in my [git repo](https://github.com/0xCaretake
 	```
    
    Output:
+   
    Build will take sometime and should look like this:
    ![Pasted image 20220625172205.png](/assets/img/Posts/auror-task1-automation-on-the-fly/auror-task1-16.png)
    My build finished in **~20 mins**.

@@ -1,0 +1,4 @@
+I"l<p><strong>Ypuffy</strong> is medium difficulty machine which highlights the danger of allowing <strong>LDAP null sessions</strong>. 
+It also features an interesting <strong>SSH CA authentication</strong> privilege escalation, via the <strong>OpenBSD doas</strong> command. 
+An additional privilege escalation involving <strong>Xorg</strong> is also possible.</p>
+:ET

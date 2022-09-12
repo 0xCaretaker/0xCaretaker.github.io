@@ -1,0 +1,5 @@
+I"O<p><strong>Love</strong> is an easy box, Awesome for beginners. Starts with a <strong>SSRF</strong> to access a <strong>forbidden page</strong> meant to be accessed <strong>locally</strong> which <strong>leaks credentials</strong> for a Voting system. That voting system allows anyone to upload images. By <strong>exploiting upload</strong> functionality, I achieve RCE. Finally, I get system by <strong>abusing AlwaysInstallElevated</strong>.</p>
+<h1 id="masscan--nmap">Masscan + Nmap</h1>
+<p>```bash
+$ masscan -p1-65535,U:1-65535  10.10.10.239  –rate=10000 -e tun0 | tee masscan.out</p>
+:ET

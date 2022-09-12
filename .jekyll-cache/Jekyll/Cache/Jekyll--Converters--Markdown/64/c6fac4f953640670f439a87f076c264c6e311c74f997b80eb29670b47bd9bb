@@ -1,0 +1,4 @@
+I"<h1 id="masscan--nmap">Masscan + Nmap</h1>
+<p>```bash
+$ masscan -p1-65535,U:1-65535 10.10.10.233 â€“rate=10000 -e tun0 | tee masscan.out</p>
+:ET
